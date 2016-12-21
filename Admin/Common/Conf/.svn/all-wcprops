@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/canton/!svn/ver/44/Admin/Common/Conf
+END
+default_config.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/canton/!svn/ver/43/Admin/Common/Conf/default_config.php
+END
+routes.php
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/canton/!svn/ver/44/Admin/Common/Conf/routes.php
+END
+index.html
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/canton/!svn/ver/8/Admin/Common/Conf/index.html
+END
+config.php
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/canton/!svn/ver/44/Admin/Common/Conf/config.php
+END
+auth_conf.php
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/canton/!svn/ver/44/Admin/Common/Conf/auth_conf.php
+END

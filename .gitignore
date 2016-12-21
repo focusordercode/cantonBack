@@ -1,0 +1,12 @@
+Admin/Runtime/*
+Index/Runtime/*
+
+Install/*
+Javax/*
+.svm/*
+
+# Logs and databases # 
+###################### 
+*.log 
+*.sql 
+*.sqlite 

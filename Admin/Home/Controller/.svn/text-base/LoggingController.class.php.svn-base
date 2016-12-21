@@ -1,0 +1,269 @@
+<?php
+namespace Home\Controller;
+use Think\Controller\RestController;
+header('Access-Control-Allow-Origin:*');
+header('Access-Control-Allow-Methods:POST,GET');
+header('Access-Control-Allow-Credentials:true'); 
+header("Content-Type: application/json;charset=utf-8");
+/**
+* 获取日志控制器
+*/
+class LoggingController extends RestController
+{
+	public function _initialize()
+    {
+        // 没登录
+        $auth = new \Think\Product\PAuth();
+        $key = I('key');
+        $uid = I('user_id');
+        $uids = $auth->checkKey($uid, $key);
+        if(!$uids){
+            $this->response(['status' => 1012,'msg' => '您还没登陆或登陆信息已过期'],'json');
+        }
+        // 读取访问的地址
+        $url = CONTROLLER_NAME . '/' . ACTION_NAME;
+        if(!$auth->check($url , $uids)){
+            $this->response(['status' => 1011,'msg' => '抱歉，权限不足'],'json');
+        }
+    }
+	/*
+	 * 获取当前月份日志
+	 */
+	public function getNowLog(){
+		$d=date('Y',time());
+        $m=date('m',time());
+        $di=$d. '/'.$m.'/';//组合日志路径
+        $value=read_file($di);
+        if(empty($value)){
+        	$arr['status']=101;
+        	$arr['msg']="没有数据！";
+        }else{
+        	$arr['status']=100;
+        	$arr['value']=$value;
+        }
+        //\Think\Log::record('this is test','INFO',true);
+        $this->response($arr,'json');
+	}
+
+	/*
+	 * 获取某年某月某日的所有日志
+	 */
+	public function getFixLog(){
+		$year=I('post.year');
+		$month=I('post.month');
+		$day=I('post.day');
+		if(empty($year)){
+			$arr['status']=102;
+			$arr['msg']="请选择年份！";
+			$this->response($arr,'json');
+		}
+		if(empty($month)){
+			$arr['status']=102;
+			$arr['msg']="请选择月份！";
+			$this->response($arr,'json');
+		}
+		$di=$year.'/'.$month.'/';
+		$value=read_file($di);
+		if(empty($value)){
+        	$arr['status']=101;
+        	$arr['msg']="没有数据！";
+        }else{
+        	if(empty($day)){
+        		$arr['status']=100;
+        		$arr['value']=$value;
+			}else{
+				$i=0;
+				$char=substr($year,2).'_'.$month.'_'.$day;
+				foreach ($value as $key => $data) {
+					if(strpos($data['name'], $char)!==false){
+						$array[$i]['name']=$data['name'];
+						$array[$i]['url']=$data['url'];
+						$i++;
+					}
+				}
+				$arr['status']=100;
+       			$arr['value']=$array;
+			}     
+        }
+        $this->response($arr,'json');
+	}
+
+	/*
+	 * 删除日志
+	 */
+	public function delLog(){
+		$url=I('post.url');
+		$success=0;
+		$fail=0;
+		if(is_array($url)){
+			foreach ($url as $key => $u) {
+				if(unlink(C('LOG_PATH').$u)){
+  					$success++;
+				}else{
+					$fail++;
+				}
+			}
+		}else{
+			if(unlink(C('LOG_PATH').$url)){
+  				$success++;
+			}else{
+				$fail++;
+			}
+		}
+		
+		$arr['status']=100;
+		$arr['success']=$success;
+		$arr['fail']=$fail;
+		$this->response($arr,'json');
+	}
+
+	/*
+	 * 下载日志文件
+	 */
+	public function downloadLog(){
+		import('ORG.Util.FileToZip');//引入zip下载类文件FileToZip
+		$url=I('url');
+		if(is_array($url)){
+			foreach ($url as $key => $value) {
+				$arr[]=substr($value,0,7);
+				$download_file[]=substr($value,8);
+			}
+			$url=array_unique($arr);
+			$cur_file = C('LOG_PATH').$url[0];
+		}else{
+			$arr=substr($url,0,7);
+			$download_file[]=substr($url,8);
+			$cur_file = C('LOG_PATH').$arr;
+		}
+		// print_r($url);
+		// $this->response($download_file,'json');exit();
+		// 打包下载
+		//$save_path=C('LOG_PATH').'Copy/';
+		$save_path=C('SAVE_PATH');//"http://192.168.1.42/canton/Public/data";
+		if(is_dir($save_path)){
+			mkdir($save_path);
+		}
+		$scandir=new \Org\Util\traverseDir($cur_file,$save_path); //$save_path zip包文件目录
+		$a=$scandir->tozip($download_file);
+		$a=C('DOWNLOAD_URL').$a;
+		 $this->response($a,'json');exit();
+	}
+
+	/*
+	 * 开启或者关闭调试功能
+	 */
+	public function OpenDebug(){
+		$status=I('post.state');
+		$origin_str = file_get_contents(C('ENTRANCE'));
+		//检测调试模式的状态
+		$checktrue=strpos($origin_str,"define('APP_DEBUG',True)");
+		$checkfalse=strpos($origin_str,"define('APP_DEBUG',false)");
+		if(strtolower($status)=='open'){//开启调试模式
+			if($checktrue){
+				$arr['status']=100;
+				$this->response($arr,'json');
+			}elseif($checkfalse){
+				$update_str = str_replace("define('APP_DEBUG',false)","define('APP_DEBUG',True)",$origin_str);
+				file_put_contents(C('ENTRANCE'), $update_str);
+			}
+		}elseif(strtolower($status)=='close'){//关闭调试模式
+			if($checktrue){
+				$update_str = str_replace("define('APP_DEBUG',True)","define('APP_DEBUG',false)",$origin_str);
+				file_put_contents(C('ENTRANCE'), $update_str);
+			}else{
+				$arr['status']=100;
+				$this->response($arr,'json');
+			}
+		}
+		$arr['status']=100;
+		$this->response($arr,'json');	
+	}
+
+	/*
+	 * 检测当前项目的调试模式是否开启
+	 */
+	public function checkDebug(){
+		$origin_str = file_get_contents(C('ENTRANCE'));
+		$checktrue=strpos($origin_str,"define('APP_DEBUG',True)");
+		if($checktrue){
+			$arr['state']='open';
+		}else{
+			$arr['state']='close';
+		}
+		$arr['status']=100;
+		$this->response($arr,'json');
+	}
+
+	/*
+     * 用户行为跟踪展示
+     * @param searchText 搜索词
+     * */
+    public function userTrack()
+    {
+        // 是否需要展示角色分组
+        $uid       = (int)I('post.uid');
+        $startdate = I('post.startdate');
+        $enddate   = I('post.enddate');
+        $page      = isset($_POST['page']) ? (int)I('page') : 1;
+        $pagesize  = isset($_POST['pagesize']) ? (int)I('pagesize') : 25;
+
+        $where = "1 = 1";
+        if($uid && $uid != 0){
+            $where .= " AND uid = $uid";
+        }
+        if($startdate && $enddate){
+            $sd = date("Y-m-d H:i:s" ,strtotime($startdate));
+            $ed = date("Y-m-d H:i:s" ,strtotime($enddate));
+            if($sd > $ed){
+                $this->response(['status' => 101,'msg' => '开始日期不能大于结束日期'],'json');
+            }
+            $where .= " AND request_time BETWEEN '$sd' AND '$ed'";
+        }
+        $start = ( $page - 1 ) * $pagesize;
+        // 查询
+        $count = M("user_track t")
+            ->join(C("DB_PREFIX")."auth_user u ON u.id=t.uid",'LEFT')
+            ->where($where)->count();
+        $track = M("user_track t")
+            ->join(C("DB_PREFIX")."auth_user u ON u.id=t.uid",'LEFT')
+            ->where($where)
+            ->field("t.*,u.username,u.real_name")
+            ->limit($start,$pagesize)
+            ->order('t.id desc')
+            ->select();
+        if($track){
+            foreach($track as $key => $value){
+                $track[$key]['checked'] = (boolean)'';
+            }
+            $this->response([
+                'status'     => 100,
+                'value'      => $track,
+                'countTrack' => $count,
+                'pageNow'    => $page,
+                'countPage'  => ceil ( $count / $pagesize)
+            ],'json');
+        }else{
+            $this->response(['status' => 101,'msg' => '无相关信息'],'json');
+        }
+    }
+
+    /*
+     * 用户行为删除
+     * @param uid
+     * */
+    public function deleteTrack()
+    {
+        $m = M("user_track");
+        $uid = I('id');
+        $arr = array();
+        if(!is_array($uid)){    // 按照数组批量删除的方式删除数据
+            $arr[] = $uid;
+        }elseif(is_array($uid)){
+            $arr = $uid;
+        }
+        foreach($arr as $value){  // 循环删除
+            $m->where(array('id' => $value))->delete();
+        }
+        $this->response(['status' => 100],'json');
+    }
+}
