@@ -4,24 +4,33 @@ use Think\Controller;
 
 /**
 * 角色-权限控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class RolesController extends BaseController{
 
-	//获取角色列表
+	/*
+	 * 获取角色列表
+	 * @param vague 模糊搜索条件
+	 * @param id 角色id
+	 */
 	public function getRoles(){
 		$vague = I('post.vague');
 		$id = I('post.id');
+		//根据传回的数据组合搜索条件
 		if(!empty($vague)){
 			$where['_string'] = '(name like "%'.$vague.'%")';
 		}
 		if(!empty($id)){
 			$where['id'] = $id;
 		}
+
 		$role = M('auth_role');
 		$role_org = M('auth_role_org');
 		$org = M('auth_org');
 		$role->startTrans();
 		$sql = $role->where($where)->select();
+		//根据查出的角色将其对应的组织机构查出来
 		foreach ($sql as $key => $value) {
 			$query = $role_org->field("org_id")->where("role_id=%d",array($value['id']))->select();
 			foreach ($query as $keys => $values) {
@@ -55,7 +64,14 @@ class RolesController extends BaseController{
 		$this->response($data,'json');
 	}
 
-	//修改角色信息
+	/*
+	 * 修改角色信息
+	 * @param name 角色名称
+	 * @param remark 角色说明
+	 * @param enabled 角色状态
+	 * @param org_ids 组织机构id
+	 * @param role_id 角色id
+	 */
 	public function updateRoles(){
 		$name = I('post.name');
 		$remark = I('post.remark');
@@ -110,7 +126,14 @@ class RolesController extends BaseController{
 		$this->response($arr,'json');
 	}
 
-	//添加角色
+	/*
+	 * 添加角色
+	 * @param name 角色名称
+	 * @param remark 角色说明
+	 * @param enabled 角色状态
+	 * @param org_ids 组织机构id
+	 * @param creator_id 创建者id
+	 */
 	public function addRoles(){
 		$name = I('post.name');
 		$remark = I('post.remark');
@@ -169,7 +192,10 @@ class RolesController extends BaseController{
 		$this->response($arr,'json');
 	}
 
-	//删除角色
+	/*
+	 * 删除角色
+	 * @param role_id 角色id
+	 */
 	public function delRoles(){
 		$id = I('post.role_id');
 		if(empty($id)){
@@ -198,7 +224,10 @@ class RolesController extends BaseController{
 		$this->response($arr,'json');
 	}
 
-	//读取角色的权限
+	/*
+	 * 读取角色的权限
+	 * @param role_id 角色id
+	 */
 	public function getRule2Role(){
 		$role_id = I('post.role_id');
 		if(empty($role_id)){
@@ -228,7 +257,11 @@ class RolesController extends BaseController{
 		$this->response($array,'json');
 	}
 
-	//给角色分配权限
+	/*
+	 * 给角色分配权限
+	 * @param role_id 角色id
+	 * @param rule_ids 权限id数组
+	 */
 	public function allotRule2Role(){
 		$role_id = I('post.role_id');
 		$rule_ids = I('post.rule_ids');

@@ -4,10 +4,23 @@ use Think\Controller;
 
 /**
 *  异步处理
+*  @author lrf
+*  @modify 2016/12/22
 */
 class AsynController extends Controller
 {
-	//创建分区
+	/*
+	 * 创建分区
+	 * @param id 数据表id
+	 * @param tbl_name  数据表名称
+	 * @param type 分区类型
+	 * @param type_key 做分区的键值
+	 * @param num 分区数量
+	 * @param interval 分区区间
+	 * @param subnum  子分区数量
+	 * @param subkey 子分区的键值
+	 * @param types 子分区的类型
+ 	 */
 	public function CreatePartition(){
 		ignore_user_abort(true); // 忽略客户端断开  
     	set_time_limit(0);       // 设置执行不超时
@@ -121,7 +134,12 @@ class AsynController extends Controller
 		}
 	}
 
-	//分区扩容
+	/*
+	 * 分区扩容
+	 * @param id 数据表id
+	 * @param num 分区数量
+	 * @param subnum  子分区数量
+	 */
 	public function DilatationPartition(){
 		ignore_user_abort(true); // 忽略客户端断开  
     	set_time_limit(0);       // 设置执行不超时
@@ -177,7 +195,11 @@ class AsynController extends Controller
 		S($query['tbl_name'].'_d',"SUCCESS");
 	}
 
-	//修改分区
+	/*
+	 * 修改分区
+	 * @param id 数据表id
+	 * @param types 分区的类型
+	 */
 	public function UpdatePartition(){
 		ignore_user_abort(true); // 忽略客户端断开  
     	set_time_limit(0);       // 设置执行不超时
@@ -226,6 +248,7 @@ class AsynController extends Controller
 		}
         $nums=1;
 		switch ($types) {
+			//分区语句
 			case 'RANGE':
 				$sql="ALTER TABLE ".$arr['tbl_name']." PARTITION BY RANGE(`".$arr['type_key']."`)(";
 				for ($i=0; $i < $arr['num']-1 ; $i++) {
