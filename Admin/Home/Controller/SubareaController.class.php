@@ -85,7 +85,7 @@ class SubareaController extends BaseController
 	public function setSubarea(){
 		$tbl_name=I('post.tbl_name');
 		$type=I('post.type');
-		$key=I('post.key');
+		$key=I('post.ckey');
 		$num=I('post.num');
 		$interval=I('post.interval');
 		$subtype=I('post.subtype');
@@ -292,7 +292,7 @@ class SubareaController extends BaseController
 		$tbl=$table->where("id=%d",array($id))->find();
 		$tbl_name=$tbl['tbl_name'];
 		$type=I('post.type');
-		$key=I('post.key');
+		$key=I('post.ckey');
 		$num=I('post.num');
 		$interval=I('post.interval');
 		$subtype=I('post.subtype');
