@@ -3,10 +3,19 @@ namespace Home\Controller;
 use Think\Controller;
 /**
 * 词库项目控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class CenterItemController extends BaseController
 {
-	//添加项目
+	/*
+	 * 添加词库项目
+	 * @param state 添加模式
+	 * @param creator_id 创建者id
+	 * @param name 词库项目名称
+	 * @param enabled 词库项目状态
+	 * @param remark 词库项目说明 
+	 */
 	public function addCenterItem(){
 		$state = I('post.state');
 		$creator_id = I('post.creator_id');
@@ -65,7 +74,7 @@ class CenterItemController extends BaseController
 							exit();
 						}else{
 							foreach ($array as $key => $value) {
-								list($name,$enabled,$remark)=$value;
+								list($name,$enabled,$remark)=$value;//将读取的数组以$name,$enabled,$remark拆开
 								$data[$key]['name'] = $name;
 								$data[$key]['enabled'] = !empty($enabled)?$enabled:1;
 								$data[$key]['remark'] = $remark;
@@ -101,7 +110,13 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//修改词库项目
+	/*
+	 * 修改词库项目
+	 * @param id 词库id
+	 * @param name 词库项目名称
+	 * @param enabled 词库项目状态
+	 * @param remark 词库项目说明
+	 */
 	public function updaCenterItem(){
 		$id = I('post.id');
 		$name = I('post.name');
@@ -136,7 +151,13 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取词库项目列表
+	/*
+	 * 获取词库项目列表
+	 * @param enabled 词库项目状态
+	 * @param vague 搜索条件
+	 * @param pages 页数
+	 * @param num 每页展示数量
+	 */
 	public function getAllCenterItem(){
 		$enabled = I('post.enabled');
 		$vague = I('post.vague');
@@ -165,7 +186,10 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json'); 
 	}
 
-	//获取词库项目信息
+	/*
+	 * 获取词库项目信息
+	 * @param id 词库id
+	 */
 	public function getCenterItemInfo(){
 		$id = I('post.id');
 		if(empty($id)){
@@ -185,7 +209,10 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//删除词库项目
+	/*
+	 * 删除词库项目
+	 * @param id 词库id
+	 */
 	public function delCenterItem(){
 		$id = I('post.id');
 		if(empty($id)){
@@ -204,7 +231,13 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//添加词库内容
+	/*
+	 * 添加词库内容
+	 * @param id 词库id
+	 * @param state 添加模式
+	 * @param creator_id 创建者id
+	 * @param text 词库内容
+	 */
 	public function addCenterItemValue(){
 		$id = I('post.id');
 		$state = I('post.state');
@@ -293,7 +326,11 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//修改词库内容
+	/*
+	 * 修改词库内容
+	 * @param id 词库id
+	 * @param text 词库内容
+	 */
 	public function updaCenterItemValue(){
 		$id = I('post.id');
 		$value = I('post.text');
@@ -324,7 +361,11 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取词库全部信息
+	
+	/*
+	 * 获取词库全部信息
+	 * @param id 词库id
+	 */
 	public function getCenterItemValue(){
 		$id = I('post.id');
 		if(empty($id)){
@@ -344,7 +385,10 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//删除词库内容
+	/*
+	 * 删除词库内容
+	 * @param id  数据id
+	 */
 	public function delCenterItemValue(){
 		$id = I('post.id');
 		if(is_array($id)){
@@ -369,7 +413,12 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//添加词库与产品的关系
+	/*
+	 * 添加词库与产品的关系
+	 * @param item_id 词库id
+	 * @param good_id 产品中心产品id
+	 * @param creator_id 创建者id
+	 */
 	public function addCenter2Good(){
 		$item_id = I('post.item_id');
 		$good_id = I('post.good_id');
@@ -409,7 +458,10 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//删除词库与产品的关系
+	/*
+	 * 删除词库与产品的关系
+	 * @param  id  词库与产品的关系id
+	 */
 	public function delCenter2Good(){
 		$id = I('post.id');
 		if(is_array($id)){
@@ -434,7 +486,10 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取词库与产品的关系
+	/*
+	 * 获取词库与产品的关系
+	 * @param id 词库id
+	 */
 	public function getCenter2Good(){
 		$id = I('post.id');
 		if(empty($id)){
@@ -454,7 +509,11 @@ class CenterItemController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取产品所关联的词库内容
+	/*
+	 * 获取产品所关联的词库内容
+	 * @param good_id 产品id
+	 * @num 产品数量
+	 */
 	public function getGood2CenterValue(){
 		$good_ids = I('post.good_id');
 		$num = I('post.num');
@@ -466,16 +525,17 @@ class CenterItemController extends BaseController
 				exit();
 			}
 		}
+		//数组去重
 		$good_id = array_unique($good_ids);
 		$i = 0;
 		$a = 0;
 		$max = 0;
 		$kes = 0;
-
-		$result = [];
-		$results = [];
+ 		
+ 		//通过产品id将关联的词库内容提取出来
 		foreach ($good_id as $key => $value) {
 			$res = \Think\Product\CenterItem::GetGood2CenterValue($value);
+			//找出其中最长的数组长度
 			foreach ($res as $key => $va) {
 				$count = count($va);
 				if($count > $max){
@@ -503,6 +563,7 @@ class CenterItemController extends BaseController
 		$count = count($arrs);
 		$z = 0;
 		$va = array();
+		//根据产品数量取相应的数据
 		for ($j=0; $j < $num; $j++) { 
 			$va[$j] = $arrs[$z];
 			if($z == $count-1){
@@ -514,7 +575,7 @@ class CenterItemController extends BaseController
 		}
 		$tow= array_unique($tow);
 		$one = array('产品名称');
-		$array = array_merge($one,$tow);
+		$array = array_merge($one,$tow);//合并数组
 		$arr['status'] = 100;
 		$arr['header'] = $array;
 		$arr['value'] = $va;

@@ -4,9 +4,14 @@ use Think\Controller;
 
 /**
 * 业务编码控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class BusinessCodeController extends BaseController{
-	//生成业务编码接口
+	
+	/*
+	 * 生成业务编码接口
+	 */
 	public function setBusinessCode(){
 		$code = I('post.code');
 		$data_code = M('data_code');
@@ -27,7 +32,9 @@ class BusinessCodeController extends BaseController{
 		$this->response($arr,'json');
 	}
 	
-	//新添加模块生成相应模块编码接口
+	/*
+	 * 新添加模块生成相应模块编码接口
+	 */
 	public function setModelCode(){
 		$code = generate_code();
 		$arr['status'] = 100;

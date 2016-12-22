@@ -26,7 +26,6 @@ return [
         'get/tablecount'         => 'Subarea/getTableCount',  //获取每张表的数据统计
 
         // GetGlobalID
-        'get/formNumber'         => 'GetGlobalID/get_form_number',
         'get/sysId'              => 'GetGlobalID/getSysId',
 
         // Custom
@@ -67,7 +66,7 @@ return [
         'get/productcenter'      => 'ProductCenter/getProductCenterInfo',//获取产品中心产品信息接口
         'delete/productcenter'   => 'ProductCenter/delProductCenter',    //删除产品中心产品信息接口
         'upload/productcenter'   => 'ProductCenter/uploadProductCenter', //上传文件读取数据
-        'get/product2value'      => 'ProductCenter/getProduct2Value',    //上传文件读取数据
+        'get/product2value'      => 'ProductCenter/getProduct2Value',    //获取已经关联了词库的产品
 
         // ProductInfo
         'autofill/product'       => 'ProductInfo/product_AutoFill',     //自动填写资料表
