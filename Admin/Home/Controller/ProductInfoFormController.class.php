@@ -3,20 +3,25 @@ namespace Home\Controller;
 use Think\Controller;
 
 /**
-* 产品资料表格控制器
-*/
+ * 产品资料表格控制器
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class ProductInfoFormController extends BaseController
 {
 	/*
 	 * 获取同一个类目下的产品资料表格
+	 * @param category_id 类目id
+	 * @param status_code 状态码
+	 * @param type_code   info / batch
 	 */
 	public function getInfoForm()
 	{
 		$category_id = I('post.category_id');
 		$status_code = I('post.status_code');
 		$type_code   = I('post.type_code');
-        $pageSize    = isset($_POST['num']) ? (int)I('post.num') : 15;
-        $next        = isset($_POST['next']) ? (int)I('post.next') : 1;
+        $pageSize    = isset($_POST['num']) ? (int)I('post.num') : 15; // 页面大小
+        $next        = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
 		if(empty($type_code)){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
@@ -39,6 +44,9 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 获取同一个模板下的产品资料表格
+	 * @param template_id 模板id
+	 * @param status_code 状态码
+	 * @param type_code   info / batch
 	 */
 	public function getTemInfoForm()
 	{
@@ -64,6 +72,8 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 根据id获取产品资料表格
+	 * @param id 表格id
+	 * @param type_code   info / batch
 	 */
 	public function getOneForm()
 	{
@@ -95,6 +105,9 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 获取同一个类目下同一个模板的产品资料表格
+	 * @param category_id 类目id
+	 * @param template_id 模板id
+	 * @param type_code   info / batch
 	 */
 	public function getCTInfoForm()
 	{
@@ -134,6 +147,8 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 模糊搜索表格
+	 * @param title 搜索关键词
+	 * @param type_code   info / batch
 	 */
 	public function vagueTitle(){
 		$title     = I("post.title");
@@ -157,13 +172,15 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '暂无相关信息';
 			}			
 		}
-
 		$this->response($data,'json');
 	}
 
 
 	/*
 	 * 创建产品资料表格
+	 * @param category_id 类目id
+	 * @param template_id 模板id
+	 * @param type_code   info / batch
 	 */
 	public function addInfoForm(){
 		$array     = array();
@@ -216,7 +233,7 @@ class ProductInfoFormController extends BaseController
             $this->response($array,'json');
             exit();
         }
-
+        // 从编号里面取id
         $data['id'] = (int)substr($data['form_no'],8);
         if ($type_code=='batch') {
             $data['site_name']      = I('post.site_name');
@@ -262,6 +279,11 @@ class ProductInfoFormController extends BaseController
 
     /*
      * 获取关联资料表的数据
+	 * @param form_id 批量表id
+	 * @param product_form_id 资料表id
+	 * @param product_count   产品总数
+	 * @param vnum         变体数量
+	 * @param creator_id   创建者
      */
     public function get_product_msg($form_id,$product_form_id,$product_count = '', $vnum,$creator_id){
         set_time_limit(0);
@@ -310,19 +332,21 @@ class ProductInfoFormController extends BaseController
 		if(empty($product_count)){
             $all_product = $all_product - count($zhuti);
         }
+        // 产品id数
         $bproduct_id = GetSysId('product_batch_information',$parentnum);
         $bie  = \Think\Product\Product_Item_Template::get('batch',$batch_tel_id['template_id']);
         $bienum = count($bie['value']);
+        // 计算需要的产品资料id数
         $nums = $parentnum * $bienum;
         $brecord_id = GetSysId('product_batch_information_record',$nums);
         $z = 0;
-        // $bianti = $all_product - $parentnum;
         $btproduct_id = GetSysId('product_batch_information',$all_product);
         $biantinums   = $all_product * $bienum;
         $btrecord_id  = GetSysId('product_batch_information_record',$biantinums);
         $j = 0;
         $u = 0;
         $now = $bie['value'];
+        // 资料表赋值到批量表
         for ($i = 0; $i < $parentnum; $i ++) {
             foreach ($now as $keys => $values) {
                 $data['id']          = $brecord_id[$z];
@@ -411,6 +435,7 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 修改表格名称
+	 * @param type_code   info / batch
 	 */
 	public function updaInfoForm(){
 
@@ -421,7 +446,7 @@ class ProductInfoFormController extends BaseController
 			$this->response($data,'json');
 			exit();
 		}
-
+        // 拉参数
 		$id                    = I('post.id');
 		$data['category_id']   = I('post.category_id');
 		$data['template_id']   = I('post.template_id');
@@ -478,6 +503,8 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 删除表格
+	 * @param id 表id
+	 * @param creator_id   创建者
 	 */
 	public function delInfoForm(){
 		$id        = I("post.id");
@@ -511,6 +538,8 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 停用表格
+	 * @param id 表id
+	 * @param creator_id   创建者
 	 */
 	public function stopInfoForm(){
 		$id        = I('post.id');
@@ -541,6 +570,8 @@ class ProductInfoFormController extends BaseController
 
 	/*
 	 * 启用表格
+	 * @param id 表id
+	 * @param creator_id   创建者
 	 */
 	public function useInfoForm(){
 		$id        = I('post.id');
@@ -572,7 +603,9 @@ class ProductInfoFormController extends BaseController
 
     /*
      * 搜索资料表批量表
-     *
+	 * @param status_code 状态码
+	 * @param type_code   info / batch
+     * @param keyword     搜索关键词
      * */
     public function search_form(){
         $type_code    = I('type_code');
@@ -615,7 +648,5 @@ class ProductInfoFormController extends BaseController
         }
         $this->response($data , 'json');
     }
-
-
 
 }

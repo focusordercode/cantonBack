@@ -1,8 +1,10 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-/*
+/**
  * 用户中心
+ * @author cxl,lrf
+ * @modify 2016/12/21
  */
 class UserController extends BaseController
 {
@@ -11,6 +13,9 @@ class UserController extends BaseController
 
     /*
      * 用户访问 / 用户列表
+     * @param roleid  角色id
+     * @param enabled 启用
+     * @param search  搜索词
      * */
     public function getUserList()
     {
@@ -45,6 +50,7 @@ class UserController extends BaseController
     public function doregister()
     {
         if (IS_POST) {
+            // 加载用户信息项
             $username  = trim(I('username'));
             $password  = trim(I('password'));
             $mobile    = trim(I('mobile'));
@@ -55,7 +61,7 @@ class UserController extends BaseController
             $remark    = trim(I('remark'));
             $roleid    = (array)I('roleid');
             $salt = substr(strtoupper(md5(time())), 0, 6);
-            $pwd  = EncodePwd($password, $salt);
+            $pwd  = EncodePwd($password, $salt);   // 配置密码
 
             $creator_id = I('post.creator_id');
             if(empty($creator_id)){
@@ -63,7 +69,7 @@ class UserController extends BaseController
                 $this->response($arr,'json');
                 exit();
             }
-
+            // 正则以及去空校验
             if(empty($username) || empty($password) || empty($real_name)){
                 $this->response(['status' => 102, 'msg' => '数据不完善'],'json');
             }
@@ -83,6 +89,7 @@ class UserController extends BaseController
                     $this->response(['status' => 102, 'msg' => '邮箱格式不正确'],'json');
                 }
             }
+            // 查询是否已经存在
             $has = M('auth_user')->where(['username'=>$username])->find();
             if($has){
                 $this->response(['status' => 102, 'msg' => '用户名已存在'],'json');
@@ -134,7 +141,6 @@ class UserController extends BaseController
             $is_staff  = (int)I('is_staff');
             $is_head   = (int)I('is_head');
             $remark    = I('remark');
-//            $sex       = (int)I('sex');
             $enabled   = (int)I('enabled');
 
             $user = M('auth_user')->where('id = %d',[$uid])->find();
@@ -186,6 +192,7 @@ class UserController extends BaseController
 
     /*
      * 用户删除
+     * @param uid int或arr类型 可批量删除用户数据
      * */
     public function dodelete(){
         if(IS_POST){

@@ -1,5 +1,0 @@
-<?php
-return array(
-
-    'GALLERY_CONUT'          =>  5,
-); 

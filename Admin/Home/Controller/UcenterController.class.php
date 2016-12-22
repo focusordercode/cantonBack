@@ -5,8 +5,10 @@ header('Access-Control-Allow-Origin:*');
 header('Access-Control-Allow-Methods:POST,GET');
 header('Access-Control-Allow-Credentials:true'); 
 header("Content-Type: application/json;charset=utf-8");
-/*
+/**
  * 个人用户操作中心
+ * @author cxl,lrf
+ * @modify 2016/12/21
  */
 class UcenterController extends RestController
 {
@@ -18,12 +20,12 @@ class UcenterController extends RestController
      * */
     public function userEdit(){
         if (IS_POST) {
-            $uid       = (int)I('uid');
-            $password  = I('password');
-            $mobile    = I('mobile');
-            $email     = I('email');
-            $real_name = I('real_name');
-            $remark    = I('remark');
+            $uid       = (int)I('uid');  // 用户id
+            $password  = I('password');  // 密码
+            $mobile    = I('mobile');    // 手机号
+            $email     = I('email');     // 邮箱
+            $real_name = I('real_name'); // 真是姓名
+            $remark    = I('remark');    // 用户备注
 
             $user = M('auth_user')->where('id = %d',[$uid])->find();
             if(!$user) $this->response(['status' => 102, 'msg' => '用户不存在'],'json');
@@ -31,8 +33,10 @@ class UcenterController extends RestController
                 if(strlen($password) < 6){
                     $this->response(['status' => 102, 'msg' => '密码长度不符合'],'json');
                 }
+                // 加载新密码
                 $pwd = EncodePwd($password, $user['pwdsuffix']);
             }else{
+                // 赋值原密码
                 $pwd = $user['password'];
             }
             if(empty($real_name)){
@@ -76,7 +80,7 @@ class UcenterController extends RestController
     ///////////////////////////////////////////////////////
     /*
       * 导航读取
-      * @param nav_id
+      * @param user_id 用户加密id
       * */
     public function navManage(){
         $m = M('auth_nav');
