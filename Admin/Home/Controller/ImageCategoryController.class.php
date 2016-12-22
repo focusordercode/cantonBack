@@ -2,13 +2,20 @@
 namespace Home\Controller;
 use Think\Controller;
 /**
-* 类目管理控制器
-*/
+ * 图片类目管理控制器
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class ImageCategoryController extends BaseController
 {
-    
+
     /**
      * 添加子类目
+     * @param  id         上级类目id
+     * @param  cn_name    中文名
+     * @param  en_name    英文名
+     * @param  remark     注解
+     * @param  creator_id 创建者
      */
     public function addSub(){
         // 参数整合
@@ -53,6 +60,7 @@ class ImageCategoryController extends BaseController
                 $res = \Think\Product\ImageCategory::AddSub($id,$cn_name,$en_name,$remark,$category_ids,$creator_id);
                 if($res == 1){
                     $data['status'] = 100;
+                    // 更新缓存
                     updateGalleryCache();
                 }elseif($res == 2){
                     $data['status'] = 106;
@@ -74,6 +82,7 @@ class ImageCategoryController extends BaseController
 
     /**
      * 删除类目
+     * @param  id 类目id
      */
     public function Delete(){
         $id = I('post.id');
@@ -97,9 +106,12 @@ class ImageCategoryController extends BaseController
         }
         $this->response($data,'json');
     }
-    
+
     /**
      * 修改类目名称
+     * @param  id      类目id
+     * @param  cn_name 中文名
+     * @param  en_name 英文名
      */
     public function updaName(){
         $id = I('post.id');
@@ -153,6 +165,7 @@ class ImageCategoryController extends BaseController
 
     /**
      * 查询某类目的下一级类目
+     * @param  id 类目id
      */
     public function getChildren(){
         $data = array();
@@ -168,8 +181,11 @@ class ImageCategoryController extends BaseController
         $this->response($data,'json');
     }
 
-     /**
+    /**
      * 模块内移动类目
+     * @param  id      移动到的类目id
+     * @param  moveid  需移动的类目id
+     *
      */
     public function move(){
         $moveid = I('post.moveid');
@@ -187,6 +203,7 @@ class ImageCategoryController extends BaseController
 
     /*
      * 模糊搜索类目
+     * @param keyword 搜索关键词
      */
     public function selVague(){
         $text = I('post.keyword');
@@ -226,6 +243,7 @@ class ImageCategoryController extends BaseController
     }
 
     // 通过id拉取类目
+    // @param id
     public function get_gallery_by_id(){
         $id = I("id");
         if(empty($id)){
@@ -245,10 +263,11 @@ class ImageCategoryController extends BaseController
         $this->response($data,'json');
     }
 
-    //格式化分类树结构
+    // 格式化分类树结构
+    // @param category_id 所属产品类目id
     public function treeGallery()
     {
-        $id = isset($_POST['category_id']) ? I('category_id') : 0;
+        $id = isset($_POST['category_id']) ? (int)I('category_id') : 0;
         $gallery = S('gallery');
         // 有缓存
         if($gallery){
@@ -315,9 +334,8 @@ class ImageCategoryController extends BaseController
         $this->response($data,'json');
     }
 
-
     // 更新图片类目缓存
     public function updateGalleryCache(){
-       updateGalleryCache();
+        updateGalleryCache();
     }
 }

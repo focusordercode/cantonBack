@@ -25,7 +25,7 @@ class BusinessCodeController extends BaseController{
 			$businesscode = $databasecode.$sql['code'].$sql['number'];
 			$data['number'] = str_pad($sql['number']+1,8,"0",STR_PAD_LEFT);
 			$data['update_time'] =date('Y-m-d H:i:s',time());
-			$query = $data_code->where($where)->save($data);
+			$data_code->where($where)->save($data);
 			$arr['status'] = 100;
 			$arr['code'] = $businesscode; 
 		}

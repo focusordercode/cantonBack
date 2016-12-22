@@ -1,14 +1,23 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-
+/**
+ * 客户管理控制器
+ * @author cxl,lrf
+ * @modify 2016/12/22
+ */
 class CustomController extends BaseController
 {
     public $rule_mobile = "/^1[34578]{1}[0-9]{9}$/";
     public $rule_enname = "/^[A-z\s]+$/";
     public $rule_email  = "/^([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)$/i";
 
-    // 拉取客户信息
+    /**
+     * 读取客户列表信息
+     * @param enabled  状态是否可用
+     * @param pageSize 页面大小
+     * @param pageNow  当前页
+     */
     public function getCustom()
     {
         $m = M("customer");
@@ -40,7 +49,11 @@ class CustomController extends BaseController
         $this->response($data,'json');
     }
 
-    // 更新客户信息
+    /**
+     * 客户信息修改
+     * @param data   需要修改的数据包
+     * @param id     客户id
+     */
     public function update(){
         $m = M('customer');
         $da = $_POST['data'];
@@ -65,7 +78,10 @@ class CustomController extends BaseController
         $this->response($data,'json');
     }
 
-    // 删除客户信息
+    /**
+     * 客户信息删除
+     * @param id 客户id 有数据类型和int类型单条id的两种传值方式
+     */
     public function delete(){
         $m = M("customer");
         $m->startTrans();
@@ -99,7 +115,12 @@ class CustomController extends BaseController
         $this->response($data,'json');
     }
 
-    // 添加客户信息
+    /**
+     * 添加客户信息
+     * @param custom_name 客户名
+     * @param address     公司地址
+     * @param enabled     是否启用
+     */
     public function add(){
 
         $m = M('customer');
@@ -164,12 +185,13 @@ class CustomController extends BaseController
         $businesscode = $databasecode.$sql['code'].$sql['number'];
         $data['number'] = str_pad($sql['number']+1,8,"0",STR_PAD_LEFT);
         $data['update_time'] =date('Y-m-d H:i:s',time());
-        $query = $data_code->where($where)->save($data);
+        $data_code->where($where)->save($data);
         return $businesscode;
     }
 
     /*
      * 模糊搜索客户信息
+     * @param keyword 搜索关键词
      */
     public function selVague(){
         $text = I('post.keyword');
@@ -179,8 +201,12 @@ class CustomController extends BaseController
             $this->response($data,'json');
             exit();
         }
-        //  中英文名称
-        $arr = M()->query("select * from tbl_customer where en_name like '%".$text."%' or custom_name like '%".$text."%' ");
+        // 如果有分号替换掉
+        $text = str_replace("",";",$text);
+        // 中英文名称
+        $arr = M('customer')
+            ->where("en_name LIKE '%".$text."%' OR custom_name LIKE '%".$text."%'")
+            ->select();
 
         if($arr){
             $data['status'] = 100;

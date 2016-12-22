@@ -3,7 +3,7 @@ namespace Home\Controller;
 use Think\Controller\RestController;
 header('Access-Control-Allow-Origin:*');
 header('Access-Control-Allow-Methods:POST,GET');
-header('Access-Control-Allow-Credentials:true'); 
+header('Access-Control-Allow-Credentials:true');
 header("Content-Type: application/json;charset=utf-8");
 /**
  * 基类
@@ -15,6 +15,11 @@ class BaseController extends RestController
     protected $allowMethod    = array('get','post','put','delete');
     protected $defaultType    = 'json';
 
+    /*
+     * 初始化
+     * @param user_id 用户验证id
+     * @param key     验证加密密钥
+     * */
     public function _initialize()
     {
         // 没登录

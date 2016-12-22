@@ -1,12 +1,22 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-
+/**
+ * 图片管理控制器
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class PictureController extends BaseController
 {
     public $insert_id = array();
 
-    // 拉取图片
+    /**
+     * 图片展示/获取
+     * @param gallery_id 图片类目id
+     * @param title      图片标题
+     * @param tags       图片标签
+     * @param rubbish    回收站数据
+     */
     public function get_picture(){
         $gallery_id = strip_tags(trim(I('gallery_id')));
         $title      = strip_tags(trim(I('title')));
@@ -47,6 +57,11 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
+    /**
+     * 图片删除
+     * @param id      int和arr 两种类型id删除
+     * @param delete_type  是否彻底删除  值 0
+     */
     public function del_picture(){
 
         $id_arr   = $_POST['id'];
@@ -93,6 +108,11 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
+    /**
+     * 图片上传
+     * @param id      int和arr 两种类型id删除
+     * @param delete_type  是否彻底删除  值 0
+     */
     public function upload(){
 
         $path  = "./Pictures/";
@@ -133,10 +153,12 @@ class PictureController extends BaseController
             $data["error"] = "图片大小超过5MB！";
             $this->response($data,'json');
         }
+        // 查询文件夹
         $category = M('product_category')->field('en_name')->where("id=%d",array($m['category_id']))->find();
         if(!is_dir($path.str_replace(' ','_',trim($category['en_name'])))){
             mkdir($path.str_replace(' ','_',trim($category['en_name'])));
         }
+        // 查询到当前图片的文件夹存放
         $dir = $m['dir'];
         if(!is_dir($dir)){
             mkdir($dir);
@@ -170,8 +192,11 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
-
-    // 图片编辑
+    /**
+     * 图片编辑
+     * @param id   包含在data参数里
+     * @param data 图片编辑的数据包
+     */
     public function edit_pic(){
 
         $edit_data = I('data');
@@ -230,7 +255,6 @@ class PictureController extends BaseController
         // 初始化
         $pic_num     = (int)ceil( ( $pic_rate * $pic_nums ) / $pro_rate );   // 需要取的图片数量
         $do_date     = date("Y-m-d H:i:s",(time() - ( $mounth_1 * $re_date )));  // 可用图片的时间限制
-        $c_array     = array();                                        // 存放产品类目id的数组
         if(empty($category_id)){
             $data['status'] = 102;
             $data['msg']    = '产品类目选取失败';
@@ -250,12 +274,14 @@ class PictureController extends BaseController
         }
         $gaid = implode("," , $gallery_id);
 
+        // 开始添加选图条件
         $typeArr = array('jpg' , 'png' , 'gif' , 'jpeg');
         if(in_array($file_type , $typeArr)){
             $f = "AND file_type='$file_type'";
         }else{
             $f = "";
         }
+        // 图片标签筛选
         if(empty($tag)){
             $tags = "";
         }else{
@@ -268,6 +294,7 @@ class PictureController extends BaseController
             $tags = substr($tags,0,$strlen-3);
             $tags .= ")";
         }
+        // 从图片表的视图中快速筛选
         $result = M()->query("SELECT * FROM marrypic WHERE gallery_id IN($gaid) $f AND rubbish=0 AND u_time<='$do_date' $tags ORDER BY RAND() ASC limit $pic_num");
         if($result){
             $rand_id         = rand(100000,999999);
@@ -290,7 +317,10 @@ class PictureController extends BaseController
         $this->response($data, 'json');
     }
 
-    // 恢复图片
+    /*  图片恢复
+     *  @param gallery_id 相册id
+     *  @param id 可批量 可单条
+     */
     public function recover_pic(){
         $gallery_id  = $_POST['gallery_id'];
         $id_arr      = $_POST['id'];
@@ -317,7 +347,9 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
-
+    /*
+     *  回收站清空
+     */
     public function clear_rubbish()
     {
         $result = \Think\Product\Picture::clear_rubbish();
@@ -330,7 +362,9 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
-    // 编辑图片标签标题
+    /*  图片标签及标题编辑
+     *  @param num 数量
+     */
     public function update_pic_t(){
         $num = I('num');
         if(!empty($num) && preg_match("/^[0-9]+$/",$num)){
@@ -352,6 +386,7 @@ class PictureController extends BaseController
     }
 
     // 执行编辑操作
+    // @param data 编辑数据包
     public function do_update_pic_t(){
         $upadte_arr = I('data');
         $m = M('product_picture');
@@ -380,6 +415,8 @@ class PictureController extends BaseController
     }
 
     // 匹配完图片之后方便前台调用上传
+    // @param rand_id 选图时生成的随机id
+    // @param key 固定钥匙
     public function get_cache_pic(){
         $rand  = I('rand_id');
         $key   = I('key');
@@ -405,9 +442,10 @@ class PictureController extends BaseController
         $this->response($data,'json');
     }
 
-    /*
+    /**
      * 图片上传准备
-     * */
+     * @param form_id  表格id
+     */
     public function pic_upload_paration(){
 
         $form_id = I('post.form_id');
@@ -417,6 +455,7 @@ class PictureController extends BaseController
         $m = M('product_batch_information');
         $n = M('product_batch_form_information');
 
+        // 根据表格查出所有产品id
         $p_id = $n->where("form_id = %d" , array($form_id))->field('product_id')->select();
         if(!$p_id){
             $this->response(['status' => 102 , 'msg' => '表格没有数据'],'json');exit();
@@ -427,12 +466,14 @@ class PictureController extends BaseController
         }
         
         $result = [];
+        // 查图片
         foreach ($p as $key => $value) {
             $result[] = $m->where("product_id=%d AND data_type_code='pic' AND enabled=1",array($value))->field('id,parent_id,product_id,char_value AS image_url')->select();
         }
         if(!$result){
             $this->response(['status' => 102 , 'msg' => '表格没有数据'],'json');exit();
         }
+        // 梳理数据格式
         foreach($result as $k => $vals){
             foreach($vals as $keys => $val){
                 if(!empty($val['image_url']) || ($val['image_url'] != "" && $val['image_url'] != null)){
@@ -444,18 +485,17 @@ class PictureController extends BaseController
         if(empty($upload_arr)){
             $this->response(['status' => 102 , 'msg' => '没有匹配图片'],'json');exit();
         }
+        // 通过格式化返回数据
         $return_arr = pre_arr($upload_arr,$p);
         $this->response(['status' => 100 , 'value' => $return_arr] , 'json');
     }
 
-    //上传图片到图片空间接口
+    // 上传图片到图片空间接口
+    // @param form_id 表格id
+    // @param picCount 图片总数
     public function uploadPic(){
         set_time_limit(0);
-
         $url = 'http://120.25.228.115/ImagesUpload/index.php/Home/Picture/receivePic'; //图片API服务器
-        // $tmpName = "147763414410955.jpg"; //上传上来的文件名
-        // $tmpFile = './Pictures/Beauty/147763414410955.jpg'; //上传上来的临时存储路径
-        // $tmpType = 'jpg'; //上传上来的文件类型
 
         $form_id = I('post.form_id');
         $countPic = I('post.picCount');
@@ -492,8 +532,6 @@ class PictureController extends BaseController
                 $pic[] = $vs;
             }
         }
-
-
         foreach ($pic as $keys => $values) {
             foreach ($pic as $k => $vals) {
                 if($values['image_url'] == $vals['image_url']){
@@ -504,7 +542,6 @@ class PictureController extends BaseController
                     $s++;
                 }
             }
-            
             $arrs[$n]['num'] = $s;
             $s = 0;
             $n++;
@@ -564,6 +601,7 @@ class PictureController extends BaseController
     }
 
     //图片上传进度
+    // @param form_id 表格id
     public function getProgress(){
         $form_id = I('post.form_id');
         $data = S('PicProgress_'.$form_id);
@@ -573,7 +611,9 @@ class PictureController extends BaseController
         $this->response($datas,'json');
     }
 
-    //图片移动
+    // 图片移动
+    // @param gallery_id 图片类目id
+    // @param pic_ids    图片id
     public function movePicture(){
         $gallery_id = I('post.gallery_id');
         if(empty($gallery_id)){
@@ -594,7 +634,7 @@ class PictureController extends BaseController
         }else{
             $ids[] = $pic_ids;
         }
-        $result = \Think\Product\Picture::MovePicture($gallery_id,$pic_ids);
+        $result = \Think\Product\Picture::MovePicture($gallery_id,$ids);
         if($result['success'] != 0){
             updateGalleryCache();
             $arr['status'] = 100;
@@ -606,7 +646,9 @@ class PictureController extends BaseController
         $this->response($arr,'json');
     }
 
-    //批量添加标签
+    // 批量添加标签
+    // @param pic_ids 图片id
+    // @param tag     图片标签
     public function addTags(){
         $pic_ids = I('post.pic_ids');
         $tag = I('post.tag');
@@ -624,6 +666,7 @@ class PictureController extends BaseController
                     $this->response($array,'json');
                 }
             }else{
+                // 分割判断
                 $arr = explode("||",$sql['tags']);
                 if(!in_array($tag,$arr)){
                     $tags = $sql['tags'].'||'.$tag;

@@ -3,6 +3,8 @@ namespace Home\Controller;
 use Think\Controller;
 /**
  * 产品资料控制器
+ * @author cxl,lrf
+ * @modify 2016/12/21
  */
 class ProductInfoController extends BaseController{
     protected $dt   = "/^([1][7-9]{1}[0-9]{1}[0-9]{1}|[2][0-9]{1}[0-9]{1}[0-9]{1})(-)([0][1-9]{1}|[1][0-2]{1})(-)([0-2]{1}[1-9]{1}|[3]{1}[0-1]{1})*$/";
@@ -11,7 +13,10 @@ class ProductInfoController extends BaseController{
     protected $dt3  = "/^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])(\/)([0][1-9]|[1][0-2])(\/)([0-2][1-9]|[3][0-1])*$/";
 
 	/**
-     * 删除产品资料 
+     * 删除产品资料
+     * @param form_id   表格id
+     * @param product_id 产品id
+     * @param type_code info/batch
      */
 	public function delInfo(){
         $form_id   = I('post.form_id');
@@ -42,6 +47,9 @@ class ProductInfoController extends BaseController{
 
 	/**
      * 查询表单的详细信息和相关的变体
+     * @param form_id   表格id
+     * @param template_id 模板id
+     * @param type_code info/batch
      */
 	public function getOneFormInfo(){
         $form_id     = I('form_id');
@@ -74,39 +82,13 @@ class ProductInfoController extends BaseController{
             $data['value'] = array();    
          }
         $this->response($data,'json');
-	} 
-
-
-	/**
-     * 导出Excel
-     */
-	public function exportExcel(){
-        $form_id  = I('form_id');
-        $header   = array();
-
-        if(empty($form_id) || !preg_match("/^[0-9]+$/",$form_id)){
-            $data['status'] = 102;
-            $data['msg']    = '资料表必选';
-            $this->response($data,'json');
-            exit();
-        }
-        \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-        $formdata = M('product_form')->where(array('id'=>$form_id))->field('template_id')->find();
-        $form     = M('product_item_template')->where(array('template_id'=>$formdata['template_id']))->select();
-        foreach($form as $key => $value){   // 获取表头信息
-            $header[] = $value['title'];
-        }
-
-        $body  = \Think\Product\ProductInfo::GetOneFormInfo('info' , $form_id);  // 表体信息
-
-        $en['status_code'] = 'enabled';
-        M('product_form')->where(array('id'=>$form_id))->save($en);  // 改状态
-        \Think\Log::record("数据准备完成时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-        getExcel($header,$body);
 	}
 
     /**
      * 图片填充至产品资料
+     * @param form_id   表格id
+     * @param picCount  图片总数
+     * @param picArr    图片数据包 避免数据包过大分段获取
      */
     public function getFormInfo(){
         
@@ -121,6 +103,7 @@ class ProductInfoController extends BaseController{
         $num = ceil($picount / 100);
         $j  = 0;
         $picdata = array();
+        // 分段获取图片数据
         for($z = 0; $z < $num; $z ++) {
             $b = stripos($textdata, 'picArr[' . $j . ']');
             $j = $j + 100;
@@ -135,6 +118,7 @@ class ProductInfoController extends BaseController{
             $picArr = array();
         }
         $pic = array();
+        // 梳理获取到的图片数据放数组方便处理
         foreach($picdata as $val){  // 将接收到的多个数据包组合成一个
             foreach($val as $vs){
                 $pic[] = $vs;
@@ -143,6 +127,7 @@ class ProductInfoController extends BaseController{
 
         $m = M('product_batch_information');
         $m->startTrans();
+        // 修改已经上传完成的图片地址
         foreach($pic as $v){
             $d['char_value'] = $v['image_url'];
             $s = $m->where("id in(".$v['id'].")" )->save($d);
@@ -151,6 +136,7 @@ class ProductInfoController extends BaseController{
             }
         }
         $m->commit();
+        // 修改状态码进入下一步流程
         $status_code['status_code'] = 'uploading';
         M('product_batch_form')->where(array('id'=>$form_id))->save($status_code);
 
@@ -158,243 +144,15 @@ class ProductInfoController extends BaseController{
         
     }
 
-    /*
-     * 统计产品资料数量
-     * */
-    public function get_product_count($form_id){
-        if(!preg_match("/^[0-9]+$/",$form_id)){
-            return false;
-        }
-
-        $result = M('product_form_information')->where(array('form_id'=>$form_id))->count();
-        if($result){
-            return $result;
-        }else{
-            return false;
-        }
-    }
-
-    /*
-     * 产品资料流程化第二步，可暂存可提交
-     * */
-    public function infoControl(){
-        set_time_limit(0);
-        $id          = array();
-        $pid         = array();
-        $addData     = array();
-        $arr         = array();
-        $pro_data    = array();
-        $type_code   = I('post.type_code');
-
-        if($type_code == 'info'){
-            $code = 'product_information_record';//应用代码，将用于获取全局产品记录id
-            $n = 10;
-        }else {
-            $code = 'product_batch_information_record';
-            $n = 1;
-        }
-
-        $category_id = I('post.category_id');
-        $template_id = I('post.template_id');
-        $type        = I('post.save_type');     // 暂存或者提交
-        $ma          = I('post.max');
-        $form_id     = I('post.form_id');
-        $temp        = I('post.gridColumns');   // 模板的数据
-        $text        = file_get_contents("php://input");
-        $textdata    = urldecode($text);
-        $num         = ceil( $ma / $n );
-        $j = 0;
-        $i = 0;
-
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data , 'json');exit();
-        }
-
-        for($z = 0; $z < $num; $z ++) {                     // 分包获取传的产品数量
-            $b = stripos($textdata, 'gridData[' . $j . ']');
-            $j = $j + $n;
-            $c = stripos($textdata, 'gridData[' . $j . ']');
-            if (empty($c)) {
-                $g = substr($textdata, $b);
-            } else {
-                $g = substr($textdata, $b, $c - $b - 1);
-            }
-            parse_str($g);
-            $pro_data[] = $gridData;
-            $gridData = array();
-        }
-        $control_data = [];
-        foreach($pro_data as $val){  // 将接收到的多个数据包组合成一个
-            foreach($val as $vs){
-                $control_data[] = $vs;
-            }
-        }
-        $pp = $control_data;
-
-        if(empty($type)){
-            $type = "staging"; // 暂存
-
-            $data['countNum']  = $ma;
-            $page = [];
-            foreach($control_data as $k => $v){  // 提出所有主体，并保存所出现的位置
-                if($v['parent_id'] == 0){
-                    $page[] = $k;
-                }
-                continue;
-            }
-            $pageNow  = (int)I('post.pageNow');
-            $pageSize = (int)I('post.pageSize');
-
-            $zt_count = count($page);                // 主体数量
-            $pageAll  = ceil($zt_count / $pageSize); // 总页数
-            if($pageNow >= $pageAll){                // 判断是否为最后一页
-                $end   = $ma;
-            }elseif($pageNow > 0 && $pageNow < $pageAll){
-                $ends  = $pageNow * $pageSize;
-                $end   = $page[$ends];
-            }
-            $sta   = ( $pageNow - 1 ) * $pageSize;
-            $start = $page[$sta];
-
-            for($k = $start ; $k < $end ; $k ++){    // 通过主体出现的位置返回数据包
-                $pp[] = $control_data[$k];
-            }
-        }
-
-        $parent_arr = [];
-        $need_id_num = 0;
-        foreach($pp as $pk => $pv){        // 判断新增数量【更准确一些】
-            if($pv['parent_id'] == 0){
-                $parent_arr[] = $pk;       // 所有主体存放数组
-            }
-
-            if(isset($pv['types']) && $pv['types'] == 'yes'){
-                $need_id_num += 1;
-            }
-        }
-        // $temp 产品资料表格表头数量
-        $need_num = $need_id_num * count($temp);
-        if($need_num > 0){
-            $id = GetSysId($code,$need_num);        // 取id
-            $k  = 0;
-        }
-
-        foreach($pp as $key => $value) {
-            $product_id = $value['product_id'];
-
-            foreach($value as $keys => $values) {
-                foreach($temp as $ke => $val) {
-                    if($keys == $val){
-
-                        $arr['category_id']    = $category_id;
-                        $arr['template_id']    = $template_id;
-                        $arr['product_id']     = $product_id;
-                        $arr['parent_id']      = $pp[$key]['parent_id'];
-                        $arr['title']          = $val;
-                        $arr['no']             = $pp[$key][$val.'_no'];
-                        $arr['data_type_code'] = $pp[$key][$val.'_t'];
-                        $arr['length']         = $pp[$key][$val.'_length'];
-                        $arr['created_time']   = date('Y-m-d H:i:s', time());
-                        $arr['modified_time']  = date('Y-m-d H:i:s', time());
-
-                        switch ($pp[$key][$val . '_t']) {      // 不同数据形式给不同字段赋值
-                            case 'int':
-                                if (!empty($pp[$key][$val])) {
-                                    if (preg_match("/^[0-9]*$/", $pp[$key][$val])) {
-                                        $arr['interger_value'] = $pp[$key][$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 103;
-                                        $array['msg']    = '整数数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }
-                                break;
-                            case 'char':
-                                if (!empty($pp[$key][$val])) {
-                                    $nums = strlen(trim($pp[$key][$val]));
-                                    if ($nums <= $arr['length']) {
-                                        $arr['char_value'] = __str_replace($pp[$key][$val]);
-                                        break;
-                                    } else {
-                                        $array['status'] = 106;
-                                        $array['msg']    = '字符数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }
-                                break;
-                            case 'dc':
-                                if (!empty($pp[$key][$val])) {
-                                    if (preg_match("/^(\d*\.)?\d+$/", $pp[$key][$val])) {
-                                        $arr['decimal_value'] = $pp[$key][$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 104;
-                                        $array['msg'] = '小数数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }
-                                break;
-                            case 'dt':
-                                if (!empty($pp[$key][$val])) {
-                                    if (preg_match($this->dt, $pp[$key][$val]) || preg_match($this->dt1, $pp[$key][$val]) || preg_match($this->dt2, $pp[$key][$val]) || preg_match($this->dt3, $pp[$key][$val])) {
-                                        $arr['date_value'] = $pp[$key][$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 105;
-                                        $array['msg']    = '日期数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }
-                                break;
-                            case 'bl':
-                                $arr['boolean_value'] = $pp[$key][$val];
-                                break;
-                        }
-                        if($pp[$key]['types'] == 'yes') {  // 自定义提供的数据，判断是否是新增项
-                            $pid[]     = $product_id;
-                            $arr['id'] = $id[$k];
-                            $addData[] = $arr;
-                            $k++;
-                        }else{                             // 修改部分的产品资料数据包处理
-                            $arr['id'] = $pp[$key][$val.'_id'];
-                            $saveData[] = $arr;
-                        }
-                        $arr = array();
-                        $i++;
-                        continue 2;
-                    }
-                }
-            }
-        }
-
-        $pid = array_unique($pid); // 数组去掉重复项
-        $res = \Think\Product\ProductInfo::infoControl($type_code,$addData,$saveData,$form_id,$pid,$type);
-
-        if($res == 0){
-            $array['status'] = 101;
-            $array['msg']    = '提交失败';
-            $this->response($array,'json');exit;
-        }
-
-        $array['status'] = 100;
-        $this->response($array,'json');
-    }
-
-    //生成批量表
+    // 生成批量表
+    // @param form_id 表格id
     public function makeExcel(){
         set_time_limit(0);
 
-        $form_id     = I('form_id');
+        $form_id     = (int)I('form_id');
         $template_id = I('template_id');
         $productSelect = I('productSelect');
-        $creator_id = I('post.creator_id');
+        $creator_id = I('post.creator_id');  // 创建者
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
@@ -402,7 +160,6 @@ class ProductInfoController extends BaseController{
         }
         if($productSelect == 1){
             $sql = M()->query("select id FROM tbl_product_batch_information where  product_id in (SELECT product_id FROM tbl_product_batch_form_information where form_id = ".$form_id." ) and parent_id <> 0");
-            
             if(count($sql) == 0){
                 $data['judge'] = 2;//只有父类产品，也是全部导出，不要背景色
             }else{
@@ -411,14 +168,17 @@ class ProductInfoController extends BaseController{
         }else{
             $data['judge'] = 3;//只导出子产品
         }
-        
-        $batch   = M("product_batch_template2file")->field("file,file_type,path")->where("template_id=%d",array($template_id))->order("created_time desc")->find();
-
-        $name    = $batch['path'].$batch['file'];
-        $ch = curl_init(); 
-        $data['form_id'] = (string)$form_id;
-        $data['template_id']=  (string)$template_id;
-        $data['path'] =  C('SAVE_PATH').substr($name, 1);
+        // 查询当前表的模板文件
+        $batch = M("product_batch_template2file")
+            ->field("file,file_type,path")
+            ->where("template_id = %d",array($template_id))
+            ->order("created_time desc")->find();
+        // 具体文件位置
+        $name = $batch['path'] . $batch['file'];
+        $ch   = curl_init();
+        $data['form_id']     = (int)$form_id;
+        $data['template_id'] =  (int)$template_id;
+        $data['path']        =  C('SAVE_PATH') . substr ($name, 1 );
         $date = M('product_batch_form')->field("file_name")->where("id=%d",array($form_id))->find();
         $num = M('product_batch_template')->field("number")->where("id=%d",array($template_id))->find();
         if(empty($date['file_name'])){
@@ -431,39 +191,38 @@ class ProductInfoController extends BaseController{
         }else{
             $data['num'] = $num['number'];
         }
+        // 推动到java端进行表格生成
         $data['savepath'] =  C('SAVE_PATH').substr(C('BATCH_SAVE_PATH'),1).$fileName.'.'.$batch['file_type'];
         curl_setopt($ch, CURLOPT_URL, "http://localhost/excel4php/javaoptexcel.php");  
         curl_setopt($ch, CURLOPT_HEADER, false);  
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data); 
-        $result=curl_exec($ch); 
-
+        $result = curl_exec($ch);
         curl_close($ch); 
         if($result == '1'){
+            // 修改状态码
             $en['status_code'] = 'finished';
-            M('product_batch_form')->where(array('id'=>$form_id))->save($en);  // 改状态
-
-            $das['form_id'] = $form_id;
-            $das['file'] = $fileName.'.'.$batch['file_type'];
-            $das['file_type']  = $batch['file_type'];
-            $das['path'] = C('BATCH_SAVE_PATH').$das['file'];
-            $das['creator_id'] = $creator_id;
-            $das['created_time'] = date('Y-m-d-H-i-s',time());
+            M('product_batch_form')->where(array('id'=>$form_id))->save($en);
+            $das['form_id']       = $form_id;
+            $das['file']          = $fileName.'.'.$batch['file_type'];
+            $das['file_type']     = $batch['file_type'];
+            $das['path']          = C('BATCH_SAVE_PATH').$das['file'];
+            $das['creator_id']    = $creator_id;
+            $das['created_time']  = date('Y-m-d-H-i-s',time());
             $das['modified_time'] = date('Y-m-d-H-i-s',time());
             M('product_batch_form2file')->data($das)->add();
-
             $arr['status'] = 100;
             $arr['url']    = C('MY_HTTP_PATH').C('BATCH_SAVE_PATH'). $das['file'];
         }else{
             $arr['status'] = 101;
             $arr['msg']    = $result;
         }
-
         $this->response($arr,'json');
     }
     /*
      * 返回上一步 cxl
+     * @param form_id  表格id
      * */
     public function back_step(){
         set_time_limit(0);
@@ -495,15 +254,18 @@ class ProductInfoController extends BaseController{
             $arr['status'] = 100;
             $arr['value']  = "";
         }
-
         $this->response($arr,'json');
     }
 
-    public function del_product(){
-
+    /*
+     * 产品资料删除
+     * @param product_id  产品id
+     * @param type_code   info/batch
+     * */
+    public function del_product()
+    {
         $product_id = I('post.product_id');
         $type_code  = I('post.type_code');
-
         if(!preg_match("/^[0-9]+$/",$product_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择需删除产品';
@@ -527,44 +289,45 @@ class ProductInfoController extends BaseController{
     }
 
 
-    //接收选择图片与配备的词库内容
+    // 接收选择图片与配备的词库内容
+    // @param data        词库数据包
+    // @param form_no     表格编号
+    // @param category_id 类目id
+    // @param picData     图片数据包
     public function receiveValue(){
-        $data = I('post.data');
-        $form_no = I('post.form_no');
+        $data        = I('post.data');
+        $form_no     = I('post.form_no');
         $category_id = I('post.category_id');
-        $picDate = I('post.picData');
+        $picDate     = I('post.picData');
         if(empty($category_id) || empty($form_no)){
-            $arr['status'] = 119;
-            $arr['msg'] = "系统错误";
-            $this->response($arr,'json');
+            $this->response(['status' => 119, 'msg' => "系统错误"],'json');
             exit();
         }
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
-            $arr['status'] = 1012;
-            $this->response($arr,'json');
+            $this->response(['status' => 1012],'json');
             exit();
         }
-        S($form_no.'_data',$data);
-        $form = M('product_form');
-        $data['status_code'] = "selecting";
-        $id = (int)substr($form_no, 8);
-        $sql = $form->data($data)->where("id=%d",$id)->save();
+        // 数据包写入文件缓存
+        S($form_no.'_data' ,$data);
+        // 修改状态码
+        $id  = (int)substr($form_no, 8);
+        M('product_form')->data(['status_code' => "selecting"])->where("id=%d",$id)->save();
+
         $pic = M('product_for_picture');
         $data_constraint = M('data_constraint');
         $pic->startTrans();
         $datas['form_id'] = $id;
         $datas['category_id'] = $category_id;
-        foreach ($picDate as $key => $value) {
-            $datas['picture_id'] = $value['id'];
+        foreach ($picDate as $key => $value)
+        {
+            $datas['picture_id']   = $value['id'];
             $datas['created_time'] = date('Y-m-d H:i:s',time());
-            $datas['used_time'] = date('Y-m-d H:i:s',time()+3600*24*30*3);
+            $datas['used_time']    = date('Y-m-d H:i:s',time()+3600*24*30*3);
             $query = $pic->data($datas)->add();
             if($query === 'flase'){
                 $pic->rollback();
-                $arr['status'] = 101;
-                $arr['msg'] = "添加失败";
-                $this->response($arr,'json');
+                $this->response(['status' => 101, 'msg' => "添加失败"],'json');
                 exit();
             }
             $das['app_code1'] = 'DL';
@@ -1350,6 +1113,9 @@ class ProductInfoController extends BaseController{
 
     /*
      * 批量表数据操作
+     * @param form_id     表格id
+     * @param DefaultData 图片格式数据包
+     * @param VariantData 有变体格式数据包
      * */
     public function batch_info(){
         set_time_limit(0);
@@ -1396,16 +1162,16 @@ class ProductInfoController extends BaseController{
             // 填充默认值
             $mo->where($where)->save($s_arr);
         }
-
+        // 两种不同数据包合并
         $request['default'] = $DefaultData;
         $request['variant'] = $VariantData;
-
         $res = \Think\Product\ProductInfo::GetOneFormInfo('batch' , $form_id);
         foreach($res as $key => $value){
             foreach($value as $k => $v){
                 foreach($request as $kt => $vt){
-                    foreach($vt as $h => $hv){
-
+                    foreach($vt as $h => $hv)
+                    {
+                        // 根据不同的数据包 拿不同的表头
                         if($kt == 'default'){
                             $values = $hv;
                         }elseif($kt == 'variant'){
@@ -1416,7 +1182,7 @@ class ProductInfoController extends BaseController{
                             }
                         }
                         if($k == $h){
-
+                            // @ 与 @@ 两个不同方式获取父产品的数据
                             if(substr($values , 0 , 1) == "@"){
                                 if(substr($values , 1 , 1) == "@"){  // 双@取当前产品的父产品数据
                                     $p_head = trim(substr($values , 2)); // 表头
@@ -1483,280 +1249,8 @@ class ProductInfoController extends BaseController{
         $this->response(['status' => 100],'json');
     }
 
-    //数据检查
-    public function dataCheck(){
-        $check = I('post.check');
-        $type_code = I('post.type_code');
-        $form_id = I('form_id');
-        if($type_code != 'info' && $type_code != 'batch'){
-            $arr['status'] = 119;
-            $arr['msg']    = '系统错误';
-            $this->response($arr,'json');
-            exit();
-        }
-        if(empty($check)){
-            $arr['status'] = 102;
-            $arr['msg']    = '没有要做数据检查的字段';
-            $this->response($arr,'json');
-            exit();
-        }
-        if($type_code == 'info'){
-            $item = D('Info2ProductView');
-            $form_info = M('product_form_information');
-            $product_id = "product_information.product_id";
-        }else{
-            $item = D('Batch2ProductView');
-            $form_info =M('product_batch_form_information');
-            $product_id = "product_batch_information.product_id";
-        }
-        $product_count = $form_info->where('form_id=%d',array($form_id))->count();
-        $item->startTrans();
-        $i = 0;
-        foreach ($check as $key => $value) {
-            $where['form_id'] = $form_id;
-            $where['title'] = $key;
-            $where['enabled'] = 1;
-            $sql = $item->field("data_type_code")->where($where)->find();
-            switch ($sql['data_type_code']) {
-                case 'int':  $fields = 'interger_value'; break;
-                case 'char': $fields = 'char_value'; break;
-                case 'dc':   $fields = 'decimal_value'; break;
-                case 'dt':   $fields = 'date_value'; break;
-                case 'bl':   $fields = 'boolean_value'; break;
-                case 'upc_code': $fields = 'char_value';break;
-                case 'pic': $fields = 'char_value';break;
-            }
-            if($value == 1){          // 唯一的
-                $query = $item->field("GROUP_CONCAT(".$product_id.") as product_id")->where($where)->group($fields)->select();
-                $count =count($query);
-                if($count == $product_count){
-                    $array[$i]['field'] = $key;
-                    $array[$i]['value'] = "数据无误";
-                }else{
-                    $array[$i]['field'] = $key;
-                    $array[$i]['value'] = "数据有重复的";
-                    foreach ($query as $keys => $values) {
-                        if(strpos($values['product_id'],',')){
-                            $s[$key][] = $values;
-                        }
-                    }
-                }
-            }elseif($value == 2){  // 重复的  
-                $query = $item->field("count(".$fields."),GROUP_CONCAT(".$product_id.") AS product_id")->where($where)->group($fields)->order("count(".$fields.") desc")->select();
-                $count =count($query);
-                if($count == 1){
-                    $array[$i]['field'] = $key;
-                    $array[$i]['value'] = "数据无误";
-                }else{
-                    $array[$i]['field'] = $key;
-                    $array[$i]['value'] = "数据有不重复的";
-                    unset($query[0]);
-                    $s[$key] = array_merge($query);
-                }
-            }else{
-                $array[$i]['field'] = $key;
-                $array[$i]['value'] = "选择的规则没有定义";
-            }
-            $i++;
-        }
-        S('cache_data_'.$form_id,$s);
-        $arr['status'] = 100;
-        $arr['value'] = $array;
-        $this->response($arr,'json');
-    }
-
-
-    /*
-     * 数据检查出错误数据时获取数据接口
-     */
-    public function update_check_msg(){
-        $form_id   = (int)I('post.form_id');
-        $type_code = I("post.type_code");
-        if($type_code != 'info' && $type_code != 'batch'){
-            $this->response(['status' => 119 , 'msg' => '拒绝访问'] , 'json');exit();
-        }
-
-        if(!preg_match("/^[0-9]+$/" , $form_id)){
-            $this->response(['status' => 102 , 'msg' => '表格未选择'] , 'json');exit();
-        }
-        $cache = S("cache_data_" . $form_id);
-        if(empty($cache)){
-            $this->response(['status' => 102 , 'msg' => '没有数据需要修改'] , 'json');exit();
-        }
-        $header = [];
-        $product_id = [];
-        $p_id = [];
-        foreach($cache as $key => $value){
-            $header[] = $key;
-            foreach($value as $val){
-                foreach($val as $k => $v){
-                    if($k == 'product_id'){
-                        $product_id[] = explode("," , $v);
-                    }
-                }
-            }
-        }
-        foreach($product_id as $pv){
-            foreach($pv as $kv){
-                $p_id[] = $kv;
-            }
-        }
-
-        $p_id = array_merge(array_unique($p_id));
-        $res = \Think\Product\ProductInfo::check_data_edit($type_code , $p_id);
-        if(empty($res)){
-            $this->response(['status' => 102 , 'msg' => '没有数据需要修改'] , 'json');exit();
-        }
-        $data = [
-            'status' => 100,
-            'value'  => $res,
-        ];
-        $this->response($data , 'json');
-    }
-
-    /*
-     * 修改查出有误数据接口
-     * */
-    public function update_info(){
-        set_time_limit(0);
-        $arr         = array();
-        $pro_data    = array();
-        $type_code   = I('post.type_code');
-        $ma          = I('post.max');
-        $temp        = I('post.gridColumns');   // 模板的数据
-
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data , 'json');exit();
-        }
-        if($type_code == 'info'){
-            $n = 10;
-        }else {
-            $n = 1;
-        }
-
-        $text        = file_get_contents("php://input");
-        $textdata    = urldecode($text);
-        $num         = ceil( $ma / $n );
-        $j = 0;
-
-        for($z = 0; $z < $num; $z ++) {                     // 分包获取传的产品数量
-            $b = stripos($textdata, 'gridData[' . $j . ']');
-            $j = $j + $n;
-            $c = stripos($textdata, 'gridData[' . $j . ']');
-            if (empty($c)) {
-                $g = substr($textdata, $b);
-            } else {
-                $g = substr($textdata, $b, $c - $b - 1);
-            }
-            parse_str($g);
-            $pro_data[] = $gridData;
-            $gridData = array();
-        }
-        $control_data = [];
-        foreach($pro_data as $val){  // 将接收到的多个数据包组合成一个
-            foreach($val as $vs){
-                $control_data[] = $vs;
-            }
-        }
-
-        foreach($control_data as $key => $value) {
-            foreach($value as $keys => $values) {
-                foreach($temp as $ke => $val) {
-                    if($keys == $val){
-                        $arr['modified_time']  = date('Y-m-d H:i:s', time());
-
-                        switch ($value[$val . '_t']) {      // 不同数据形式给不同字段赋值
-                            case 'int':
-                                if (!empty($value[$val])) {
-                                    if (preg_match("/^[0-9]*$/", $value[$val])) {
-                                        $arr['interger_value'] = $value[$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 103;
-                                        $array['msg']    = '整数数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }else{
-                                    $arr['interger_value'] = null;
-                                }
-                                break;
-                            case 'char':
-                                if (!empty($value[$val])) {
-                                    $nums = strlen(trim($value[$val]));
-                                    if ($nums <= $value[$val . '_length']) {
-                                        $arr['char_value'] = __str_replace($value[$val]);
-                                        break;
-                                    } else {
-                                        $array['status'] = 106;
-                                        $array['msg']    = '字符数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }else{
-                                    $arr['char_value'] = null;
-                                }
-                                break;
-                            case 'dc':
-                                if (!empty($value[$val])) {
-                                    if (preg_match("/^(\d*\.)?\d+$/", $value[$val])) {
-                                        $arr['decimal_value'] = $value[$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 104;
-                                        $array['msg'] = '小数数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }else{
-                                    $arr['decimal_value'] = null;
-                                }
-                                break;
-                            case 'dt':
-                                if (!empty($value[$val])) {
-                                    if (preg_match($this->dt, $value[$val]) || preg_match($this->dt1, $value[$val]) || preg_match($this->dt2, $value[$val]) || preg_match($this->dt3, $value[$val])) {
-                                        $arr['date_value'] = $value[$val];
-                                        break;
-                                    } else {
-                                        $array['status'] = 105;
-                                        $array['msg']    = '日期数据类型填写错误';
-                                        $this->response($array, 'json');
-                                        exit();
-                                    }
-                                }else{
-                                    $arr['date_value'] = null;
-                                }
-                                break;
-                            case 'bl':
-                                $arr['boolean_value'] = $value[$val];
-                                break;
-                        }
-
-                        // 修改部分的产品资料数据包处理
-                        $arr['id']  = $value[$val.'_id'];
-                        $saveData[] = $arr;
-
-                        $arr = array();
-                        continue 2;
-                    }
-                }
-            }
-        }
-
-        $res = \Think\Product\ProductInfo::update_info($type_code,$saveData);
-        if($res == 0){
-            $array['status'] = 101;
-            $array['msg']    = '提交失败';
-            $this->response($array,'json');exit;
-        }
-
-        $array['status'] = 100;
-        $this->response($array,'json');
-    }
-
-    //资料表撤销后退
+    // 资料表撤销后退
+    // @param form_id  表格id
     public function rollbackProduct(){
         $form_id = I('post.form_id');
         if(!preg_match("/^[0-9]+$/" , $form_id) || empty($form_id)){
@@ -1768,6 +1262,4 @@ class ProductInfoController extends BaseController{
         $result = \Think\Product\ProductInfo::RollbackProduct($form_id);
         $this->response($result,'json');
     }
-
 }
-
