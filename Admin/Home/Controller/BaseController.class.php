@@ -35,7 +35,13 @@ class BaseController extends RestController
         if(!$auth->check($url , $uids)){
             $this->response(['status' => 1011,'msg' => '抱歉，权限不足'],'json');
         }
-        $this->behaviorTracking($uids ,$url);
+        // 添加排除在外的行为地址
+        $notInTrack = [
+            'Logging/userTrack',
+        ];
+        if(!in_array($url ,$notInTrack)){
+            $this->behaviorTracking($uids ,$url);
+        }
     }
 
 
