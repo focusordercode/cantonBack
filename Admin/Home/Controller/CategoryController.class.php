@@ -17,11 +17,11 @@ class CategoryController extends BaseController
      * @param  creator_id 创建者
      */
     public function addSub(){
-        $id      = I('post.id');
+        $id      = (int)I('post.id');
         $cn_name = I('post.cn_name');
         $en_name = I('post.en_name');
         $remark  = I('post.remark');
-        $creator_id = I('post.creator_id');
+        $creator_id = (int)I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
@@ -186,6 +186,7 @@ class CategoryController extends BaseController
             $this->response($data,'json');
             exit();
         }
+        $text = __sqlSafe__($text);
         $arr = \Think\Product\Category::GetVague($text);
         if($arr){
             $data['status'] = 100;
@@ -233,5 +234,4 @@ class CategoryController extends BaseController
         $parents['children'] = $results;
         S('category' ,$parents ,3153600);
     }
-
 }

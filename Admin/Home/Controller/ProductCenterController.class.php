@@ -315,7 +315,7 @@ class ProductCenterController extends BaseController
 	 */
 	public function getProduct2Value(){
 		$category_id = I('post.category_id');
-		$vague = I('post.vague');
+		$vague = __sqlSafe__(I('post.vague'));
 		if(empty($category_id)){
 			$data['status'] = 102;
             $data['msg']    = '请选择类目';

@@ -21,9 +21,9 @@ class CustomController extends BaseController
     public function getCustom()
     {
         $m = M("customer");
-        $enabled = isset($_POST['enabled']) ? I('enabled') : 1;
-        $pageSize = isset($_POST['pageSize']) ? I('pageSize') :10;
-        $pageNow = isset($_POST['pageNow']) ? I('pageNow') :1;
+        $enabled = isset($_POST['enabled']) ? (int)I('enabled') : 1;
+        $pageSize = isset($_POST['pageSize']) ? (int)I('pageSize') :10;
+        $pageNow = isset($_POST['pageNow']) ? (int)I('pageNow') :1;
 
         $count = $m->where(array('enabled'=>$enabled))->count();
         $start_id = ( $pageNow - 1 ) * $pageSize;
@@ -94,6 +94,7 @@ class CustomController extends BaseController
         }
         $i = 0;
         foreach($arr as $value){  // 循环删除
+            $value = __sqlSafe__($value);
             $res = checkDataLimit('YF',$value);
             if($res == 1){
                 $del = $m->where(array('id'=>$value))->delete();
@@ -126,13 +127,13 @@ class CustomController extends BaseController
         $m = M('customer');
         $m->startTrans();
         $arr = $_POST['data'];  // 前台给的数据包
-        $da['custom_name'] = trim($arr['custom_name']);
-        $da['en_name']     = trim($arr['en_name']);
-        $da['company']     = trim($arr['company']);
-        $da['mobile']      = trim($arr['mobile']);
-        $da['email']       = trim($arr['email']);
-        $da['address']     = trim($arr['address']);
-        $da['enabled']     = isset($arr['enabled']) ? trim($arr['enabled']) : 1;
+        $da['custom_name'] = __sqlSafe__($arr['custom_name']);
+        $da['en_name']     = __sqlSafe__($arr['en_name']);
+        $da['company']     = __sqlSafe__($arr['company']);
+        $da['mobile']      = __sqlSafe__($arr['mobile']);
+        $da['email']       = __sqlSafe__($arr['email']);
+        $da['address']     = __sqlSafe__($arr['address']);
+        $da['enabled']     = isset($arr['enabled']) ? (int)$arr['enabled'] : 1;
          // 验证
         if(!preg_match($this->rule_enname , $da['en_name'])){
             $data['status'] = 102;
@@ -202,7 +203,7 @@ class CustomController extends BaseController
             exit();
         }
         // 如果有分号替换掉
-        $text = str_replace("",";",$text);
+        $text = __sqlSafe__($text);
         // 中英文名称
         $arr = M('customer')
             ->where("en_name LIKE '%".$text."%' OR custom_name LIKE '%".$text."%'")

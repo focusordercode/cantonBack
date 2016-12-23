@@ -84,11 +84,7 @@ class ImageCategory {
 		$tree_catetory = M('product_gallery');
 		$data['cn_name'] = $cn_name;
 		$data['en_name'] = $en_name;
-        $m = $tree_catetory->where('id='.$id)->find();
         $sql = $tree_catetory->where("id = '%d'",array($id))->data($data)->save();
-//         $check = M()->query("SELECT gp.*,f.form_id,f.created_time,f.used_time FROM
-//     (SELECT g.*,p.id AS picid,p.file_name,p.path FROM tbl_product_gallery AS g LEFT JOIN tbl_product_picture AS p ON g.id=p.gallery_id AND g.id=139) AS gp,tbl_product_for_picture AS f 
-// WHERE gp.picid=f.picture_id");
         if($sql !== 'flase'){
             
         	return  1;

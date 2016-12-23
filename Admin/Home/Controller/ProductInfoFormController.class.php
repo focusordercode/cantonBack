@@ -50,7 +50,7 @@ class ProductInfoFormController extends BaseController
 	 */
 	public function getTemInfoForm()
 	{
-		$template_id = I('post.template_id');
+		$template_id = (int)I('post.template_id');
 		$status_code = I('post.status_code');
 		$type_code   = I('post.type_code');
 		if(empty($type_code)){
@@ -153,7 +153,7 @@ class ProductInfoFormController extends BaseController
 	public function vagueTitle(){
 		$title     = I("post.title");
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
+		if($type_code != 'info' && $type_code != 'batch'){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
 			$this->response($data,'json');
@@ -163,6 +163,7 @@ class ProductInfoFormController extends BaseController
 			$data['status'] = 105;
             $data['msg']    = '标题为必填';
 		}else{
+            $title = __sqlSafe__($title);
 			$res = \Think\Product\ProductInfoForm::VagueTitle($type_code,$title);
 			if($res){
 				$data['status'] = 100;

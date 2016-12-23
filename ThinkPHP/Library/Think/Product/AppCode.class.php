@@ -13,9 +13,9 @@ class AppCode {
      * 获取所有模块
      */
 	static function GetAppCode(){
-		$sys_app=M('sys_app');
-		$filed="app_name,app_code";
-		$sql=$sys_app->field($filed)->select();
+		$sys_app = M('sys_app');
+		$filed = "app_name,app_code";
+		$sql = $sys_app->field($filed)->select();
 		return($sql);
 	}
 }

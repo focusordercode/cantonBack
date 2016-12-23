@@ -127,6 +127,7 @@ class UpcController extends BaseController
     		}else{
     			$pa = 25;
     		}
+            $where = __sqlSafe__($where);
             if(isset($_POST['start_time']) && isset($_POST['end_time'])){
                 $s_time = strip_tags(trim(I("start_time")));
                 $e_time = strip_tags(trim(I("end_time")));

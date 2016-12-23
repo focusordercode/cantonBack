@@ -39,7 +39,7 @@ class PictureController extends BaseController
             $page = isset($_POST['pageNum']) ? strip_tags(trim(I('pageNum'))) : 1;
             $pagesize = isset($_POST['pageSize']) ? strip_tags(trim(I('pageSize'))) : 48;
             // 拉取
-            $result = \Think\Product\Picture::get_pic($where,$page,$pagesize);
+            $result = \Think\Product\Picture::get_pic(__sqlSafe__($where),$page,$pagesize);
             if($result['error'] == 0){
                 $data['status']     = 100;
                 $data['value']      = $result['value'];
@@ -200,10 +200,10 @@ class PictureController extends BaseController
     public function edit_pic(){
 
         $edit_data = I('data');
-        if(!empty($edit_data['id']) && preg_match("/^[0-9]+$/",$edit_data['id'])){// && !empty($image) && preg_match("/^[A-Za-z\s_]+[0-9]*$/", $image)
+        if(!empty($edit_data['id']) && preg_match("/^[0-9]+$/",$edit_data['id'])){
             if(!empty($edit_data['title']) && !empty($edit_data['tags'])){
                 $arr = array(
-                    'tags'          => implode("||",$edit_data['tags']),
+                    'tags'          => implode("||",__sqlSafe__($edit_data['tags'])),
                     'title'         => $edit_data['title'],
                     'modified_time' => date('Y-m-d H:i:s' , time()),
                 );
@@ -295,6 +295,8 @@ class PictureController extends BaseController
             $tags .= ")";
         }
         // 从图片表的视图中快速筛选
+        $gaid = __sqlSafe__($gaid);
+        $tags = __sqlSafe__($tags);
         $result = M()->query("SELECT * FROM marrypic WHERE gallery_id IN($gaid) $f AND rubbish=0 AND u_time<='$do_date' $tags ORDER BY RAND() ASC limit $pic_num");
         if($result){
             $rand_id         = rand(100000,999999);
@@ -395,7 +397,7 @@ class PictureController extends BaseController
         foreach($upadte_arr as $key => $value){ // 循环修改
             foreach($value as $k => $v){
                 if($k == "tags"){
-                    $sa['tags']  = implode("||",$v);
+                    $sa['tags']  = implode("||",__sqlSafe__($v));
                 }
             }
             $sa['title'] = $value['title'];
