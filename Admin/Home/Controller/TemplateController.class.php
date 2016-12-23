@@ -84,14 +84,14 @@ class TemplateController extends BaseController
 	 */
 	public function getLinkage(){
 		$type_code    = I('post.type_code');
-		$category_id  = I('post.category_id');
+		$category_id  = (int)I('post.category_id');
 		if(empty($category_id)){
 			$data['status'] = 103;
             $data['msg']    = '未选择产品类目';
 			$this->response($data,'json');
 			exit();
 		}
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
+		if($type_code != 'info' && $type_code != 'batch'){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
 			$this->response($data,'json');
@@ -329,7 +329,7 @@ class TemplateController extends BaseController
 			$this->response($data,'json');
 			exit();
 		}
-		$text = strip_tags(trim(I('post.name')));
+		$text = __sqlSafe__(strip_tags(trim(I('post.name'))));
         $status_code = strip_tags(trim(I("post.status_code")));
 
         $arr = \Think\Product\Product_Template::VagueTemName($type_code,$text,$status_code,$pageSize);
@@ -415,7 +415,7 @@ class TemplateController extends BaseController
 		$type_code = strip_tags(trim(I('post.type_code')));
         $num   = isset($_POST['num']) ? (int)I('post.num') : 8;
         $next      = isset($_POST['next']) ? (int)I('post.next') : 1;
-        $vague     = I('post.vague');
+        $vague     = __sqlSafe__(I('post.vague'));
         $category_id = I('post.category_id');
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
 			$data['status'] = 119;

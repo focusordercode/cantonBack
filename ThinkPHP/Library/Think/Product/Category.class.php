@@ -44,22 +44,13 @@ class Category {
 	/**
      * 删除类目
      */
-	static function Delete($id){
-        // $resul = M("product_gallery")->where(array('category_id'=>$id))->find();
-        // if($resul){
-        //     return 3;   // 该类目下存在图片类目不能直接删除
-        // }
+	static function Delete($id)
+    {
         $res = checkDataLimit('YB',$id);
         if($res != 1){
             return 3;
         }
         $query = M("product_category")->field("left_id,right_id")->where("id=%d",array($id))->find();
-        // if($query){
-        //     $son  = M("product_category")->field("left_id")->where("left_id > ".$query['left_id']." and right_id < ".$query['right_id'])->find();
-        //     if($son){
-        //         return 4;
-        //     }
-        // }
 
         if($query['left_id'] == 1){
             //判断是否是顶级类目，是就退出
@@ -70,7 +61,7 @@ class Category {
             $sql = M()->query("call DelNode($id)");
             $where['app_code2'] = 'YB';
             $where['data2_id'] = $id;
-            $query = $db->table('tbl_data_constraint')->where($where)->delete();
+            $db->table('tbl_data_constraint')->where($where)->delete();
             if(empty($sql)){
                 $db->rollback();
                 return -1;
@@ -87,8 +78,8 @@ class Category {
      */
 	static function UpdaName($id,$cn_name,$en_name){
 		$tree_catetory=M('product_category');
-		$data['cn_name']=$cn_name;
-		$data['en_name']=$en_name;
+		$data['cn_name'] = $cn_name;
+		$data['en_name'] = $en_name;
         $sql=$tree_catetory->where("id = '%d'",array($id))->data($data)->save();
         if($sql!=='flase'){
         	return  1;

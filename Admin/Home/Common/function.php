@@ -1,96 +1,4 @@
 <?php
-/**
- * 导出Excel表格
- */
-function getExcel($headArr,$data){
-    \Think\Log::record("开始进入方法时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-    //导入PHPExcel类库
-    import("Org.Util.PHPExcel");
-    import("Org.Util.PHPExcel.Writer.Excel5");
-    import("Org.Util.PHPExcel.IOFactory.php");
-
-    //创建文件名
-    $date = date("Y-m-d H:i:s",time());
-    $fileName = "{$date}.xls";
-
-    //创建PHPExcel对象，注意不能少了
-    $objPHPExcel = new \PHPExcel();
-    $objProps = $objPHPExcel->getProperties();
-    $array=array();
-    //设置行高度  
-    $objPHPExcel->getActiveSheet()->getRowDimension('6')->setRowHeight(20);
-
-    $objPHPExcel->getActiveSheet()->mergeCells('A2:F3');
-    $objPHPExcel->getActiveSheet()->getStyle('A2:Z2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
-    $objPHPExcel->getActiveSheet()->getStyle('A2:Z2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-    $objPHPExcel->getActiveSheet()->getStyle('A2:Z5')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);//填充类型
-    $objPHPExcel->getActiveSheet()->getStyle('A2')->getFill()->getStartColor()->setARGB('#FFD700');//填充颜色
-    $objPHPExcel->getActiveSheet()->getStyle('A5:Z5')->getFill()->getStartColor()->setARGB('#D3D3D3');//填充颜色
-    $objPHPExcel->getActiveSheet()->getStyle('A2:Z5')->getFont()->setName('宋体');//字体样式
-    $objPHPExcel->getActiveSheet()->getStyle('A2')->getFont()->setSize(20);//字体大小
-    $objPHPExcel->getActiveSheet()->getStyle('A2:Z5')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);//字体颜色
-    $objPHPExcel->getActiveSheet()->getStyle('A2')->getFont()->setBold(true);//字体加粗
-    $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A2', "填写数据之前请仔细阅读 Help (帮助)内的内容");
-    $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A5', "(卖家内部商品编号)");
-    \Think\Log::record("完成表格配置时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-
-    \Think\Log::record("填充表头时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-    $i=7;
-    $objActSheet = $objPHPExcel->getActiveSheet();
-    foreach ($data as $key => $value) {
-        foreach ($value as $k => $values) {
-            foreach($a as $v){
-                if($k == $v){
-                    if($value['parent_id'] == 0){
-                        $objPHPExcel->getActiveSheet()->getStyle($array[$v].$i)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);//填充类型
-                        $objPHPExcel->getActiveSheet()->getStyle($array[$v].$i)->getFill()->getStartColor()->setARGB('80808080');//填充颜色
-                        $objPHPExcel->getActiveSheet()->getStyle($array[$v].$i)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);//字体颜色
-                        
-                    }
-                    $objActSheet->setCellValue($array[$v].$i,$values);
-                    
-                }
-            }
-        }
-        //设置行高度
-        $objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(16);
-       $i++;
-    }
-\Think\Log::record("填充数据时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-    $fileName = iconv("utf-8", "gb2312", $fileName);
-        //重命名表
-        //设置活动单指数到第一个表,所以Excel打开这是第一个表
-        $objPHPExcel->setActiveSheetIndex(0);
-        ob_clean();
-        header('Content-Type: application/vnd.ms-excel');
-        header("Content-Disposition: attachment;filename=\"$fileName\"");
-        header('Cache-Control: max-age=0');
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-        \Think\Log::record("准备下载时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
-        $objWriter->save('php://output'); //文件通过浏览器下载
-        exit;
-
-}
-
-
-function stringFromColumnIndex($pColumnIndex = 0) {  // excel 超过26列表头
-    static $_indexCache = array();
-
-    if (!isset($_indexCache[$pColumnIndex])) {
-        if ($pColumnIndex < 26) {
-            $_indexCache[$pColumnIndex] = chr(65 + $pColumnIndex);
-        } elseif ($pColumnIndex < 702) {
-            $_indexCache[$pColumnIndex] = chr(64 + ($pColumnIndex / 26)) .
-                chr(65 + $pColumnIndex % 26);
-        } else {
-            $_indexCache[$pColumnIndex] = chr(64 + (($pColumnIndex - 26) / 676)) .
-                chr(65 + ((($pColumnIndex - 26) % 676) / 26)) .
-                chr(65 + $pColumnIndex % 26);
-        }
-    }
-    return $_indexCache[$pColumnIndex];
-}
 
 /*
  * 读取excel内容
@@ -165,8 +73,8 @@ function read_file($dir){
  * $app_code   功能特性的应用代码 
  * $num        需要获取几个id
  */
-function GetSysId($app_code,$num = 1){
-
+function GetSysId($app_code,$num = 1)
+{
    $arr = array();
    $sys = M("sys_sequence");
    $sql = $sys->where("app_code='".$app_code."'")->find();
@@ -177,7 +85,7 @@ function GetSysId($app_code,$num = 1){
        $next_id += $step;
    }
    $data['next_id'] = $next_id;
-   $query = $sys->data($data)->where("app_code='".$app_code."'")->save();
+   $sys->data($data)->where("app_code='".$app_code."'")->save();
    return($arr);
 }
 
@@ -194,10 +102,10 @@ function GETtable($id,$app_code){
  * 根据id查询是那个表
  */
 function GetIDtable($id){
-        $fragment_table=M("fragment_table");
-        $sql=$fragment_table->field("name")->where("$id > start_id and $id < end_id")->find();
-        return $sql['name']; 
-    }
+    $fragment_table=M("fragment_table");
+    $sql=$fragment_table->field("name")->where("$id > start_id and $id < end_id")->find();
+    return $sql['name'];
+}
 
 
 function xml_decode($xml, $root = 'so') {
@@ -394,108 +302,6 @@ function pre_arr($arr , $product_id){
     return array_merge($r_arr);
 }
 
-//快速检查数据约束方法
-function checkDeleteLimit($model,$id){
-    switch ($model) {
-        case 'customer':
-            $info_form = M('product_form');
-            $batch_info = M('product_batch_form');
-            $sql = $info_form->field("id")->where("client_id=%d and enabled=%d",array($id,1))->find();
-            if(empty($sql['id'])){
-                $query = $batch_info->field("id")->where("client_id=%d and enabled=%d",array($id,1))->find();
-                if(empty($query['id'])){
-                    return 1;
-                }else{
-                    return -2;
-                }
-            }else{
-                return-1;
-            }
-          break;
-        case 'template':
-            $info_form = M('product_form');
-            $tem2batch_tem = M('product_item2batch_item');
-            $batch_tem = M('product_batch_template');
-            $sql = $info_form->field("id")->where("template_id=%d and enabled=%d",array($id,1))->find();
-            if(empty($sql['id'])){
-                $query = $tem2batch_tem->field("template2_id")->where("template1_id=%d",array($id))->group("template2_id")->select();
-                foreach ($query as $key => $value) {
-                    $check = $batch_tem->field("id")->where("id=%d and enabled=%d",array($id,1))->find();
-                    if(!empty($check['id'])){
-                        return -2;
-                    }
-                }
-                return 1;
-            }else{
-                return -1;
-            }
-          break;
-        case 'info':
-            $batch_form = M('product_batch_form');
-            $sql = $batch_form->field("id")->where("product_form_id=%d and enabled=%d",array($id,1))->find();
-            if(empty($sql['id'])){
-                return 1;
-            }else{
-                return -1;
-            }
-          break;
-        case 'batch_tem':
-            $batch_form = M('product_batch_form');
-            $sql = $batch_form->field("id")->where("template_id=%d and enabled=%d",array($id,1))->find();
-            if(empty($sql['id'])){
-                return 1;
-            }else{
-                return -1;
-            }
-          break;
-        case 'category':
-            $category =M('product_category');
-            $tem = M('product_template');
-            $batch_tem = M('product_batch_template');
-            $gallery = M('product_gallery');
-            $sql = $category->field("left_id,right_id")->where("id=%d",array($id))->find();
-            $where['left_id'] = array("GT",$sql['left_id']);
-            $where['right_id'] = array("LT",$sql['right_id']);
-            $query = $category->field("id")->where($where)->find();
-            if(empty($query['id'])){
-                $sql_info = $tem->field("id")->where("category_id=%d and enabled=%d",array($id,1))->find();
-                if(empty($sql_info['id'])){
-                    $sql_batch = $batch_tem->field("id")->where("category_id=%d and enabled=%d",array($id,1))->find();
-                    if(empty($sql_batch['id'])){
-                        $sql_gallery = $gallery->field("id")->where("category_id=%d",array($id))->find();
-                        if(empty($sql_gallery['id'])){
-                            return 1;
-                        }else{
-                            return -4;
-                        }
-                    }else{
-                        return -3;
-                    }
-                }else{
-                    return -2;
-                }
-            }else{
-                return -1;
-            }
-          break;
-        case 'pic':
-            $pic = M('product_picture');
-            $info = M('product_information');
-            $sql = $pic->where("id=%d",array($id))->find();
-            $path = $sql['path'].'/'.$sql['file_name'];
-            $where['data_type_code'] = "pic";
-            $where['char_value'] = $path;
-            $query = $info->field("id")->where($where)->find();
-            if(empty($query['id'])){
-                return 1;
-            }else{
-                return -1;
-            }
-          break;
-    }
-}
-
-
 //可扩展的数据约束方法
 function checkDataLimit($model,$id){
     $data_constraint = M('data_constraint');
@@ -516,10 +322,9 @@ function checkDataLimit($model,$id){
  * $key 密钥
  * $expiry 密钥有效期
  */
-function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0) {
-
+function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0)
+{
     $ckey_length = 4;
-
     // 密匙
     // $GLOBALS['discuz_auth_key'] 这里可以根据自己的需要修改
     $key = md5($key ? $key : C('auth_key'));
@@ -612,28 +417,8 @@ function updateGalleryCache(){
     S('gallery' ,$parents);
 }
 
-/*
- * 用户行为跟踪
- * @param uid     用户id
- * @param action  访问的地址
- * */
-function behaviorTracking($uid ,$action)
-{
-    $auth = new \Think\Product\PAuth();
-    $router = $auth->GetUrlOwner($action);
-
-    $result = M('auth_rule')->where("auth_address = $router")->find();
-    $track = M('user_track')->add([
-        'uid'             => $uid,
-        'request_address' => $action,
-        'router_address'  => $router,
-        'title'           => $result['name'],
-        'request_time'    => date('Y-m-d H:i:s',time()),
-        'request_ip'      => get_client_ip(),
-    ]);
-    if($track){
-        return true;
-    }else{
-        return false;
-    }
+// sql防注入处理
+function __sqlSafe__($sql){
+    $entities_match = array(';','$','!','@','#','^','&','{','}','|',':','"','?','[',']','\\','/','+','~','`');
+    return str_replace($entities_match, '', trim($sql));
 }

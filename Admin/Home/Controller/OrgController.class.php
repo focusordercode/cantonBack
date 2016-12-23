@@ -179,6 +179,7 @@ class OrgController extends BaseController
         $searchText = I('post.searchText');
 
         // 查询出机构
+        $searchText = __sqlSafe__($searchText);
         $org = M('auth_org')
             ->where("name LIKE '%$searchText%' OR introduce LIKE '%$searchText%'")
             ->field('id,name,p_id,introduce')

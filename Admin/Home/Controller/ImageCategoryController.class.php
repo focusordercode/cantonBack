@@ -19,12 +19,12 @@ class ImageCategoryController extends BaseController
      */
     public function addSub(){
         // 参数整合
-        $id           = I('post.id');
+        $id           = (int)I('post.id');
         $cn_name      = I('post.cn_name');
         $en_name      = I('post.en_name');
-        $category_id  = I('category_id');
+        $category_id  = (int)I('category_id');
         $remark       = I('post.remark');
-        $creator_id = I('post.creator_id');
+        $creator_id = (int)I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
@@ -85,7 +85,7 @@ class ImageCategoryController extends BaseController
      * @param  id 类目id
      */
     public function Delete(){
-        $id = I('post.id');
+        $id = (int)I('post.id');
         $res = \Think\Product\ImageCategory::Delete_album($id);
         $data = array();
         if($res == 1){
@@ -114,7 +114,7 @@ class ImageCategoryController extends BaseController
      * @param  en_name 英文名
      */
     public function updaName(){
-        $id = I('post.id');
+        $id = (int)I('post.id');
         $cn_name = I('post.cn_name');
         $en_name = I('post.en_name');
         $data = array();
@@ -169,7 +169,7 @@ class ImageCategoryController extends BaseController
      */
     public function getChildren(){
         $data = array();
-        $id = I('post.id');
+        $id = (int)I('post.id');
         $res = \Think\Product\ImageCategory::GetSub($id);
         if($res){
             $data['status'] = 100;
@@ -188,8 +188,8 @@ class ImageCategoryController extends BaseController
      *
      */
     public function move(){
-        $moveid = I('post.moveid');
-        $id = I('post.id');
+        $moveid = (int)I('post.moveid');
+        $id = (int)I('post.id');
         $data = \Think\Product\ImageCategory::GetAncestors($moveid,$id);
         if($data == 1){
             $data['status'] = 100;
@@ -212,6 +212,7 @@ class ImageCategoryController extends BaseController
             $this->response($data,'json');
             exit();
         }
+        $text = __sqlSafe__($text);
         $arr = \Think\Product\ImageCategory::GetVague($text);
         if($arr){
             $data['status'] = 100;
@@ -225,7 +226,7 @@ class ImageCategoryController extends BaseController
 
     // 拉取父级类目索引
     public function get_parent_path(){
-        $id = I("id");
+        $id = (int)I("id");
         if(empty($id)){
             $data['status'] = 102;
             $data['msg']    = '没有选择类目';
@@ -245,7 +246,7 @@ class ImageCategoryController extends BaseController
     // 通过id拉取类目
     // @param id
     public function get_gallery_by_id(){
-        $id = I("id");
+        $id = (int)I("id");
         if(empty($id)){
             $data['status'] = 102;
             $data['msg']    = '没有选择类目';

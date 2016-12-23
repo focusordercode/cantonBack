@@ -18,6 +18,7 @@ class RolesController extends BaseController{
 		$vague = I('post.vague');
 		$id = I('post.id');
 		//根据传回的数据组合搜索条件
+        $vague = __sqlSafe__($vague);
 		if(!empty($vague)){
 			$where['_string'] = '(name like "%'.$vague.'%")';
 		}
@@ -98,7 +99,7 @@ class RolesController extends BaseController{
 		$data['enabled'] = $enabled;
 		$data['modified_time'] = date('Y-m-d H:i:s',time());
 		$sql = $role->data($data)->where("id=%d",array($id))->save();
-		$query = $org->where("role_id=%d",array($id))->delete();
+		$org->where("role_id=%d",array($id))->delete();
 		$das['role_id'] = $id;
 		foreach ($org_ids as $key => $value) {
 			if(!empty($value['id'])){
@@ -113,7 +114,6 @@ class RolesController extends BaseController{
 					exit();
 				}
 			}
-			
 		}
 		if($sql !== 'flase'){
 			$role->commit();
