@@ -192,7 +192,11 @@ class ProductInfoController extends BaseController{
             $data['num'] = $num['number'];
         }
         // 推动到java端进行表格生成
+<<<<<<< HEAD
         $data['savepath'] =  C('SAVE_PATH').substr(C('BATCH_SAVE_PATH'),1).str_replace(" ","_",$fileName).'.'.$batch['file_type'];
+=======
+        $data['savepath'] =  C('SAVE_PATH').substr(C('BATCH_SAVE_PATH'),1).$fileName.'.'.$batch['file_type'];
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
         curl_setopt($ch, CURLOPT_URL, "http://localhost/excel4php/javaoptexcel.php");  
         curl_setopt($ch, CURLOPT_HEADER, false);  
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
@@ -205,7 +209,11 @@ class ProductInfoController extends BaseController{
             $en['status_code'] = 'finished';
             M('product_batch_form')->where(array('id'=>$form_id))->save($en);
             $das['form_id']       = $form_id;
+<<<<<<< HEAD
             $das['file']          = str_replace(" ","_",$fileName).'.'.$batch['file_type'];
+=======
+            $das['file']          = $fileName.'.'.$batch['file_type'];
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
             $das['file_type']     = $batch['file_type'];
             $das['path']          = C('BATCH_SAVE_PATH').$das['file'];
             $das['creator_id']    = $creator_id;
@@ -583,7 +591,11 @@ class ProductInfoController extends BaseController{
         $s = 0;
         //获取全局id （产品id，产品记录id）
         $id = GetSysId('product_information',$num);
+<<<<<<< HEAD
         $ids = GetSysId('product_information_record',count($tem_data['value'])*$num);
+=======
+        $ids = GetSysId('product_information_record',count($tem_data)*$num);
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
 
         if(empty($variant_num)){//没有变体的自动填表
             

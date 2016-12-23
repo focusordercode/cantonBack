@@ -75,7 +75,11 @@ class SubareaController extends BaseController
 	 * 为表创建分区
 	 * @param tbl_name  数据表名称
 	 * @param type 分区类型
+<<<<<<< HEAD
 	 * @param ckey 做分区的键值
+=======
+	 * @param key 做分区的键值
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
 	 * @param num 分区数量
 	 * @param interval 分区区间
 	 * @param subnum  子分区数量
@@ -274,7 +278,11 @@ class SubareaController extends BaseController
 	 * 修改分区
 	 * @param id 数据id
 	 * @param type 分区类型
+<<<<<<< HEAD
 	 * @param ckey 做分区的键值
+=======
+	 * @param key 做分区的键值
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
 	 * @param num 分区数量
 	 * @param interval 分区区间
 	 * @param subnum  子分区数量
