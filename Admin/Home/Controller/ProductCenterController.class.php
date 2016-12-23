@@ -3,12 +3,23 @@ namespace Home\Controller;
 use Think\Controller;
 /**
 * 产品中心控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class ProductCenterController extends BaseController
 {
 	protected $file = "./Public/file/";
 	protected $rule_str    = "/^[a-z_A-Z()\s]+[0-9]{0,10}$/";
-	//添加修改产品中心产品信息接口
+	/*
+	 * 添加修改产品中心产品信息接口
+	 * @param state 添加模式
+	 * @param creator_id 创建者id
+	 * @param category_id 类目id
+	 * @param cn_name 中文名称
+	 * @param en_name 英文名称
+	 * @param remark  说明
+	 * @param enabled 状态
+	 */
 	public function setProductCenter(){
 		$state = I('post.state');
 		$category_id = I('post.category_id');
@@ -169,7 +180,14 @@ class ProductCenterController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取产品中心产品列表接口
+	/*
+	 * 获取产品中心产品列表接口
+	 * @param category_id 类目id
+	 * @param enabled 状态
+	 * @param vague 模糊搜索条件
+	 * @param pages 页数
+	 * @param num 每页数量
+	 */
 	public function getallProductCenter(){
 		$category_id = I('post.category_id');
 		$enabled = I('post.enabled');
@@ -199,7 +217,10 @@ class ProductCenterController extends BaseController
 		$this->response($arr,'json'); 
 	}
 
-	//获取产品中心产品信息接口
+	/*
+	 * 获取产品中心产品信息接口
+	 * @param id 产品id
+	 */
 	public function getProductCenterInfo(){
 		$id = I('post.id');
 		$res = \Think\Product\ProductCenter::GetProductCenter($id);
@@ -213,9 +234,18 @@ class ProductCenterController extends BaseController
 		$this->response($arr,'json'); 
 	}
 
-	//删除产品中心产品信息接口
+	/*
+	 * 删除产品中心产品信息接口
+	 * @param id 产品id
+	 */
 	public function delProductCenter(){
 		$id = I('post.id');
+		if(empty($id)){
+			$arr['status'] = 102;
+			$arr['msg'] = "请选择要删除的产品";
+			$this->response($arr,'json');
+			exit();
+		}
 		$res = \Think\Product\ProductCenter::DelProductCenter($id);
 		if($res == 1){
 			$arr['status'] = 100;
@@ -226,7 +256,9 @@ class ProductCenterController extends BaseController
 		$this->response($arr,'json'); 
 	}
 
-	//上传文件读取数据
+	/*
+	 * 上传文件读取数据
+	 */
 	public function uploadProductCenter(){
 		$xlsx = 'xlsx';
 		$xls = 'xls';
@@ -258,29 +290,32 @@ class ProductCenterController extends BaseController
 					}
 					unlink($file_name);
 				}else{
-					$data['status'] = 104;
-                    $data['msg']    = '文件大小超负荷';
-					$this->response($data,'json');exit();
+					$arr['status'] = 104;
+                    $arr['msg']    = '文件大小超负荷';
+					$this->response($arr,'json');exit();
 				}
     		}else{
-    			$data['status'] = 103;
-                $data['msg']    = '文件格式不被允许';
-    			$this->response($data,'json');exit();
+    			$arr['status'] = 103;
+                $arr['msg']    = '文件格式不被允许';
+    			$this->response($arr,'json');exit();
     		}
     	}else{
-    		$data['status'] = 105;
-            $data['msg']    = '没有文件被上传';
-    		$this->response($data,'json');exit();
+    		$arr['status'] = 105;
+            $arr['msg']    = '没有文件被上传';
+    		$this->response($arr,'json');exit();
     	}
 		$arr['status'] = 100;
 		$arr['value'] = $data;
 		$this->response($arr,'json'); 
 	}
 
-	//获取已经关联了词库的产品
+	/*
+	 * 获取已经关联了词库的产品
+	 * @param category_id 类目id
+	 */
 	public function getProduct2Value(){
 		$category_id = I('post.category_id');
-		$vague = I('post.vague');
+		$vague = __sqlSafe__(I('post.vague'));
 		if(empty($category_id)){
 			$data['status'] = 102;
             $data['msg']    = '请选择类目';

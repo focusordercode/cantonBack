@@ -1,10 +1,11 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-
-/*
-*  产品资料模板
-*/
+/**
+ * 产品资料模板表头/项目模板/excel表头
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class TemplateItemController extends BaseController
 {
     protected $rule_enname      = "/^[a-z_A-Z()\s]+[0-9]{0,10}$/";
@@ -14,7 +15,14 @@ class TemplateItemController extends BaseController
     protected $dt2              = "/^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])([0][1-9]|[1][0-2])([0-2][1-9]|[3][0-1])*$/";
     protected $dt3              = "/^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])(\/)([0][1-9]|[1][0-2])(\/)([0-2][1-9]|[3][0-1])*$/";
 
-    public function get_item_template(){
+    /*
+     * 模板表头列表
+     * @param template_id 模板id
+     * @param field  字段 不填为返回全部
+     * @param type_code info / batch
+     * */
+    public function get_item_template()
+    {
         $type_code=strip_tags(trim(I('type_code')));
         if(empty($type_code)){
             $data['status'] = 119;
@@ -22,15 +30,16 @@ class TemplateItemController extends BaseController
             $this->response($data,'json');
             exit();
         }
-        $t = strip_tags(trim(I("template_id")));  // 模板id验证  必要参数
+        // 模板id验证  必要参数
+        $t = strip_tags(trim(I("template_id")));
         if(!empty($t) && preg_match($this->rule_num,$t) && $t != 0){
             $template_id = $t;
         }else{
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }
-
-        $f = strip_tags(trim(I("field")));   // 返回字段定义，可选参数
+        // 返回字段定义，可选参数
+        $f = strip_tags(trim(I("field")));
         if(!empty($f)){
             $fields = array_filter(explode(",",$f));
             $field = implode(",",$fields);
@@ -51,6 +60,10 @@ class TemplateItemController extends BaseController
 
     /*
      * 获取剔除模板默认关联后的模板表头数据
+     * @param template_id 模板id
+     * @param field  字段 不填为返回全部
+     * @param type_code info / batch
+     * @param new    为新增关系
      */
     public function get_item_eliminate(){
         $type_code=strip_tags(trim(I('type_code')));
@@ -61,15 +74,16 @@ class TemplateItemController extends BaseController
             $this->response($data,'json');
             exit();
         }
-        $t = strip_tags(trim(I("template_id")));  // 模板id验证  必要参数
+        // 模板id验证  必要参数
+        $t = strip_tags(trim(I("template_id")));
         if(!empty($t) && preg_match($this->rule_num,$t) && $t != 0){
             $template_id = $t;
         }else{
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }
-
-        $f = strip_tags(trim(I("field")));   // 返回字段定义，可选参数
+        // 返回字段定义，可选参数
+        $f = strip_tags(trim(I("field")));
         if(!empty($f)){
             $fields = array_filter(explode(",",$f));
             $field = implode(",",$fields);
@@ -78,6 +92,7 @@ class TemplateItemController extends BaseController
         }
         $G = \Think\Product\Product_Item_Template::get($type_code,$template_id,$field);  // 获取数据
         $count = count($G['value']);
+        // 判断是否为新增的关联关系
         if($new == 'yes'){
             foreach (C('TEMPLATE_DEFAULT') as $key => $value) {
                 foreach ($G['value'] as $keys => $values) {
@@ -87,6 +102,7 @@ class TemplateItemController extends BaseController
                 }
             }
         }else{
+            // 默认关系，直接读取配置文件添加
             $batch2product = D('TemplateContactView');
             $sql = $batch2product->where("template2_id=%d",array($t))->select();
             if($sql){
@@ -97,7 +113,6 @@ class TemplateItemController extends BaseController
                         }
                     }
                 }
-
             }else{
                 foreach (C('TEMPLATE_DEFAULT') as $key => $value) {
                     foreach ($G['value'] as $keys => $values) {
@@ -108,8 +123,6 @@ class TemplateItemController extends BaseController
                 }
             }
         }
-
-
         foreach (C('TEMPLATE_DEFAULT') as $key => $value) {
             foreach ($G['value'] as $keys => $values) {
                 if(in_array($key,$values)){
@@ -131,6 +144,8 @@ class TemplateItemController extends BaseController
 
     /*
      * 获取默认关联的数据
+     * @param template_id     资料表表头id
+     * @param batch_template_id  批量表表头id
      */
     public function get_item_relation(){
         $template_id = I('post.template_id');
@@ -162,6 +177,9 @@ class TemplateItemController extends BaseController
 
     /*
      * 添加模板表头数据
+     * @param template_id 模板id
+     * @param tempData 添加数据包
+     * @param type_code info / batch
      * */
     public function add_item_template(){
 
@@ -179,6 +197,7 @@ class TemplateItemController extends BaseController
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }else{
+            // 处理接收到的数据包
             foreach($form_data as $key => $value){
                 if(empty($value['cn_name']) || empty($value['en_name']) || empty($value['data_type_code']) || !preg_match($this->rule_enname,$value['en_name'])) {  //  数据非空、正则验证
                     $data['status'] = 102;
@@ -199,7 +218,10 @@ class TemplateItemController extends BaseController
     }
 
 
-    // 编辑
+    // 编辑表头信息
+    // @param type_code info/batch
+    // @param item_num 表头数量
+    // @param template_id 模板id
     public function edit_item_template()
     {
         $type_code   = I('type_code');
@@ -218,7 +240,7 @@ class TemplateItemController extends BaseController
             $this->response($data,'json');
             exit();
         }
-
+        // 数据包处理
         if($type_code == 'info'){
             $edit_data = $_POST['tempData'];
             if(empty($edit_data)){
@@ -232,7 +254,7 @@ class TemplateItemController extends BaseController
             $textdata    = urldecode($text);
             $num         = ceil( $ma / 30 );
             $j = 0;
-
+            // 数据量过大被php 限制post接收时，分段拿取
             for($z = 0; $z < $num; $z ++) {                     // 分包获取传的产品数量
                 $b = stripos($textdata, 'tempData[' . $j . ']');
                 $j = $j + 30;
@@ -246,6 +268,7 @@ class TemplateItemController extends BaseController
                 $pro_data[] = $tempData;
                 $tempData = array();
             }
+            // 转化成数据方便处理
             $edit_data = array();
             foreach($pro_data as $val){  // 将接收到的多个数据包组合成一个
                 foreach($val as $vs){
@@ -253,7 +276,7 @@ class TemplateItemController extends BaseController
                 }
             }
         }
-
+        // 遍历处理完的数组赋值修改
         foreach($edit_data as $value){
             if(!empty($value['default_value']) && $type_code == 'info'){
                 $p = $value['default_value'];
@@ -296,7 +319,13 @@ class TemplateItemController extends BaseController
 
         $this->response($data,'json');
     }
-    
+
+    /*
+     * 表头数据删除
+     * @param template_id 模板id
+     * @param id          删除的表头id
+     * @param type_code info / batch
+     * */
     public function del_item_template(){
         $type_code = strip_tags(trim(I('type_code')));
         if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
@@ -335,6 +364,8 @@ class TemplateItemController extends BaseController
 
     /*
      * 根据模板id获取Bootstrap Table表格头
+     * @param template_id 模板id
+     * @param type_code info / batch
      */
     public function getBootsttrap(){
         $type_code   = I('post.type_code');
@@ -366,6 +397,9 @@ class TemplateItemController extends BaseController
 
     /*
      * 添加资料表与批量表的关系
+     * @param template_id    资料表表头id
+     * @param batch_template_id  批量表表头id
+     * @param data           关联管理的数据包
      * */
     public function marry_information_batch_by_form(){
         $m = M('product_item2batch_item');
@@ -393,6 +427,7 @@ class TemplateItemController extends BaseController
             $this->response($data,'json');
             exit();
         }
+        // 创建者id
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
@@ -404,8 +439,10 @@ class TemplateItemController extends BaseController
         $da['modified_time']  = date("Y-m-d H:i:s", time());
         $da['creator_id']     = $creator_id;
         $m->where(array('template1_id' => $template_id,'template2_id' => $batch_template_id))->delete();
-        foreach($marry_data as $val){   // 键为资料表表头id  值为批量表表头id
-
+        // 循环查询是否存在，查询之后写入关系到数据库
+        // 键为资料表表头id  值为批量表表头id
+        foreach($marry_data as $val)
+        {
             if(empty($val['infoId']) || empty($val['batchId'])){  // 核查参数id不能为空
                 $m->rollback();
                 $data['status'] = 102;
@@ -413,18 +450,15 @@ class TemplateItemController extends BaseController
                 $this->response($data,'json');
                 exit();
             }
-
             // 查找是否有重复
             $isset2 = $m->where(array('template1_id' => $template_id,'template2_id' => $batch_template_id,'title2_id' => $val['batchId']))->find();
             if($isset2){
                 continue;           // 重复，跳过
             }
-
             $da['template1_id']   = $template_id;        // 资料表id
             $da['template2_id']   = $batch_template_id;  // 批量表id
             $da['title1_id']      = $val['infoId'];
             $da['title2_id']      = $val['batchId'];
-
             $insert = $m->add($da);   // 写入两个表的关系放到关联表
             if(!$insert){
                 $m->rollback();
@@ -452,9 +486,11 @@ class TemplateItemController extends BaseController
 
     /*
      * 根据模板id获取Bootstrap Table表格头 以及常用值
+     * @param template_id 模板id
+     * @param type_code info / batch
      */
-    public function getTitleAndValid(){
-
+    public function getTitleAndValid()
+    {
         $template_id = I('post.template_id');
         $type_code   = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch'){
@@ -470,13 +506,14 @@ class TemplateItemController extends BaseController
             $this->response($arr,'json');
             exit();
         }
-
+        // 模板id读表头
         $res = \Think\Product\Product_Item_Template::GetBootstrapTable($type_code , $template_id);
-        if(!empty($res)){
-
+        if(!empty($res))
+        {
             $arr['status'] = 100;
-            foreach($res as $key => $value){
-
+            // 列出默认数据在返回数组里
+            foreach($res as $key => $value)
+            {
                 $arr['value'][$key]['id']              = $value['id'];
                 $arr['value'][$key]['en_name']         = $value['en_name'];
                 $arr['value'][$key]['length']          = $value['length'];
@@ -492,7 +529,6 @@ class TemplateItemController extends BaseController
                 $arr['value'][$key]['precision_dc']    = array(1,2,3);
                 $arr['value'][$key]['iswrite_array']   = array(1,2,3);//是否填写的数组
                 $arr['value'][$key]['rule_array']      = array(1,2);//填写规则的数组
-
                 if($type_code == 'batch'){
                     $valid = M('product_item_valid_value')->where(array('template_id'=>$template_id,'item_id'=>$value['id']))->find();
                     $arr['value'][$key]['valid_value']     = explode(",",$valid['value']);
@@ -507,7 +543,10 @@ class TemplateItemController extends BaseController
     }
 
     /*
-     * 批量表表头上传  
+     * 批量表表头上传
+     * @param template_id 模板id
+     * @param type_code info / batch
+     * @param pageNumber excel页码
      * */
     public function upload_excel_header_file(){
 
@@ -533,7 +572,7 @@ class TemplateItemController extends BaseController
             exit();
         }
         $extension = array('xls','xlsx');
-
+        // 上传新模板先删除之前已经存在的
         M('product_item2batch_item')->where("template2_id=%d",array($template_id))->delete();
         M('product_item_valid_value')->where("template_id=%d",array($template_id))->delete();
         M('product_batch_item_template')->where("template_id=%d",array($template_id))->delete();
@@ -549,9 +588,8 @@ class TemplateItemController extends BaseController
                 $size = (($_FILES['file']['size'])/1024)/1024; // mb兆
                 if($size < 5){
                     $time = date("Ymd-His", time());
-                    
+                    // 分出资料表与批量表两种模板区别
                     if($type_code == 'info'){
-                        
                         $m = M('product_item_template');
                         $file_name = "item_" . $time . '.' . $type;
                         $height = 6;   // 方便读取文件的行
@@ -563,6 +601,7 @@ class TemplateItemController extends BaseController
                         $dir    = './Public/Template/Item/';
                     }
                     $page   = (int)$a;
+                    // 创文件夹
                     if(!is_dir($dir)){
                         mkdir($dir);
                     }
@@ -573,15 +612,14 @@ class TemplateItemController extends BaseController
                     }
                     $item_file = $dir.$file_name;
                     if(move_uploaded_file($_FILES['file']['tmp_name'], $item_file)){
-
                         // 上传成功读取录入
                         $res = read_excel($item_file , $types , $page , $type_code ,$height);
-
                         $da['enabled']        = 1;
                         $da['creator_id']     = $creator_id;
                         $da['created_time']   = date('Y-m-d H:i:s' , time());
                         $da['modified_time']  = date('Y-m-d H:i:s' , time());
                         $da['template_id']    = $template_id;
+                        // 分析数据包
                         if($type_code == 'info'){
                             $foreach_arr = $res[$height-1];
                         }else{
@@ -597,6 +635,7 @@ class TemplateItemController extends BaseController
                                     $data['msg']    = '表格数据有误';
                                     $this->response($data,'json');exit();
                                 }
+                                // 加载默认固定类型和代码长度限制
                                 if(C($val)){
                                     $http_head = C($val);
                                     $da['data_type_code'] = $http_head['d_t_code'];
@@ -662,6 +701,7 @@ class TemplateItemController extends BaseController
             if($type_code == 'batch'){
                 $datas['number'] = $page;
                 M('product_batch_template')->data($datas)->where("id=%d",array($template_id))->save();
+                // 添加默认值
                 $this->add_valid_value($item_file , $types , $template_id , $creator_id);
             }
             $data['status'] = 100;
@@ -675,12 +715,15 @@ class TemplateItemController extends BaseController
     }
 
     // 写完表头继续写常用值
-    public function add_valid_value($item_file , $types , $template_id , $creator_id){
-
+    // @param item_file 上传的excel文件
+    // @param types     excel文件类型
+    // @param template_id 模板id
+    public function add_valid_value($item_file , $types , $template_id , $creator_id)
+    {
         $sm = M('product_item_valid_value');
         $sm->startTrans();
-
         $arr = array();
+        // 读文件
         $res = read_excel($item_file , $types , 5);
         foreach($res as $key => $value){
             foreach($value as $k => $v){
@@ -728,7 +771,9 @@ class TemplateItemController extends BaseController
         $sm->commit();
     }
 
-    //模板撤销
+    // 模板撤销
+    // @param type_code info/batch
+    // @param template_id 模板id
     public function template_back_step(){
 
         $type_code = I('post.type_code');
@@ -756,6 +801,8 @@ class TemplateItemController extends BaseController
     }
 
     //获取需要编辑的默认值字段
+    // @param type_code info/batch
+    // @param form_id 表格id
     public function getEditDefault(){
         $form_id = I('post.form_id');
         $type_code = I('post.type_code');
@@ -773,9 +820,11 @@ class TemplateItemController extends BaseController
             $form = M('product_batch_form');
             $item = M('product_batch_item_template');
         }
+        // 表格查模板
         $sql = $form->field("template_id")->where("id=%d",array($form_id))->find();
         $where['filling_type'] = array('exp','IN (1,2)');
         $where['template_id'] = $sql['template_id'];
+        // 列出选中的字段
         $query = $item->field("en_name,filling_type")->where($where)->select();
         foreach ($query as $key => $value) {
             if($value['filling_type'] == 1){
@@ -794,7 +843,9 @@ class TemplateItemController extends BaseController
         $this->response($arr,'json');
     }
 
-    //获取数据检查的字段与检查规则
+    // 获取数据检查的字段与检查规则
+    // @param type_code info/batch
+    // @param form_id 表格id
     public function getCheckRule(){
         $form_id = I('post.form_id');
         $type_code = I('post.type_code');
@@ -830,7 +881,8 @@ class TemplateItemController extends BaseController
         $this->response($arr,'json');
     }
 
-    //获取当前批量表模板与资料表模板的关联关系
+    // 获取当前批量表模板与资料表模板的关联关系
+    // @param batch_template_id 批量表表头id
     public function getcontact(){
         $batch_template_id = I('post.batch_template_id');
         if(empty($batch_template_id)){
@@ -839,6 +891,7 @@ class TemplateItemController extends BaseController
             $this->response($arr,'json');
             exit();
         }
+        // 加载视图
         $item = D('TemplateContactView');
         $sql =$item->where("template2_id=%d",array($batch_template_id))->select();
         $query = M('product_template')->where("id=%d",array($sql[0]['template_id']))->find();

@@ -175,7 +175,6 @@ return [
             ],
             'insert/form'  => [
                 'ProductInfoForm/addInfoForm',
-                'GetGlobalID/get_form_number',
             ],
         ],
 

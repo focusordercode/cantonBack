@@ -4,11 +4,14 @@ use Think\Controller;
 
 /**
 * 分区操作
+* @author lrf
+* @modify 2016/12/22
 */
 class SubareaController extends BaseController
 {
-
-	//获取数据库全部没有创建分区的表
+	/*
+	 * 获取数据库全部没有创建分区的表
+	 */ 
 	public function getAllTable(){
 		$sql=M()->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".C('DB_NAME')."'  and table_type='base table'");//查询所有表名
 		if($sql){
@@ -31,7 +34,9 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取已经分区的表名
+	/*
+	 * 获取已经分区的表名
+	 */
 	public function getTable(){
 		$sub=M(C('DB_TABLE_NAME'));
 		$sql=$sub->field("id,tbl_name")->select();
@@ -44,11 +49,14 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');
 	}
 
-	//获取数据表的字段
+	/*
+	 * 获取数据表的字段
+	 */
 	public function getFields(){
 		$id=I('post.id');
 		if(empty($id)){
 			$tbl_name=I('post.tbl_name');
+            $tbl_name = __sqlSafe__($tbl_name);
 		}else{
 			$table=M(C('DB_TABLE_NAME'));
 			$tbl=$table->field("tbl_name")->where("id=%d",array($id))->find();
@@ -64,11 +72,25 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');
 	}
  
-	//为表创建分区
+	/*
+	 * 为表创建分区
+	 * @param tbl_name  数据表名称
+	 * @param type 分区类型
+<<<<<<< HEAD
+	 * @param ckey 做分区的键值
+=======
+	 * @param key 做分区的键值
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
+	 * @param num 分区数量
+	 * @param interval 分区区间
+	 * @param subnum  子分区数量
+	 * @param subkey 子分区的键值
+	 * @param subtype 子分区的类型
+ 	 */
 	public function setSubarea(){
 		$tbl_name=I('post.tbl_name');
 		$type=I('post.type');
-		$key=I('post.key');
+		$key=I('post.ckey');
 		$num=I('post.num');
 		$interval=I('post.interval');
 		$subtype=I('post.subtype');
@@ -94,7 +116,7 @@ class SubareaController extends BaseController
 		}else{
 			$query="select min(PARTITION_DESCRIPTION) `interval`, max(PARTITION_ORDINAL_POSITION) num,max(SUBPARTITION_ORDINAL_POSITION) subnum,PARTITION_METHOD type,SUBPARTITION_METHOD subtype,PARTITION_EXPRESSION `key`,SUBPARTITION_EXPRESSION subkey from information_schema.partitions where table_schema=database() and table_name='".$tbl_name."';";//查询表的分区情况
 			$array=M()->query($query);
-			//判断是否从未分区
+			//判断是否从未分区，已经分区就返回
 			if(!empty($array[0]['type'])){
 			
 				$query11="show columns from ".$tbl_name;//查询表的结构
@@ -104,11 +126,12 @@ class SubareaController extends BaseController
 						$k[]=$value['field'];//将主键保存下来
 					}
 				}
+				//保存分区信息
 				$sub=M(C('DB_TABLE_NAME'));
 				$data['tbl_name']=$tbl_name;
 				$data['type']=$array[0]['type'];
 				$countkey=count($array[0]['key']);
-				$ke=substr($array[0]['key'],1,$c-1);
+				$ke=substr($array[0]['key'],1,$countkey-1);
 				$data['type_key']=$ke;
 				$data['num']=$array[0]['num'];
 				$csubkey=count($array[0]['subtype']);
@@ -126,6 +149,7 @@ class SubareaController extends BaseController
 			}
 			//判断是否可以提交
 			if(S($tbl_name.'_s')=='SUCCESS' || empty(S($tbl_name.'_s'))){
+				//保存分区信息
 				switch ($type) {
 					case 'RANGE':
 						if(empty($interval)){
@@ -193,7 +217,7 @@ class SubareaController extends BaseController
 					$url = __ROOT__.'/Asyn/CreatePartition';
 					$data['types']=$type;
 					$data['id']=$sql;
-					$check=doRequest($url,$data);
+					$check=doRequest($url,$data);//将操作异步启动
 					if($check===true){
 						$arr['status']=100;
 					}else{
@@ -209,7 +233,12 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');		
 	}
 
-	//分区扩容
+	/*
+	 * 分区扩容
+	 * @param id 数据表id
+	 * @param num 分区数量
+	 * @param subnum  子分区数量
+	 */
 	public function Dilatation(){
 		$id=I('post.id');
 		$num=I('post.num');
@@ -232,7 +261,7 @@ class SubareaController extends BaseController
 				if($sql!=='flase'){
 					$data['id']=$id;
 					$url = __ROOT__.'/Asyn/DilatationPartition';
-					$check=doRequest($url,$data);
+					$check=doRequest($url,$data);//将操作异步启动
 					if($check===true){
 						$arr['status']=100;
 					}else{
@@ -246,7 +275,21 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');		
 	}
 
-	//修改分区
+	/*
+	 * 修改分区
+	 * @param id 数据id
+	 * @param type 分区类型
+<<<<<<< HEAD
+	 * @param ckey 做分区的键值
+=======
+	 * @param key 做分区的键值
+>>>>>>> 77ee091882c9080bad258e4568960a9813bbaf14
+	 * @param num 分区数量
+	 * @param interval 分区区间
+	 * @param subnum  子分区数量
+	 * @param subkey 子分区的键值
+	 * @param subtype 子分区的类型
+ 	 */
 	public function updateSubarea(){
 		$id=I('post.id');
 		if(empty($id)){
@@ -258,7 +301,7 @@ class SubareaController extends BaseController
 		$tbl=$table->where("id=%d",array($id))->find();
 		$tbl_name=$tbl['tbl_name'];
 		$type=I('post.type');
-		$key=I('post.key');
+		$key=I('post.ckey');
 		$num=I('post.num');
 		$interval=I('post.interval');
 		$subtype=I('post.subtype');
@@ -279,9 +322,10 @@ class SubareaController extends BaseController
 			$this->response($arr,'json');
 			exit();
 		}
-		if(S($tbl_name.'_u')=='ONGOING'){
+		if(S($tbl_name.'_u')=='ONGOING'){//判断是否正在操作
 			$arr['status']=103;
 		}else{
+			//将分区操作写入数据库
 			switch ($type) {
 				case 'RANGE':
 					if(empty($interval)){
@@ -356,12 +400,12 @@ class SubareaController extends BaseController
 					break;
 			}
 			$table=M(C('DB_TABLE_NAME'));
-			$sql=$table->data($data)->where("id=%d",array($id))->save();
+			$sql=$table->data($data)->where("id=%d",array($id))->save();	
 			if($sql!=='flase'){
 				$array['id']=$id;
 				$array['types']=$type;
 				$url = __ROOT__.'/Asyn/UpdatePartition';
-				$check=doRequest($url,$array);
+				$check=doRequest($url,$array);//将操作异步启动
 				if($check===true){
 					$arr['status']=100;
 				}else{
@@ -375,7 +419,11 @@ class SubareaController extends BaseController
 		$this->response($arr,'json');		
 	}
 
-	//检测分区
+	/*
+	 * 检测分区是否操作是否成功或者是否正在执行
+	 * @param tbl_name 数据表名称
+	 * @param operation  操作
+	 */
 	public function check(){
 		$tbl_name=I('post.tbl_name');
 		if(empty($tbl_name)){
@@ -430,8 +478,10 @@ class SubareaController extends BaseController
 		}
 		$this->response($arr,'json');
 	}
-
-	//清除缓存
+	/*
+	 * 分区出现错误时的操作
+	 * @param tbl_name 数据表名称
+	 */
 	public function Eliminate(){
 		$tbl_name=I('get.tbl_name');
 		if(S($tbl_name.'_s')=='ONGOING'){
@@ -450,7 +500,10 @@ class SubareaController extends BaseController
 		$this->response($tbl_name,'json');
 	} 
 
-	//获取每张表的统计
+	
+	/*
+	 * 获取每张表的统计
+	 */
 	public function getTableCount(){
 		$db = M();
 		$db->startTrans();

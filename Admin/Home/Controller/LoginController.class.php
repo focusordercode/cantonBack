@@ -6,8 +6,10 @@ header('Access-Control-Allow-Methods:POST,GET');
 header('Access-Control-Allow-Credentials:true');
 header("Content-Type: application/json;charset=utf-8");
 /**
-* 登陆注册
-*/
+ * Login登陆操作
+ * @author cxl,lrf
+ * @modify 2016/12/22
+ */
 class LoginController extends Controller
 {
     public $m_rule = '/^1[34578]{1}\d{9}$/';
@@ -15,11 +17,14 @@ class LoginController extends Controller
 
     /*
      * 登陆
+     * @param username 用户名
+     * @param password 密码
      * */
     public function dologin()
     {
         if(IS_POST)
         {
+            // 登陆查询ip是否被限制
             if(!$this->loginLimit()){
                 echo json_encode(['status' => 104 ,'msg' => 'ip已被限制15分钟，请休息一会。']);exit();
             }
@@ -31,7 +36,9 @@ class LoginController extends Controller
             $m = M('auth_user');
             $user = $m->where(['username' => $username,'enabled' => 1])->find();
             if($user){
+                // 获取密码方式
                 $pwd = EncodePwd($password ,$user['pwdsuffix']);
+                // 核对登陆信息
                 if($pwd == $user['password']){
                     $token = substr(md5(get_client_ip()),0,6);
                     $ids = base64_encode(authcode($user['id'],'ENCODE',md5(C('ENCODE_USERID'))));

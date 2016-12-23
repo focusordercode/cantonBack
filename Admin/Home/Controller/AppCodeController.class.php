@@ -5,7 +5,7 @@ use Think\Controller;
 * 类目管理控制器
 */
 class AppCodeController extends BaseController{
-    
+
     /**
      * 查询所有模块
      */

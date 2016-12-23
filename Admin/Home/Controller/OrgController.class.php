@@ -3,6 +3,8 @@ namespace Home\Controller;
 use Think\Controller;
 /*
  * 用户中心
+ * @author cxl,lrf
+ * @modify 2016/12/22
  */
 class OrgController extends BaseController
 {
@@ -35,6 +37,9 @@ class OrgController extends BaseController
 
     /*
      * 修改组织机构
+     * @param p_id    上级id
+     * @param org_id  需编辑的id
+     * @param no      排序
      * */
     public function editOrg(){
         if (IS_POST) {
@@ -74,6 +79,8 @@ class OrgController extends BaseController
 
     /*
      * 添加组织机构
+     * @param p_id    上级id
+     * @param no      排序
      * */
     public function InsertOrg(){
         if (IS_POST) {
@@ -81,13 +88,13 @@ class OrgController extends BaseController
             $name        = I('name');
             $introduce   = I('introduce');
             $no          = (int)I('no');
+            // 创建者
             $creator_id = I('post.creator_id');
             if(empty($creator_id)){
                 $arr['status'] = 1012;
                 $this->response($arr,'json');
                 exit();
             }
-
             if(empty($name)){
                 $this->response(['status' => 102, 'msg' => '机构名称必填'],'json');
             }
@@ -114,12 +121,14 @@ class OrgController extends BaseController
 
     /*
      * 删除组织机构
+     * @param org_id  机构id
      * */
     public function DeleteOrg(){
         if (IS_POST) {
             $org_id = (int)I('org_id');
             if($org_id == 0) $this->response(['status' => 103, 'msg' => '请求失败'],'json');
 
+            // 查询关联关系
             $roles = M('auth_role_org')->where(['org_id' => $org_id])->find();
             if($roles) $this->response(['status' => 103, 'msg' => '有关联的角色不可直接删除'],'json');
 
@@ -170,6 +179,7 @@ class OrgController extends BaseController
         $searchText = I('post.searchText');
 
         // 查询出机构
+        $searchText = __sqlSafe__($searchText);
         $org = M('auth_org')
             ->where("name LIKE '%$searchText%' OR introduce LIKE '%$searchText%'")
             ->field('id,name,p_id,introduce')

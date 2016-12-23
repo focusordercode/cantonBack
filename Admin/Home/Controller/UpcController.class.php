@@ -1,13 +1,19 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-
+/**
+ * upc
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class UpcController extends BaseController
 {
 	protected $dir = "./Public/upc/";
     protected $rule_time = "/^\d{4}-\d{2}-\d{2}(\s)\d{2}:\d{2}:\d{2}$/s";
 
-
+    /*
+     * 读取上传upc文件
+     * */
     public function read_upc_file ($file) {  // 读取文件并录入
         set_time_limit(0);
     	$u = M('product_upc_code');
@@ -57,7 +63,12 @@ class UpcController extends BaseController
     	}
     }
 
-    public function upload_upc_file(){ // 文件上传
+    /*
+     * upc文件上传  txt文本文档类型
+     * 每行一条upc  12-13个数字 已正则校验 否则不能匹配
+     * */
+    public function upload_upc_file()
+    {
         set_time_limit(0);
     	$extension = 'txt';
     	if($_FILES){
@@ -88,6 +99,10 @@ class UpcController extends BaseController
 
     /*
      * 拉取upc列表
+     * @param pageNum 页码
+     * @param locked  锁定
+     * @param enabeld 有无效
+     * @param pageSize 页面尺寸
      */
     public function get_upc_list()
     {
@@ -112,6 +127,7 @@ class UpcController extends BaseController
     		}else{
     			$pa = 25;
     		}
+            $where = __sqlSafe__($where);
             if(isset($_POST['start_time']) && isset($_POST['end_time'])){
                 $s_time = strip_tags(trim(I("start_time")));
                 $e_time = strip_tags(trim(I("end_time")));
@@ -123,7 +139,7 @@ class UpcController extends BaseController
                     $this->response($data,'json');exit();
                 }
             }
-
+            // 配置完成读取条件读取
     		$get_upc = \Think\Product\Upc::get_upc($where,$nowPage,$pa);
     		if($get_upc['error'] == 0){
     			$data['status'] = 100;
@@ -145,26 +161,8 @@ class UpcController extends BaseController
     	$this->response($get_upc,'json');exit();
     }
 
-    //  调用upc
-    public function use_upc(){
-        $num = strip_tags(trim(I("num")));
-        if(!empty($num) && preg_match("/^[0-9]+$/", $num)){
-            $use_upc = \Think\Product\Upc::use_upc($num);
-            if($use_upc['error'] == 0){
-                $data['status'] = 100;
-                $data['value'] = $use_upc['value'];
-            }else{
-                $data['status'] = $use_upc['status'];
-                $data['msg']    = $use_upc['msg'];
-            }
-        }else{
-            $data['status'] = 102;
-            $data['msg']    = '调用数量有误';
-        }
-        $this->response($data,'json');exit();
-    }
-
-    //匹配UPC
+    // 匹配UPC
+    // @param form_id 表格id 自动匹配
     public function marry_upc(){
         $form_id = I('form_id');
 

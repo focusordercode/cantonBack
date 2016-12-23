@@ -3,6 +3,8 @@ namespace Home\Controller;
 use Think\Controller;
 /**
 * 产品资料扩展控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class ProductInfoExtendController extends BaseController
 {
@@ -13,6 +15,8 @@ class ProductInfoExtendController extends BaseController
 
     /*
 	 * 获取模板的数据格式
+     * @param template_id 模板id
+     * @param type_code  资料表或者批量表 
 	 */
 	public function getTemFormat(){
 		$template_id = I('post.template_id');
@@ -35,6 +39,14 @@ class ProductInfoExtendController extends BaseController
 
 	/*
 	 * 改版的数据提交与暂存
+     * @param form_id 表格id
+     * @param template_id 模板id
+     * @param category_id 类目id
+     * @param type_code 判断是资料表（info） 或者批量表（batch）
+     * @param type 判断是暂存或者提交
+     * @param max 所有产品的数量
+     * @param gridColumns   表头数据
+     * @param text post的所有数据
 	 */
 	public function dataCommit(){
         set_time_limit(0);
@@ -116,6 +128,7 @@ class ProductInfoExtendController extends BaseController
        	}
 
        	$m = 0;
+        //找出多少是新添加的
        	foreach ($pro_data as $k => $va) {
             foreach ($va as $vkey => $v_data) {
                 if($v_data[array_search('types',$gridColumns)] == 'yes'){
@@ -131,6 +144,7 @@ class ProductInfoExtendController extends BaseController
 
        	$i = 0;
        	
+        //数据写入数据库
         foreach ($pro_data as $keys => $values) {
         	foreach ($values as $k => $valu) {
                 $product_id = $valu[array_search('product_id',$gridColumns)];
@@ -262,6 +276,7 @@ class ProductInfoExtendController extends BaseController
                 }
             }		
         }
+        //提交就修改表格状态
         if($type == 'submit'){
             $status_code['status_code'] = 'editing';
             $types->where('id=%d',array($form_id))->data($status_code)->save();

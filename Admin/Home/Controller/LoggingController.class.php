@@ -3,6 +3,8 @@ namespace Home\Controller;
 use Think\Controller;
 /**
 * 获取日志控制器
+* @author lrf
+* @modify 2016/12/22
 */
 class LoggingController extends BaseController
 {
@@ -26,6 +28,9 @@ class LoggingController extends BaseController
 
 	/*
 	 * 获取某年某月某日的所有日志
+	 * @param year 想要搜索的年份
+	 * @param month 想要搜索的月份
+	 * @param day 想要搜索的日子
 	 */
 	public function getFixLog(){
 		$year=I('post.year');
@@ -42,7 +47,7 @@ class LoggingController extends BaseController
 			$this->response($arr,'json');
 		}
 		$di=$year.'/'.$month.'/';
-		$value=read_file($di);
+		$value=read_file($di);//读取搜索的年份月份下的所有文件
 		if(empty($value)){
         	$arr['status']=101;
         	$arr['msg']="没有数据！";
@@ -53,6 +58,7 @@ class LoggingController extends BaseController
 			}else{
 				$i=0;
 				$char=substr($year,2).'_'.$month.'_'.$day;
+				//筛选想要搜索的日子的文件
 				foreach ($value as $key => $data) {
 					if(strpos($data['name'], $char)!==false){
 						$array[$i]['name']=$data['name'];
@@ -69,6 +75,7 @@ class LoggingController extends BaseController
 
 	/*
 	 * 删除日志
+	 * @param url 日志地址
 	 */
 	public function delLog(){
 		$url=I('post.url');
@@ -97,6 +104,7 @@ class LoggingController extends BaseController
 
 	/*
 	 * 下载日志文件
+	 * @param url 日志地址
 	 */
 	public function downloadLog(){
 		import('ORG.Util.FileToZip');//引入zip下载类文件FileToZip
@@ -125,6 +133,7 @@ class LoggingController extends BaseController
 
 	/*
 	 * 开启或者关闭调试功能
+	 * @param status 	开启或者关闭(OPEN ,CLOSE)
 	 */
 	public function OpenDebug(){
 		$status=I('post.state');

@@ -2,19 +2,26 @@
 namespace Home\Controller;
 use Think\Controller;
 /**
-* 类目管理控制器
-*/
+ * 类目管理控制器
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class CategoryController extends BaseController
 {
     /**
      * 添加子类目
+     * @param  id         上级类目id
+     * @param  cn_name    中文名
+     * @param  en_name    英文名
+     * @param  remark     注解
+     * @param  creator_id 创建者
      */
     public function addSub(){
-        $id      = I('post.id');
+        $id      = (int)I('post.id');
         $cn_name = I('post.cn_name');
         $en_name = I('post.en_name');
         $remark  = I('post.remark');
-        $creator_id = I('post.creator_id');
+        $creator_id = (int)I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
@@ -40,7 +47,7 @@ class CategoryController extends BaseController
             }else{
                 $data['status'] = 104;
                 $data['msg']    = '中文名必填';
-            }   
+            }
         }else{
             $data['status'] = 102;
             $data['msg']    = '类目未选取';
@@ -50,12 +57,14 @@ class CategoryController extends BaseController
 
     /**
      * 删除类目
+     * @param  id 类目id
      */
     public function  Delete(){
         $id   = I('post.id');
         $res  = \Think\Product\Category::Delete($id);
         $data = array();
         if($res == 1){
+            // 更新类目缓存
             $this->updateCategoryCache();
             $data['status'] = 100;
         }elseif($res == 2){
@@ -73,9 +82,12 @@ class CategoryController extends BaseController
         }
         $this->response($data,'json');
     }
-    
+
     /**
      * 修改类目名称
+     * @param  id      类目id
+     * @param  cn_name 中文名
+     * @param  en_name 英文名
      */
     public function updaName(){
         $id      = I('post.id');
@@ -100,14 +112,14 @@ class CategoryController extends BaseController
             }else{
                 $data['status'] = 104;
                 $data['msg']    = '中文名必填';
-            }  
+            }
         }else{
             $data['status'] = 102;
             $data['msg']    = '类目未选择';
         }
         $this->response($data,'json');
     }
-    
+
     /**
      * 查询顶级类目
      */
@@ -127,14 +139,15 @@ class CategoryController extends BaseController
 
     /**
      * 查询某类目的下一级类目
+     * @param  id 类目id
      */
     public function getChildren(){
         $data = array();
         $id   = I('post.id');
         $res  = \Think\Product\Category::GetSub($id);
         if($res){
-           $data['status'] = 100;
-           $data['value']  = $res;
+            $data['status'] = 100;
+            $data['value']  = $res;
         }else{
             $data['status'] = 101;
             $data['msg']    = '没有相关信息';
@@ -142,8 +155,11 @@ class CategoryController extends BaseController
         $this->response($data,'json');
     }
 
-     /**
+    /**
      * 模块内移动类目
+     * @param  id      移动到的类目id
+     * @param  moveid  需移动的类目id
+     *
      */
     public function move(){
         $moveid = I('post.moveid');
@@ -161,6 +177,7 @@ class CategoryController extends BaseController
 
     /*
      * 模糊搜索类目
+     * @param  text  搜索关键词
      */
     public function selVague(){
         $text = I('post.text');
@@ -169,6 +186,7 @@ class CategoryController extends BaseController
             $this->response($data,'json');
             exit();
         }
+        $text = __sqlSafe__($text);
         $arr = \Think\Product\Category::GetVague($text);
         if($arr){
             $data['status'] = 100;
@@ -180,8 +198,10 @@ class CategoryController extends BaseController
         $this->response($data,'json');
     }
 
-
-    // 产品类目树结构
+    /*
+     * 产品类目树结构
+     * @param  ckey  读取类目 请固定传category
+     * */
     public function treeCategory()
     {
         $key = I("post.ckey");
@@ -214,5 +234,4 @@ class CategoryController extends BaseController
         $parents['children'] = $results;
         S('category' ,$parents ,3153600);
     }
-
 }

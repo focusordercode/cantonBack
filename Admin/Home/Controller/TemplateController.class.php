@@ -1,27 +1,34 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
-/*
-*  产品资料模板
-*/
+/**
+ * 产品资料模板
+ * @author cxl,lrf
+ * @modify 2016/12/21
+ */
 class TemplateController extends BaseController
 {
     protected $rule_str    = "/^[a-z_A-Z()\s]+[0-9]{0,10}$/";
     protected $rule_num    = "/^[0-9]+$/";
 
+    /*
+     * 模板列表
+     * @param enabled 是否启用
+     * @param type_code info / batch
+     * */
 	public function get_template(){
 		$enabled   = strip_tags(trim(I("post.enabled")));    // 可用状态参数，默认为可用 1
 		$type_code = strip_tags(trim(I('post.type_code')));
-        $pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8;
-        $next      = isset($_POST['next']) ? (int)I('post.next') : 1;
+        $pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
+        $next      = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
 
 		if(preg_match($this->rule_num,$enabled)){
 			$where = "enabled=".$enabled;
 		}else{
             $where = "enabled=1";
 		}
-
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
+        // 判断是资料表还是批量表
+		if($type_code != 'info' && $type_code != 'batch'){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
 			$this->response($data,'json');
@@ -72,17 +79,19 @@ class TemplateController extends BaseController
 
 	/*
 	 * 通过类目id做二级联动
+     * @param type_code  info / batch
+     * @param category_id 类目id
 	 */
 	public function getLinkage(){
 		$type_code    = I('post.type_code');
-		$category_id  = I('post.category_id');
+		$category_id  = (int)I('post.category_id');
 		if(empty($category_id)){
 			$data['status'] = 103;
             $data['msg']    = '未选择产品类目';
 			$this->response($data,'json');
 			exit();
 		}
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
+		if($type_code != 'info' && $type_code != 'batch'){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
 			$this->response($data,'json');
@@ -100,6 +109,10 @@ class TemplateController extends BaseController
 	}
 
 	// 添加模板操作
+    // @param cn_name 中文名
+    // @param en_name 英文名
+    // @param type_code info / batch
+    // @param remark  模板备注
 	public function add_template()
 	{
 		$cname     = strip_tags(trim(I("cn_name")));
@@ -112,7 +125,7 @@ class TemplateController extends BaseController
 			$this->response($data,'json');
 			exit();
 		}
-		$creator_id = I('post.creator_id');
+		$creator_id = I('post.creator_id'); // 创建者
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
@@ -145,7 +158,11 @@ class TemplateController extends BaseController
 		}
 		$this->response($data,'json');
 	}
-	
+
+    // 模板编辑
+    // @param cn_name 中文名
+    // @param en_name 英文名
+    // @param type_code info/batch
 	public function edit_template()
 	{
 		$cname     = strip_tags(trim(I("cn_name")));
@@ -187,7 +204,10 @@ class TemplateController extends BaseController
 		}
 		$this->response($data,'json');
 	}
-	
+
+    // 模板删除
+    // @param type_code info/batch
+    // @param id 模板id
 	public function del_template(){  // 删除
 		$type_code = strip_tags(trim(I("type_code")));
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
@@ -196,6 +216,7 @@ class TemplateController extends BaseController
 			$this->response($data,'json');
 			exit();
 		}
+        // id去空去标签
 		$id = strip_tags(trim(I("id")));
 		if(!empty($id) && preg_match($this->rule_num,$id)){  // id验证
 			$del_tem = \Think\Product\Product_Template::del($type_code,$id);     // 删除操作
@@ -214,6 +235,8 @@ class TemplateController extends BaseController
 	}
 
 	// 	启用模板
+    // @param type_code info/batch
+    // @param id 模板id
 	public function use_template()    // 启用模板
 	{
 		$type_code = strip_tags(trim(I("type_code")));
@@ -236,6 +259,8 @@ class TemplateController extends BaseController
 	}
 
     // 停用模板
+    // @param type_code info/batch
+    // @param id 模板id
 	public function stop_template(){
 		$type_code = strip_tags(trim(I("type_code")));
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
@@ -257,6 +282,8 @@ class TemplateController extends BaseController
 	}
 
 	// id获取模板
+    // @param type_code info/batch
+    // @param id 模板id
 	public function get_template_by_id(){  
 		$type_code = strip_tags(trim(I("post.type_code")));
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
@@ -289,17 +316,20 @@ class TemplateController extends BaseController
 
 	/*
 	 * 模糊搜索模板
+	 * @param type_code info/batch
+	 * @param name 搜索关键词
+	 * @param status_code 状态码
 	 */
 	public function vagueName(){
 		$type_code = strip_tags(trim(I("type_code")));
-		$pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8;
+		$pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
 			$data['status'] = 119;
             $data['msg']    = '系统错误';
 			$this->response($data,'json');
 			exit();
 		}
-		$text = strip_tags(trim(I('post.name')));
+		$text = __sqlSafe__(strip_tags(trim(I('post.name'))));
         $status_code = strip_tags(trim(I("post.status_code")));
 
         $arr = \Think\Product\Product_Template::VagueTemName($type_code,$text,$status_code,$pageSize);
@@ -318,6 +348,8 @@ class TemplateController extends BaseController
 	}
 
     // 获取某个类目下所有模板包括通用模板
+    // @param type_code info/batch
+    // @param category_id 类目id
     public function get_template_by_category()
     {
         $type_code    = I('post.type_code');
@@ -352,6 +384,7 @@ class TemplateController extends BaseController
         }
 
         if($result){
+            // 差类目合并类目名
             foreach($result as $key => $value){
                 $l = M('product_category')->field('cn_name')->find($value['category_id']);
                 $result[$key]['category_name'] = $l['cn_name'];
@@ -376,12 +409,13 @@ class TemplateController extends BaseController
     }
 
     //获取模板信息可模糊搜索
+    // @param type_code info/batch
     public function getitemValue(){
     	$enabled   = strip_tags(trim(I("post.enabled")));    // 可用状态参数，默认为可用 1
 		$type_code = strip_tags(trim(I('post.type_code')));
         $num   = isset($_POST['num']) ? (int)I('post.num') : 8;
         $next      = isset($_POST['next']) ? (int)I('post.next') : 1;
-        $vague     = I('post.vague');
+        $vague     = __sqlSafe__(I('post.vague'));
         $category_id = I('post.category_id');
 		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
 			$data['status'] = 119;
