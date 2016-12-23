@@ -583,7 +583,7 @@ class ProductInfoController extends BaseController{
         $s = 0;
         //获取全局id （产品id，产品记录id）
         $id = GetSysId('product_information',$num);
-        $ids = GetSysId('product_information_record',count($tem_data)*$num);
+        $ids = GetSysId('product_information_record',count($tem_data['value'])*$num);
 
         if(empty($variant_num)){//没有变体的自动填表
             

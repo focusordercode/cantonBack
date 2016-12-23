@@ -169,15 +169,17 @@ function GetSysId($app_code,$num = 1){
 
    $arr = array();
    $sys = M("sys_sequence");
-   $sql = $sys->where("app_code='".$app_code."'")->find();
+   $sys->startTrans();
+   $sql = $sys->lock(true)->where("app_code='".$app_code."'")->find();
    $next_id = (int)$sql['next_id'];
    $step    = $sql['step'];
+   $data['next_id'] = $next_id+$num*$step;
+   $query = $sys->data($data)->where("app_code='".$app_code."'")->save();
+   $sys->commit();
    for($i = 0;$i < $num;$i ++){
        $arr[] = $next_id;
        $next_id += $step;
    }
-   $data['next_id'] = $next_id;
-   $query = $sys->data($data)->where("app_code='".$app_code."'")->save();
    return($arr);
 }
 
