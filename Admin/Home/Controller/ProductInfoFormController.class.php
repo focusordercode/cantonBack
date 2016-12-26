@@ -17,17 +17,13 @@ class ProductInfoFormController extends BaseController
 	 */
 	public function getInfoForm()
 	{
-		$category_id = I('post.category_id');
+		$category_id = (int)I('post.category_id');
 		$status_code = I('post.status_code');
 		$type_code   = I('post.type_code');
         $pageSize    = isset($_POST['num']) ? (int)I('post.num') : 15; // 页面大小
         $next        = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		$res = \Think\Product\ProductInfoForm::GetInfoForm($type_code,$status_code,$category_id,$pageSize,$next);
 		if($res){
 			$data['status']    = 100;
@@ -39,7 +35,7 @@ class ProductInfoFormController extends BaseController
 			$data['status'] = 101;
             $data['msg']    = '暂无相关信息';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -53,12 +49,8 @@ class ProductInfoFormController extends BaseController
 		$template_id = (int)I('post.template_id');
 		$status_code = I('post.status_code');
 		$type_code   = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		$res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code,$status_code,$template_id);
 		if($res){
 			$data['status'] = 100;
@@ -67,7 +59,7 @@ class ProductInfoFormController extends BaseController
 			$data['status'] = 101;
             $data['msg']    = '暂无相关信息';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -77,15 +69,10 @@ class ProductInfoFormController extends BaseController
 	 */
 	public function getOneForm()
 	{
-		$id = I('post.id');
+		$id = (int)I('post.id');
 		$type_code = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
 		if(empty($id)){
 			$data['status'] = 102;
             $data['msg']    = '未选择表格信息';
@@ -100,7 +87,7 @@ class ProductInfoFormController extends BaseController
 			}			
 		}
 
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -111,15 +98,10 @@ class ProductInfoFormController extends BaseController
 	 */
 	public function getCTInfoForm()
 	{
-		$category_id = I('post.category_id');
+		$category_id = (int)I('post.category_id');
 		$template_id = I('post.template_id');
 		$type_code   = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		if(empty($category_id)){
 			$data['status'] = 103;
             $data['msg']    = '未选择产品类目';
@@ -142,7 +124,7 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '暂无相关信息';
 			}
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -153,12 +135,7 @@ class ProductInfoFormController extends BaseController
 	public function vagueTitle(){
 		$title     = I("post.title");
 		$type_code = I('post.type_code');
-		if($type_code != 'info' && $type_code != 'batch'){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		if(empty($title)){
 			$data['status'] = 105;
             $data['msg']    = '标题为必填';
@@ -173,7 +150,7 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '暂无相关信息';
 			}			
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 
@@ -186,17 +163,11 @@ class ProductInfoFormController extends BaseController
 	public function addInfoForm(){
 		$array     = array();
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
 		$data['category_id']    = I('post.category_id');
 		$data['template_id']    = I('post.template_id');
@@ -212,18 +183,15 @@ class ProductInfoFormController extends BaseController
 		if(empty($data['category_id']) || !preg_match("/^[0-9]*$/",intval($data['category_id']))){
 			$array['status'] = 103;
             $array['msg']    = '未选择产品类目';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}elseif(empty($data['template_id']) || !preg_match("/^[0-9]*$/",intval($data['template_id']))){
 			$array['status_id'] = 104;
             $array['msg']       = '未选择模板';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}elseif(empty($data['title'])){
 			$array['status'] = 105;
             $array['msg']    = '标题为必填';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}
 		if(empty($data['client_id'])){
 			$data['client_id'] = 1;
@@ -231,8 +199,7 @@ class ProductInfoFormController extends BaseController
         if(empty($data['form_no'])){
             $array['status'] = 102; // 编号不能为空
             $array['msg']    = '编号为必填';
-            $this->response($array,'json');
-            exit();
+            $this->response($array);
         }
         // 从编号里面取id
         $data['id'] = (int)substr($data['form_no'],8);
@@ -243,13 +210,13 @@ class ProductInfoFormController extends BaseController
             if(empty($data['site_name'])){
                 $array['status'] = 106;
                 $array['msg']    = '亚马逊站点为必填';
-                $this->response($array,'json');
+                $this->response($array);
                 exit();
             }
             if(empty($data['product_form_id'])){
                 $array['status'] = 107;
                 $array['msg']    = '资料表为必选';
-                $this->response($array,'json');
+                $this->response($array);
                 exit();
             }
             $data['id'] = (int)substr($data['form_no'],5);
@@ -275,7 +242,7 @@ class ProductInfoFormController extends BaseController
 			$array['status'] = 101;
             $array['msg']    = '暂无相关信息';
 		}
-		$this->response($array,'json');
+		$this->response($array);
 	}
 
     /*
@@ -441,12 +408,7 @@ class ProductInfoFormController extends BaseController
 	public function updaInfoForm(){
 
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         // 拉参数
 		$id                    = I('post.id');
 		$data['category_id']   = I('post.category_id');
@@ -458,36 +420,31 @@ class ProductInfoFormController extends BaseController
 		if(empty($id) || !preg_match("/^[0-9]*$/",$id)){//判断id是否为空或者id是否为数字
 			$array['status'] = 102;
             $data['msg']    = '未选择表格';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}
 		if($type_code == 'batch'){
 			if(empty($data['site_name'])){
 				$array['status'] = 102;
         	    $data['msg']    = '请选择站点';
-				$this->response($array,'json');
-				exit();
+				$this->response($array);
 			}
 		}
 		
 		if(empty($data['category_id']) || !preg_match("/^[0-9]*$/",$data['category_id'])){//判断类目id是否为空或者id是否为数字
 			$array['status'] = 103;
             $array['msg']    = '未选择产品类目';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}elseif(empty($data['template_id']) || !preg_match("/^[0-9]*$/",$data['template_id'])){//判断模板id是否为空或者id是否为数字
 			$array['status'] = 104;
             $array['msg']    = '未选择模板';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}elseif(empty($data['client_id']) || !preg_match("/^[0-9]*$/",$data['template_id'])){//判断客户id是否为空或者id是否为数字
 			$data['client_id'] = 1;
 		}
 		if(empty($data['title'])){//判断表单名称是否为空
 			$array['status'] = 105;
             $array['msg']    = '表格为必填';
-			$this->response($array,'json');
-			exit();
+			$this->response($array);
 		}
 		$res = \Think\Product\ProductInfoForm::UpdateInfoForm($type_code,$id,$data);
 		if($res == 2){
@@ -499,7 +456,7 @@ class ProductInfoFormController extends BaseController
 			$array['status'] = 101;
             $array['msg']    = '更新失败';
 		}			
-		$this->response($array,'json');
+		$this->response($array);
 	}
 
 	/*
@@ -510,12 +467,7 @@ class ProductInfoFormController extends BaseController
 	public function delInfoForm(){
 		$id        = I("post.id");
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		if(empty($id)){
 			$data['status'] = 102;
             $data['msg']    = '未选择表格';
@@ -534,7 +486,7 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '删除失败';
 			}			
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -545,12 +497,8 @@ class ProductInfoFormController extends BaseController
 	public function stopInfoForm(){
 		$id        = I('post.id');
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		$res = \Think\Product\ProductInfoForm::StopInfoForm($type_code,$id);
 		if(empty($id)){
 			$data['status'] = 102;
@@ -566,7 +514,7 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '操作失败';
 			}
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -577,12 +525,7 @@ class ProductInfoFormController extends BaseController
 	public function useInfoForm(){
 		$id        = I('post.id');
 		$type_code = I('post.type_code');
-		if(empty($type_code)){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		if(empty($id)){
 			$data['status'] = 102;
             $data['msg']    = '未选择表格';
@@ -598,7 +541,7 @@ class ProductInfoFormController extends BaseController
                 $data['msg']    = '启用失败';
 			}
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 
@@ -619,21 +562,14 @@ class ProductInfoFormController extends BaseController
         if(!preg_match("/^[0-9]+$/",$pageSize) || !preg_match("/^[0-9]+$/",$next)){
             $data['status'] = 102;
             $data['msg']    = '分页数据错误';
-            $this->response($data , 'json');exit();
+            $this->response($data );exit();
         }
-
-        if(empty($type_code)){      // 确定是选的资料表还是批量表，两个不能同时混合出现
-            $data['status'] = 102;
-            $data['msg']    = 'type_code不能为空';
-            $this->response($data , 'json');exit();
-        }else if($type_code != 'info' && $type_code != 'batch'){  // 容错 || 恶意调用
-            $type_code = 'info';
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         if(!empty($status_code) && !preg_match("/^[a-z0-9]+$/" , $status_code)){
             $data['status'] = 103;
             $data['msg']    = '表格状态错误';
-            $this->response($data , 'json');exit();
+            $this->response($data );exit();
         }
 
         $result = \Think\Product\ProductInfo::search_form($type_code,$status_code,$keyword,$category_id,$pageSize,$next);
@@ -647,7 +583,7 @@ class ProductInfoFormController extends BaseController
             $data['status'] = $result['status'];
             $data['msg']    = $result['msg'];
         }
-        $this->response($data , 'json');
+        $this->response($data );
     }
 
 }

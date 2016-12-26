@@ -2,6 +2,6 @@
 namespace Home\Controller;
 use Think\Controller;
 
-class TestController extends BaseController{
+class TestController extends Controller{
 
 }

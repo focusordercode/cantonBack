@@ -46,7 +46,7 @@ class CustomController extends BaseController
             $data['status'] = 101;
             $data['msg']    = '暂无相关信息';
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     /**
@@ -75,7 +75,7 @@ class CustomController extends BaseController
                 $data['msg']    = '修改失败';
             }
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     /**
@@ -113,7 +113,7 @@ class CustomController extends BaseController
             $data['status'] = 101;
             $data['msg']    = '删除失败';
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     /**
@@ -138,15 +138,13 @@ class CustomController extends BaseController
         if(!preg_match($this->rule_enname , $da['en_name'])){
             $data['status'] = 102;
             $data['msg']    = '英文名填写错误';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
         if(!empty($arr['mobile'])){
             if(!preg_match($this->rule_mobile , $arr['mobile'])){
                 $data['status'] = 102;
                 $data['msg']    = '手机号填写错误';
-                $this->response($data,'json');
-                exit();
+                $this->response($data);
             }
             $da['mobile'] = $arr['mobile'];
         }
@@ -154,8 +152,7 @@ class CustomController extends BaseController
             if(!preg_match($this->rule_email , $arr['email'])){
                 $data['status'] = 102;
                 $data['msg']    = '邮箱填写错误';
-                $this->response($data,'json');
-                exit();
+                $this->response($data);
             }
             $da['email'] = $arr['email'];
         }
@@ -174,7 +171,7 @@ class CustomController extends BaseController
                 $m->rollback();
             }
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     // 编号获取，自动填充位数为 0
@@ -199,8 +196,7 @@ class CustomController extends BaseController
         if(empty($text)){
             $data['status'] = 102;
             $data['msg']    = '关键词必填';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
         // 如果有分号替换掉
         $text = __sqlSafe__($text);
@@ -216,6 +212,6 @@ class CustomController extends BaseController
             $data['status'] = 101;
             $data['msg']    = '暂无相关信息';
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 }

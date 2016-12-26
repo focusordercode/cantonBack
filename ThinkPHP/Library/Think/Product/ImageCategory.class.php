@@ -49,35 +49,6 @@ class ImageCategory {
 	}
 
 	/**
-     * 删除类目 （暂时没用上）
-     */
-	static function Delete($id){
-        $m = M("product_gallery");
-        $query = $m->field("left_id")->where("id=%d",array($id))->find();
-        if($query['left_id']==1){
-            //判断是否是顶级类目，是就退出
-            return 2;
-        }else{
-            $f = $m->where('id='.$id)->find();
-            $sonNode = $m->where("left_id >= ".$f['left_id']." AND right_id <= ".$f['right_id'])->select();
-            if(!empty($sonNode)){
-
-                foreach($sonNode as $key => $val){
-                    M("product_picture")->where(array('gallery_id'=>$val['id']))->delete();
-                    $dir1 = './Pictures/'.$val['en_name'];
-                    deldir($dir1);
-                }
-            }
-            $sql = M()->query("call DelImageNode($id)");
-            if($sql){
-                return 1;
-            }else{
-                return -1;
-            }            
-        }
-	}
-
-	/**
      * 修改类目名称
      */
 	static function UpdaName($id,$cn_name,$en_name){
@@ -186,28 +157,6 @@ class ImageCategory {
                 $p->startTrans();
                 $pic = $p->where(array('gallery_id'=>$id))->select(); // 查询当前类目的图片
                 if($pic){
-                    // $count = count($pic);
-                    // $im = 0;
-                    // $da['path']       = './Pictures/RUBBISH';
-                    // $da['rubbish']    = 1;
-                    // $da['gallery_id'] = 0;
-                    // foreach ($pic as $value) { // 查到了将图片全部移到回收站
-                    //     $image = $p->where(array('id'=>$value['id']))->find();
-                    //     $result = $p->where(array('id'=>$value['id']))->save($da);
-                    //     if($result){
-                    //         // 图片文件移动
-                    //         if(copy($image['path']."/".$image['file_name'],$da['path']."/".$image['file_name'])){
-                    //             @unlink($image['path']."/".$image['file_name']);
-                    //             $im++;
-                    //         }
-                    //     }
-                    // }
-                    // if($im == $count){
-                    //     $p->commit();
-                    // }else{
-                    //     $p->rollback();
-                    //     return 4;
-                    // }
                     return 4;
                 }
                 $data_constraint = M('data_constraint');

@@ -27,30 +27,20 @@ class CategoryController extends BaseController
             $this->response($arr,'json');
             exit();
         }
-        $data = array();
-        if($id != null){
-            if($cn_name != null){
-                if($en_name != null){
-                    $en_name = addslashes($en_name);
-                    $res = \Think\Product\Category::AddSub($id,$cn_name,$en_name,$remark,$creator_id);
-                    if($res == 1){
-                        $this->updateCategoryCache();
-                        $data['status'] = 100;
-                    }else{
-                        $data['status'] = 101;
-                        $data['msg']    = '添加失败';
-                    }
-                }else{
-                    $data['status'] = 105;
-                    $data['msg']    = '英文名必填';
-                }
+        if($id == 0) $this->response(['status' => 102, 'msg' => '类目未选取'],'json');
+        if($cn_name != null && $en_name != null){
+            $en_name = addslashes($en_name);
+            $res = \Think\Product\Category::AddSub($id,$cn_name,$en_name,$remark,$creator_id);
+            if($res == 1){
+                $this->updateCategoryCache();
+                $data['status'] = 100;
             }else{
-                $data['status'] = 104;
-                $data['msg']    = '中文名必填';
+                $data['status'] = 101;
+                $data['msg']    = '添加失败';
             }
         }else{
-            $data['status'] = 102;
-            $data['msg']    = '类目未选取';
+            $data['status'] = 104;
+            $data['msg']    = '中英文名必填';
         }
         $this->response($data,'json');
     }
@@ -90,32 +80,23 @@ class CategoryController extends BaseController
      * @param  en_name 英文名
      */
     public function updaName(){
-        $id      = I('post.id');
+        $id      = (int)I('post.id');
         $cn_name = I('post.cn_name');
         $en_name = I('post.en_name');
         $data    = array();
-        if($id != null){
-            if($cn_name != null){
-                if($en_name != null){
-                    $res = \Think\Product\Category::UpdaName($id,$cn_name,$en_name);
-                    if($res == 1){
-                        $this->updateCategoryCache();
-                        $data['status'] = 100;
-                    }else{
-                        $data['status'] = 101;
-                        $data['msg']    = '修改失败';
-                    }
-                }else{
-                    $data['status'] = 105;
-                    $data['msg']    = '英文名必填';
-                }
+        if($id == 0) $this->response(['status' => 102, 'msg' => '类目未选取'],'json');
+        if($cn_name != null && $en_name != null){
+            $res = \Think\Product\Category::UpdaName($id,$cn_name,$en_name);
+            if($res == 1){
+                $this->updateCategoryCache();
+                $data['status'] = 100;
             }else{
-                $data['status'] = 104;
-                $data['msg']    = '中文名必填';
+                $data['status'] = 101;
+                $data['msg']    = '修改失败';
             }
         }else{
-            $data['status'] = 102;
-            $data['msg']    = '类目未选择';
+            $data['status'] = 104;
+            $data['msg']    = '中英文名必填';
         }
         $this->response($data,'json');
     }
@@ -205,7 +186,7 @@ class CategoryController extends BaseController
     public function treeCategory()
     {
         $key = I("post.ckey");
-        if(!empty($key) && $key == 'category'){
+        if($key == 'category'){
             $category = S('category');
             if($category){
                 $parents = $category;

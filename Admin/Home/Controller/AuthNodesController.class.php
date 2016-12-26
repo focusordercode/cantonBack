@@ -22,7 +22,7 @@ class AuthNodesController extends BaseController
                 $rules[$key]['open_edit'] = (boolean)'';
             }
         }
-        $this->response(['status' => 100,'value' => pre($rules)],'json');
+        $this->response(['status' => 100,'value' => pre($rules)]);
     }
 
     /*
@@ -47,7 +47,7 @@ class AuthNodesController extends BaseController
         }
         if($father_id == 0){
             if(!preg_match("/^[A-z]+$/" , $url)){
-                $this->response(['status' => 102,'msg' => '无上级示例：“helloWord”'],'json');
+                $this->response(['status' => 102,'msg' => '无上级示例：“helloWord”']);
             }
         }
         $insert_data = [
@@ -59,9 +59,9 @@ class AuthNodesController extends BaseController
         // 添加
         $add = $m->add($insert_data);
         if($add){
-            $this->response(['status' => 100],'json');
+            $this->response(['status' => 100]);
         }else{
-            $this->response(['status' => 101,'msg' => '添加出错'],'json');
+            $this->response(['status' => 101,'msg' => '添加出错']);
         }
     }
 
@@ -81,7 +81,7 @@ class AuthNodesController extends BaseController
         $enabled   = (int)I('enabled');
 
         if(!preg_match("/^[A-z]+\/[A-z]+$/" , $url) && !preg_match("/^[A-z]+$/" , $url)){
-            $this->response(['status' => 102,'msg' => '地址有误'],'json');
+            $this->response(['status' => 102,'msg' => '地址有误']);
         }
         if(!empty($father_id)){
             $edit_data['p_id'] = $father_id;
@@ -96,9 +96,9 @@ class AuthNodesController extends BaseController
         // 编辑
         $edit = $m->where(['id' => $rule_id])->save($edit_data);
         if($edit){
-            $this->response(['status' => 100],'json');
+            $this->response(['status' => 100]);
         }else{
-            $this->response(['status' => 101,'msg' => '编辑出错'],'json');
+            $this->response(['status' => 101,'msg' => '编辑出错']);
         }
     }
 
@@ -111,16 +111,16 @@ class AuthNodesController extends BaseController
         $rule_id = (int)I('rule_id');
 
         $hasSon = $m->where(['p_id' => $rule_id])->find();
-        if($hasSon) $this->response(['status' => 101,'msg' => '存在子节点'],'json');
+        if($hasSon) $this->response(['status' => 101,'msg' => '存在子节点']);
 
         $role = M('auth_role')->where("permissions LIKE '%$rule_id%'")->select();
-        if($role) $this->response(['status' => 101,'msg' => '该节点（'.$hasSon['name'].'）已被角色组使用'],'json');
+        if($role) $this->response(['status' => 101,'msg' => '该节点（'.$hasSon['name'].'）已被角色组使用']);
         // 删除
         $del = $m->where(['id' => $rule_id])->delete();
         if($del){
-            $this->response(['status' => 100],'json');
+            $this->response(['status' => 100]);
         }else{
-            $this->response(['status' => 101,'msg' => '编辑出错'],'json');
+            $this->response(['status' => 101,'msg' => '编辑出错']);
         }
     }
 
@@ -133,7 +133,7 @@ class AuthNodesController extends BaseController
         // 查询出所有的机构
         $rule_id = (int)I('rule_id');
         $rule = $m->where("id=$rule_id")->find();
-        if(!$rule) $this->response(['status' => 101,'msg' => '请求失败'],'json');
-        $this->response(['status' => 100,'value' => $rule],'json');
+        if(!$rule) $this->response(['status' => 101,'msg' => '请求失败']);
+        $this->response(['status' => 100,'value' => $rule]);
     }
 }
