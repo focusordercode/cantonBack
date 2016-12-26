@@ -227,7 +227,7 @@ class RestController extends Controller {
      * @param integer $code HTTP状态
      * @return void
      */
-    protected function response($data,$type='',$code=200) {
+    protected function response($data,$type='json',$code=200) {
         $this->sendHttpStatus($code);
         exit($this->encodeData($data,strtolower($type)));
     }

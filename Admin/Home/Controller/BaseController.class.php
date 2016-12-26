@@ -28,14 +28,20 @@ class BaseController extends RestController
         $uid = I('user_id');
         $uids = $auth->checkKey($uid, $key);
         if(!$uids){
-            $this->response(['status' => 1012,'msg' => '您还没登陆或登陆信息已过期'],'json');
+            $this->response(['status' => 1012,'msg' => '您还没登陆或登陆信息已过期']);
         }
         // 读取访问的地址
         $url = CONTROLLER_NAME . '/' . ACTION_NAME;
         if(!$auth->check($url , $uids)){
-            $this->response(['status' => 1011,'msg' => '抱歉，权限不足'],'json');
+            $this->response(['status' => 1011,'msg' => '抱歉，权限不足']);
         }
-        $this->behaviorTracking($uids ,$url);
+        // 添加排除在外的行为地址
+        $notInTrack = [
+            'Logging/userTrack',
+        ];
+        if(!in_array($url ,$notInTrack)){
+            $this->behaviorTracking($uids ,$url);
+        }
     }
 
 

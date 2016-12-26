@@ -17,8 +17,8 @@ class TemplateController extends BaseController
      * @param type_code info / batch
      * */
 	public function get_template(){
-		$enabled   = strip_tags(trim(I("post.enabled")));    // 可用状态参数，默认为可用 1
-		$type_code = strip_tags(trim(I('post.type_code')));
+		$enabled   = (int)I("post.enabled");    // 可用状态参数，默认为可用 1
+		$type_code = I('post.type_code');
         $pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
         $next      = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
 
@@ -28,53 +28,31 @@ class TemplateController extends BaseController
             $where = "enabled=1";
 		}
         // 判断是资料表还是批量表
-		if($type_code != 'info' && $type_code != 'batch'){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
-
-		if(isset($_POST['id'])){  //获取模板类型  传id的操作
-			$id = strip_tags(trim(I("id")));
-			$where['id'] = $id;
+		if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        // 调取所有模板信息所传的参数
+        $all = strip_tags(trim(I("get_all_data")));
+        //获取模板类型  传id的操作
+        if(isset($_POST['id'])){
+            $id = (int)I("id");
             $where = "id=".$id;
-			$get_tem = \Think\Product\Product_Template::get($type_code,$where,$pageSize,$next);  // 根据id查数据，查到返回操作
-			if($get_tem['error'] == 0){
-				$data['status']    = 100;
-				$data['value']     = $get_tem['value'];
-				$data['count']     = $get_tem['count'];
-				$data['countPage'] = $get_tem['countPage'];
-				$data['pageNow']   = $get_tem['pageNow'];
-				$data['num']      = $get_tem['num'];
-			}else{
-				$data['status'] = $get_tem['status'];
-				$data['msg']    = $get_tem['msg'];
-			}
-			$this->response($data,'json');
-			exit();
-		}
-
-		// 拉取api参数
-		$all = strip_tags(trim(I("get_all_data"))); // 调取所有模板信息所传的参数
-		if(strtolower($all) == "all"){
+        }elseif($all == 'all'){
             $where .= " and status_code<>'disabled'";
-			$get_tem = \Think\Product\Product_Template::get($type_code,$where,$pageSize,$next); // 查数据返回操作
-			if($get_tem['error'] == 0){
-				$data['status']    = 100;
-				$data['value']     = $get_tem['value'];
-                $data['count']     = $get_tem['count'];
-                $data['pageNow']   = $get_tem['pageNow'];
-                $data['countPage'] = $get_tem['countPage'];
-			}else{
-				$data['status'] = $get_tem['status'];
-				$data['msg']    = $get_tem['msg'];
-			}
-			$this->response($data,'json');
-			exit();
-		}else{
-			return false;
-		}
+        }else{
+            $this->response(['status' => 102 ,'msg' => '错误请求']);
+        }
+        $get_tem = \Think\Product\Product_Template::get($type_code,$where,$pageSize,$next); // 查数据返回操作
+        if($get_tem['error'] == 0){
+            $data['status']    = 100;
+            $data['value']     = $get_tem['value'];
+            $data['count']     = $get_tem['count'];
+            $data['countPage'] = $get_tem['countPage'];
+            $data['pageNow']   = $get_tem['pageNow'];
+            $data['num']       = $get_tem['num'];
+        }else{
+            $data['status'] = $get_tem['status'];
+            $data['msg']    = $get_tem['msg'];
+        }
+        $this->response($data);
 	}
 
 	/*
@@ -85,18 +63,9 @@ class TemplateController extends BaseController
 	public function getLinkage(){
 		$type_code    = I('post.type_code');
 		$category_id  = (int)I('post.category_id');
-		if(empty($category_id)){
-			$data['status'] = 103;
-            $data['msg']    = '未选择产品类目';
-			$this->response($data,'json');
-			exit();
-		}
-		if($type_code != 'info' && $type_code != 'batch'){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+		if(empty($category_id)) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		$res = \Think\Product\Product_Template::GetLinkage($type_code,$category_id);
 		if($res){
 			$data['status'] = 100;
@@ -105,7 +74,7 @@ class TemplateController extends BaseController
 			$data['status'] = 101;
             $data['msg']    = '暂无相关信息';
 		} 
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	// 添加模板操作
@@ -119,31 +88,25 @@ class TemplateController extends BaseController
 		$ename     = strip_tags(trim(I("en_name")));
 		$type_code = strip_tags(trim(I("type_code")));
 		$remark    = strip_tags(trim(I("remark")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		$creator_id = I('post.creator_id'); // 创建者
         if(empty($creator_id)){
             $arr['status'] = 1012;
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
 		if($cname != "" && $ename != ""  && preg_match($this->rule_str,$ename)){ // 中英文、所属模板为必填字段
 			$where = array(
-					"cn_name"       	=> $cname,
-					"en_name"       	=> $ename,
-					"remark"        	=> $remark,
-					"category_id"   	=> empty($_POST["category_id"]) ? 1 : I("category_id"),
-					"enabled"       	=> isset($_POST["enabled"]) ? I("enabled") : 1,
-					"creator_id"    	=> $creator_id,
-					"created_time"  	=> date("Y-m-d H:i:s",time()),
-				    "modified_time" 	=> date("Y-m-d H:i:s",time()),
-				    "status_code"  	    => 'creating',  // 创建状态
-				);
- 
+                "cn_name"       	=> $cname,
+                "en_name"       	=> $ename,
+                "remark"        	=> $remark,
+                "category_id"   	=> empty($_POST["category_id"]) ? 1 : I("category_id"),
+                "enabled"       	=> isset($_POST["enabled"]) ? I("enabled") : 1,
+                "creator_id"    	=> $creator_id,
+                "created_time"  	=> date("Y-m-d H:i:s",time()),
+                "modified_time" 	=> date("Y-m-d H:i:s",time()),
+                "status_code"  	    => 'creating',  // 创建状态
+            );
 			$add_tem = \Think\Product\Product_Template::add($type_code,$where);  // 添加操作
 			if($add_tem['error'] == 0){
 				$data['status'] = 100;
@@ -156,7 +119,7 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误
             $data['msg']    = '中英文输入有误';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
     // 模板编辑
@@ -168,28 +131,23 @@ class TemplateController extends BaseController
 		$cname     = strip_tags(trim(I("cn_name")));
 		$ename     = strip_tags(trim(I("en_name")));
 		$type_code = strip_tags(trim(I("type_code")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
 		if($cname != "" && $ename != ""  && preg_match($this->rule_str,$ename)){ // 中英文、所属模板为必填字段
 			$where = array(
-					"cn_name"       	=> $cname,
-					"en_name"       	=> $ename,
-					"remark"        	=> strip_tags(trim(I("remark"))),
-					"category_id"   	=> empty($_POST["category_id"]) ? 1 : I("category_id"),
-					"enabled"       	=> isset($_POST["enabled"]) ? I("enabled") : 1,
-					"modified_time" 	=> date("Y-m-d H:i:s",time()),
-				);
-
-			$id = strip_tags(trim(I("id")));
+                "cn_name"       	=> $cname,
+                "en_name"       	=> $ename,
+                "remark"        	=> strip_tags(trim(I("remark"))),
+                "category_id"   	=> empty($_POST["category_id"]) ? 1 : I("category_id"),
+                "enabled"       	=> isset($_POST["enabled"]) ? I("enabled") : 1,
+                "modified_time" 	=> date("Y-m-d H:i:s",time()),
+            );
+			$id = (int)I("id");
 			if(!empty($id) && preg_match($this->rule_num,$id)){   // 修改操作 id 字段的正则以及非空验证
 				$edit_tem = \Think\Product\Product_Template::edit($type_code,$id,$where);  // 修改的具体操作
 				if($edit_tem['error'] == 0){
 					$data['status'] = 100;
-					$data['value'] = $edit_tem['value'];
+					$data['value']  = $edit_tem['value'];
 				}else{
 					$data['status'] = $edit_tem['status'];
 					$data['msg']    = $edit_tem['msg'];
@@ -202,22 +160,17 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误
             $data['msg']    = '中英文输入有误';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
     // 模板删除
     // @param type_code info/batch
     // @param id 模板id
 	public function del_template(){  // 删除
-		$type_code = strip_tags(trim(I("type_code")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+		$type_code = I("type_code");
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         // id去空去标签
-		$id = strip_tags(trim(I("id")));
+		$id = (int)I("id");
 		if(!empty($id) && preg_match($this->rule_num,$id)){  // id验证
 			$del_tem = \Think\Product\Product_Template::del($type_code,$id);     // 删除操作
 			if($del_tem['error'] == 0){
@@ -231,7 +184,7 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误 id为空
             $data['msg']    = '未选择模板';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	// 	启用模板
@@ -239,14 +192,10 @@ class TemplateController extends BaseController
     // @param id 模板id
 	public function use_template()    // 启用模板
 	{
-		$type_code = strip_tags(trim(I("type_code")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
-		$id = strip_tags(trim(I("id")));
+		$type_code = I("type_code");
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
+		$id = (int)I("id");
 		if(!empty($id) && preg_match($this->rule_num,$id)){   //  验证id的操作
 			$use_tem = \Think\Product\Product_Template::use_tem($type_code,$id);  
 			$data['status'] = $use_tem['status'];	//  105 已经启用状态		
@@ -255,21 +204,16 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误 id为空
             $data['msg']    = '未选择模板';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
     // 停用模板
     // @param type_code info/batch
     // @param id 模板id
 	public function stop_template(){
-		$type_code = strip_tags(trim(I("type_code")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
-		$id = strip_tags(trim(I("id")));
+		$type_code = I("type_code");
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+		$id = (int)I("id");
 		if(!empty($id) && preg_match($this->rule_num,$id)){  // id验证
 			$stop_tem = \Think\Product\Product_Template::stop_tem($type_code,$id);
 			$data['status'] = $stop_tem['status']; // 停用成功
@@ -278,21 +222,16 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误 id为空
             $data['msg']    = '未选择模板';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	// id获取模板
     // @param type_code info/batch
     // @param id 模板id
 	public function get_template_by_id(){  
-		$type_code = strip_tags(trim(I("post.type_code")));
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
-		$id = strip_tags(trim(I("id")));
+		$type_code = I("post.type_code");
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+		$id = (int)I("id");
 		if(!empty($id) && preg_match($this->rule_num,$id)){  // id验证
 			if($type_code=='info'){
 				$tem = M("product_template");
@@ -311,7 +250,7 @@ class TemplateController extends BaseController
 			$data['status'] = 102; // 参数错误 id为空
             $data['msg']    = '未选择模板';
 		}
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/*
@@ -321,16 +260,12 @@ class TemplateController extends BaseController
 	 * @param status_code 状态码
 	 */
 	public function vagueName(){
-		$type_code = strip_tags(trim(I("type_code")));
+		$type_code = I("type_code");
 		$pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
-		$text = __sqlSafe__(strip_tags(trim(I('post.name'))));
-        $status_code = strip_tags(trim(I("post.status_code")));
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
+		$text = __sqlSafe__(I('post.name'));
+        $status_code = __sqlSafe__(I("post.status_code"));
 
         $arr = \Think\Product\Product_Template::VagueTemName($type_code,$text,$status_code,$pageSize);
         if($arr['error'] == 0){
@@ -343,7 +278,7 @@ class TemplateController extends BaseController
             $data['status'] = $arr['status'];
             $data['msg']    = $arr['msg'];
         }
-        $this->response($data,'json');
+        $this->response($data);
 
 	}
 
@@ -353,11 +288,11 @@ class TemplateController extends BaseController
     public function get_template_by_category()
     {
         $type_code    = I('post.type_code');
-        $category_id  = I('post.category_id');
+        $category_id  = (int)I('post.category_id');
         if(empty($category_id)){
             $res['status'] = 102;
             $res['msg']    = '未选择产品类目';
-            $this->response($res,'json');
+            $this->response($res);
             exit();
         }
         if($type_code == 'info'){          // 判断是需要·哪个表数据
@@ -367,8 +302,7 @@ class TemplateController extends BaseController
         }else{
             $res['status'] = 102;
             $res['msg']    = '系统错误';
-            $this->response($res,'json');
-            exit();
+            $this->response($res);
         }
 
         if($category_id == 1){
@@ -382,7 +316,6 @@ class TemplateController extends BaseController
                 }
             }
         }
-
         if($result){
             // 差类目合并类目名
             foreach($result as $key => $value){
@@ -405,26 +338,22 @@ class TemplateController extends BaseController
                 $res['msg']    = '暂无相关信息';
             }
         }
-        $this->response($res,'json');
+        $this->response($res);
     }
 
     //获取模板信息可模糊搜索
     // @param type_code info/batch
     public function getitemValue(){
-    	$enabled   = strip_tags(trim(I("post.enabled")));    // 可用状态参数，默认为可用 1
-		$type_code = strip_tags(trim(I('post.type_code')));
-        $num   = isset($_POST['num']) ? (int)I('post.num') : 8;
+    	$enabled   = (int)I("post.enabled");    // 可用状态参数，默认为可用 1
+		$type_code = I('post.type_code');
+        $num       = isset($_POST['num']) ? (int)I('post.num') : 8;
         $next      = isset($_POST['next']) ? (int)I('post.next') : 1;
         $vague     = __sqlSafe__(I('post.vague'));
-        $category_id = I('post.category_id');
-		if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-			$data['status'] = 119;
-            $data['msg']    = '系统错误';
-			$this->response($data,'json');
-			exit();
-		}
+        $category_id = (int)I('post.category_id');
+
+		if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		$res = \Think\Product\Product_Template::GetItemValue($type_code,$enabled,$num,$next,$vague,$category_id);
-		$this->response($res,'json');
+		$this->response($res);
     }
 
 }

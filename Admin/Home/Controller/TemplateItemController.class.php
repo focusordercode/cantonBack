@@ -23,30 +23,18 @@ class TemplateItemController extends BaseController
      * */
     public function get_item_template()
     {
-        $type_code=strip_tags(trim(I('type_code')));
-        if(empty($type_code)){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
+        $type_code = I('type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
         // 模板id验证  必要参数
-        $t = strip_tags(trim(I("template_id")));
+        $t = (int)I("template_id");
         if(!empty($t) && preg_match($this->rule_num,$t) && $t != 0){
             $template_id = $t;
         }else{
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }
-        // 返回字段定义，可选参数
-        $f = strip_tags(trim(I("field")));
-        if(!empty($f)){
-            $fields = array_filter(explode(",",$f));
-            $field = implode(",",$fields);
-        }else{
-            $field = "*";
-        }
-        $G = \Think\Product\Product_Item_Template::get($type_code,$template_id,$field);  // 获取数据
+        $G = \Think\Product\Product_Item_Template::get($type_code,$template_id);  // 获取数据
         if($G['error'] == 0){
             $data['status'] = 100;
             $data['value']  = $G['value'];
@@ -54,7 +42,7 @@ class TemplateItemController extends BaseController
             $data['status'] = $G['status'];
             $data['msg']    = $G['msg'];
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
 
@@ -66,32 +54,19 @@ class TemplateItemController extends BaseController
      * @param new    为新增关系
      */
     public function get_item_eliminate(){
-        $type_code=strip_tags(trim(I('type_code')));
+        $type_code = I('type_code');
         $new = I('post.new');
-        if(empty($type_code)){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
         // 模板id验证  必要参数
-        $t = strip_tags(trim(I("template_id")));
+        $t = (int)I("template_id");
         if(!empty($t) && preg_match($this->rule_num,$t) && $t != 0){
             $template_id = $t;
         }else{
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }
-        // 返回字段定义，可选参数
-        $f = strip_tags(trim(I("field")));
-        if(!empty($f)){
-            $fields = array_filter(explode(",",$f));
-            $field = implode(",",$fields);
-        }else{
-            $field = "*";
-        }
-        $G = \Think\Product\Product_Item_Template::get($type_code,$template_id,$field);  // 获取数据
-        $count = count($G['value']);
+        $G = \Think\Product\Product_Item_Template::get($type_code,$template_id);  // 获取数据
         // 判断是否为新增的关联关系
         if($new == 'yes'){
             foreach (C('TEMPLATE_DEFAULT') as $key => $value) {
@@ -138,7 +113,7 @@ class TemplateItemController extends BaseController
             $data['status'] = $G['status'];
             $data['msg']    = $G['msg'];
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
 
@@ -172,7 +147,7 @@ class TemplateItemController extends BaseController
         }
         $array['status'] = 100;
         $array['value'] = $arr;
-        $this->response($array,'json');
+        $this->response($array);
     }
 
     /*
@@ -183,17 +158,12 @@ class TemplateItemController extends BaseController
      * */
     public function add_item_template(){
 
-        $type_code = strip_tags(trim(I('type_code')));
+        $type_code = I('type_code');
         $form_data = I('post.tempData');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
-        $template_id = strip_tags(trim(I('template_id')));
-        if(empty($template_id) || !preg_match($this->rule_num,$template_id)){  // 表头id非空、正则验证
+        $template_id = (int)I('template_id');
+        if($template_id == 0){  // 表头id非空、正则验证
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
         }else{
@@ -202,7 +172,7 @@ class TemplateItemController extends BaseController
                 if(empty($value['cn_name']) || empty($value['en_name']) || empty($value['data_type_code']) || !preg_match($this->rule_enname,$value['en_name'])) {  //  数据非空、正则验证
                     $data['status'] = 102;
                     $data['msg']    = '参数有误';
-                    $this->response($data,'json');
+                    $this->response($data);
                     exit();
                 }
             }
@@ -214,7 +184,7 @@ class TemplateItemController extends BaseController
                 $data['msg']    = $add_tem['msg'];
             }
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
 
@@ -225,28 +195,23 @@ class TemplateItemController extends BaseController
     public function edit_item_template()
     {
         $type_code   = I('type_code');
-        $ma          = strip_tags(trim(I('item_num')));   // 总表头数
+        $ma          = (int)I('item_num');   // 总表头数
         $template_id = I('template_id');
 
         if(!preg_match("/^[0-9]+$/",$template_id)){
             $data['status'] = 102;
             $data['msg']    = "未选择模板";
-            $this->response($data,'json');
+            $this->response($data);
             exit();
         }
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = "系统错误，请即使联系管理员。";
-            $this->response($data,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         // 数据包处理
         if($type_code == 'info'){
             $edit_data = $_POST['tempData'];
             if(empty($edit_data)){
                 $data['status'] = 102;
                 $data['msg']    = "修改数据为空";
-                $this->response($data,'json');
+                $this->response($data);
                 exit();
             }
         }else{
@@ -285,7 +250,7 @@ class TemplateItemController extends BaseController
                         if(!preg_match("/^[0-9]*$/",$p)){
                             $data['status'] = 105;
                             $data['msg']    = "整数类型填写错误";
-                            $this->response($data,'json');
+                            $this->response($data);
                             exit();
                         }
                     break;
@@ -293,7 +258,7 @@ class TemplateItemController extends BaseController
                         if(!preg_match("/^(\d*\.)?\d+$/",$p)){
                             $data['status'] = 106;
                             $data['msg']    = "小数类型填写错误";
-                            $this->response($data,'json');
+                            $this->response($data);
                             exit();
                         }
                     break;
@@ -301,7 +266,7 @@ class TemplateItemController extends BaseController
                         if(!preg_match($this->dt,$p) && !preg_match($this->dt1,$p) && !preg_match($this->dt2,$p) && !preg_match($this->dt3,$p)){
                             $data['status'] = 107;
                             $data['msg']    = "日期类型填写错误";
-                            $this->response($data,'json');
+                            $this->response($data);
                             exit();
                         }
                     break;
@@ -317,7 +282,7 @@ class TemplateItemController extends BaseController
             $data['msg']    = $edit_tem['msg'];
         }
 
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     /*
@@ -328,23 +293,18 @@ class TemplateItemController extends BaseController
      * */
     public function del_item_template(){
         $type_code = strip_tags(trim(I('type_code')));
-        if(empty($type_code) || ($type_code != 'info' && $type_code != 'batch')){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if(isset($_POST['id'])){
-            $id = strip_tags(trim(I("id")));
-            if(empty($id) || !preg_match($this->rule_num,$id) || $id == 0){  //  id验证
+            $id = (int)I("id");
+            if($id == 0){  //  id验证
                 $data['status'] = 102; // 参数错误 id为空
                 $data['msg']    = '未选择模板';
             }else{
                 $del_tem = \Think\Product\Product_Item_Template::del_by_id($type_code,$id);   //  删除操作
             }
         }elseif(isset($_POST['template_id'])){
-            $id = strip_tags(trim(I("template_id")));
-            if(empty($id) || !preg_match($this->rule_num,$id) || $id == 0){  //  模板id验证
+            $id = (int)I("template_id");
+            if($id == 0){  //  模板id验证
                 $data['status'] = 102; // 参数错误 id为空
                 $data['msg']    = '未选择模板';
             }else{
@@ -352,14 +312,14 @@ class TemplateItemController extends BaseController
             }
         }
 
-        if(isset($del_tem) && $del_tem['error'] == 0){
+        if($del_tem['error'] == 0){
             $data['status'] = 100;                    // 删除成功
             $data['value']  = $del_tem['value'];
-        }elseif(isset($del_tem) && $del_tem['error'] == 1){
+        }elseif($del_tem['error'] == 1){
             $data['status'] = $del_tem['status'];
             $data['msg']    = $del_tem['msg'];        // 删除失败
         }
-        $this->response($data,'json');
+        $this->response($data);
     }
 
     /*
@@ -373,15 +333,9 @@ class TemplateItemController extends BaseController
         if(empty($template_id)){
             $arr['status'] = 104;
             $arr['msg']    = '未选择模板';
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
-        if(empty($type_code)){
-            $arr['status'] = 119;
-            $arr['msg']    = '系统错误';
-            $this->response($arr,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         $res = \Think\Product\Product_Item_Template::GetBootstrapTable($type_code,$template_id);
         if(!empty($res)){
             $arr['status'] = 100;
@@ -392,7 +346,7 @@ class TemplateItemController extends BaseController
             $arr['status'] = 101;
             $arr['msg']    = '暂无相关信息';
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
     /*
@@ -412,27 +366,23 @@ class TemplateItemController extends BaseController
         if(!preg_match("/^[0-9]+$/",$batch_template_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择批量表模板';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
         if(!preg_match("/^[0-9]+$/",$template_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择资料表模板';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
         if(empty($marry_data) || !is_array($marry_data)){
             $data['status'] = 102;
             $data['msg']    = '未关联模板或数据有误';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
         // 创建者id
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
 
         $da['created_time']   = date("Y-m-d H:i:s", time());
@@ -447,7 +397,7 @@ class TemplateItemController extends BaseController
                 $m->rollback();
                 $data['status'] = 102;
                 $data['msg']    = '数据选择有误';
-                $this->response($data,'json');
+                $this->response($data);
                 exit();
             }
             // 查找是否有重复
@@ -464,7 +414,7 @@ class TemplateItemController extends BaseController
                 $m->rollback();
                 $data['status'] = 101;
                 $data['msg']    = '关联失败';
-                $this->response($data,'json');
+                $this->response($data);
                 exit();
             }
         }
@@ -480,7 +430,7 @@ class TemplateItemController extends BaseController
         M('product_batch_template')->where(array('id'=>$batch_template_id))->save($status_code);
         $m->commit();
         $data['status'] = 100;
-        $this->response($data,'json');
+        $this->response($data);
     }
 
 
@@ -491,20 +441,14 @@ class TemplateItemController extends BaseController
      */
     public function getTitleAndValid()
     {
-        $template_id = I('post.template_id');
+        $template_id = (int)I('post.template_id');
         $type_code   = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch'){
-            $arr['status'] = 119;
-            $arr['msg']    = '系统错误';
-            $this->response($arr,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         if(empty($template_id)){
             $arr['status'] = 104;
             $arr['msg']    = '未选择模板';
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
         // 模板id读表头
         $res = \Think\Product\Product_Item_Template::GetBootstrapTable($type_code , $template_id);
@@ -531,7 +475,7 @@ class TemplateItemController extends BaseController
                 $arr['value'][$key]['rule_array']      = array(1,2);//填写规则的数组
                 if($type_code == 'batch'){
                     $valid = M('product_item_valid_value')->where(array('template_id'=>$template_id,'item_id'=>$value['id']))->find();
-                    $arr['value'][$key]['valid_value']     = explode(",",$valid['value']);
+                    $arr['value'][$key]['valid_value'] = explode(",",$valid['value']);
                 }
                 $arr['cs'] = $res;
             }
@@ -539,7 +483,7 @@ class TemplateItemController extends BaseController
             $arr['status'] = 101;
             $arr['msg']    = '暂无相关信息';
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
     /*
@@ -555,21 +499,21 @@ class TemplateItemController extends BaseController
         $number      = I('post.pageNumber');
         $a = $number - 1;
 
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if(empty($number) || $a < 0){
             $data['status'] = 102;
             $data['msg']    = '模板页码有误';
-            $this->response($data,'json');exit();
+            $this->response($data);
         }
         if(!preg_match("/^[0-9]+$/" , $template_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
-            $this->response($data,'json');exit();
+            $this->response($data);
         }
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
         $extension = array('xls','xlsx');
         // 上传新模板先删除之前已经存在的
@@ -633,7 +577,7 @@ class TemplateItemController extends BaseController
                                     $m->rollback();
                                     $data['status'] = 101;
                                     $data['msg']    = '表格数据有误';
-                                    $this->response($data,'json');exit();
+                                    $this->response($data);
                                 }
                                 // 加载默认固定类型和代码长度限制
                                 if(C($val)){
@@ -657,28 +601,28 @@ class TemplateItemController extends BaseController
                                 $m->rollback();
                                 $data['status'] = 101;
                                 $data['msg']    = '写入错误';
-                                $this->response($data,'json');exit();
+                                $this->response($data);
                             }
                         }
                     }else{
                         $data['status'] = 101;
                         $data['msg']    = '文件上传出错';
-                        $this->response($data,'json');exit();
+                        $this->response($data);
                     }
                 }else{
                     $data['status'] = 104;
                     $data['msg']    = '文件大小超负荷';
-                    $this->response($data,'json');exit();
+                    $this->response($data);
                 }
             }else{
                 $data['status'] = 103;
                 $data['msg']    = '文件格式不被允许';
-                $this->response($data,'json');exit();
+                $this->response($data);
             }
         }else{
             $data['status'] = 102;
             $data['msg']    = '没有文件被上传';
-            $this->response($data,'json');exit();
+            $this->response($data);
         }
 
         if($type_code == 'info'){
@@ -705,11 +649,11 @@ class TemplateItemController extends BaseController
                 $this->add_valid_value($item_file , $types , $template_id , $creator_id);
             }
             $data['status'] = 100;
-            $this->response($data,'json');
+            $this->response($data);
         }else{
             $data['status'] = 101;
             $data['msg']    = '上传的文件与模板关联出错';
-            $this->response($data,'json');exit();
+            $this->response($data);
         }
 
     }
@@ -763,7 +707,7 @@ class TemplateItemController extends BaseController
                         $sm->rollback();
                         $data['status'] = 101;
                         $data['msg']    = '常用值添加出错';
-                        $this->response($data,'json');exit();
+                        $this->response($data);
                     }
                 }
             }
@@ -777,17 +721,13 @@ class TemplateItemController extends BaseController
     public function template_back_step(){
 
         $type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         $template_id = I('post.template_id');
         if(!preg_match("/^[0-9]+$/",$template_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择模板';
-            $this->response($data,'json');exit();
+            $this->response($data);
         }
 
         $result = \Think\Product\Product_Item_Template::template_back_step($type_code , $template_id);
@@ -797,21 +737,16 @@ class TemplateItemController extends BaseController
             $data['status'] = $result['status'];
             $data['msg']    = $result['msg'];
         }
-        $this->response($data,'json');exit();
+        $this->response($data);
     }
 
     //获取需要编辑的默认值字段
     // @param type_code info/batch
     // @param form_id 表格id
     public function getEditDefault(){
-        $form_id = I('post.form_id');
+        $form_id   = (int)I('post.form_id');
         $type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch'){
-            $arr['status'] = 119;
-            $arr['msg']    = '系统错误';
-            $this->response($arr,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if($type_code == 'info'){
             $form = M('product_form');
             $item = M('product_item_template');
@@ -840,21 +775,16 @@ class TemplateItemController extends BaseController
             $arr['status'] = 100;
             $arr['value']    = $array;
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
     // 获取数据检查的字段与检查规则
     // @param type_code info/batch
     // @param form_id 表格id
     public function getCheckRule(){
-        $form_id = I('post.form_id');
+        $form_id = (int)I('post.form_id');
         $type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch'){
-            $arr['status'] = 119;
-            $arr['msg']    = '系统错误';
-            $this->response($arr,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if($type_code == 'info'){
             $form = M('product_form');
             $item = M('product_item_template');
@@ -876,20 +806,18 @@ class TemplateItemController extends BaseController
         }else{
             $arr['status'] = 100;
             $arr['value']  = $array;
-            $arr['title']  = $title;
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
     // 获取当前批量表模板与资料表模板的关联关系
     // @param batch_template_id 批量表表头id
     public function getcontact(){
-        $batch_template_id = I('post.batch_template_id');
-        if(empty($batch_template_id)){
+        $batch_template_id = (int)I('post.batch_template_id');
+        if($batch_template_id == 0){
             $arr['status'] = 102;
             $arr['msg']    = '模板id为空';
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
         // 加载视图
         $item = D('TemplateContactView');
@@ -911,6 +839,6 @@ class TemplateItemController extends BaseController
             $arr['status'] = 101;
             $arr['msg']    = '没有数据';
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 }

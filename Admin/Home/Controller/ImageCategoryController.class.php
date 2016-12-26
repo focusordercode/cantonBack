@@ -41,41 +41,37 @@ class ImageCategoryController extends BaseController
                 $id = 1;
             }
         }
-        if($cn_name != null){
-            if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/",$en_name)){
-                $en_name = addslashes($en_name);
-                if($id == 1){ // 是顶级必需传产品类目id
-                    if(!empty($category_id) && preg_match("/^[0-9]+$/",$category_id)){
-                        $category_ids = $category_id;
-                    }else{
-                        $data['status'] = 102;
-                        $data['msg']    = '产品类目选取失败';
-                        $this->response($data,'json');
-                        exit;
-                    }
-                }else{ // 不是则继承
-                    $re = M('product_gallery')->find($id);
-                    $category_ids = $re['category_id'];
-                }
-                $res = \Think\Product\ImageCategory::AddSub($id,$cn_name,$en_name,$remark,$category_ids,$creator_id);
-                if($res == 1){
-                    $data['status'] = 100;
-                    // 更新缓存
-                    updateGalleryCache();
-                }elseif($res == 2){
-                    $data['status'] = 106;
-                    $data['msg']    = '该英文名已经存在';
+        if($cn_name == null) $this->response(['status' => 104, 'msg' => '中文名为必填'],'json');
+        if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/",$en_name)){
+            $en_name = addslashes($en_name);
+            if($id == 1){ // 是顶级必需传产品类目id
+                if(!empty($category_id) && preg_match("/^[0-9]+$/",$category_id)){
+                    $category_ids = $category_id;
                 }else{
-                    $data['status'] = 101;
-                    $data['msg']    = '添加失败';
+                    $data['status'] = 102;
+                    $data['msg']    = '产品类目选取失败';
+                    $this->response($data,'json');
+                    exit;
                 }
+            }else{ // 不是则继承
+                $re = M('product_gallery')->find($id);
+                $category_ids = $re['category_id'];
+            }
+            $res = \Think\Product\ImageCategory::AddSub($id,$cn_name,$en_name,$remark,$category_ids,$creator_id);
+            if($res == 1){
+                $data['status'] = 100;
+                // 更新缓存
+                updateGalleryCache();
+            }elseif($res == 2){
+                $data['status'] = 106;
+                $data['msg']    = '该英文名已经存在';
             }else{
-                $data['status'] = 105;
-                $data['msg']    = '英文名为必填';
+                $data['status'] = 101;
+                $data['msg']    = '添加失败';
             }
         }else{
-            $data['status'] = 104;
-            $data['msg']    = '中文名为必填';
+            $data['status'] = 105;
+            $data['msg']    = '英文名为必填';
         }
         $this->response($data,'json');
     }
@@ -118,31 +114,27 @@ class ImageCategoryController extends BaseController
         $cn_name = I('post.cn_name');
         $en_name = I('post.en_name');
         $data = array();
-        if($id != null){
-            if($cn_name != null){
-                if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/", $en_name)){
-                    $res = \Think\Product\ImageCategory::UpdaName($id,$cn_name,$en_name);
-                    if($res == 1){
-                        $data['status'] = 100;
-                        updateGalleryCache();
-                    }elseif($res == -2){
-                        $data['status'] = 101;
-                        $data['msg']    = '类目已有图片，防止使用出错，不可修改';
-                    }else{
-                        $data['status'] = 101;
-                        $data['msg']    = '更新失败';
-                    }
+        if($id == 0) $this->response(['status' => 102 ,'msg' => '没有选择类目'],'json');
+        if($cn_name != null){
+            if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/", $en_name)){
+                $res = \Think\Product\ImageCategory::UpdaName($id,$cn_name,$en_name);
+                if($res == 1){
+                    $data['status'] = 100;
+                    updateGalleryCache();
+                }elseif($res == -2){
+                    $data['status'] = 101;
+                    $data['msg']    = '类目已有图片，防止使用出错，不可修改';
                 }else{
-                    $data['status'] = 105;
-                    $data['msg']    = '英文名错误';
+                    $data['status'] = 101;
+                    $data['msg']    = '更新失败';
                 }
             }else{
-                $data['status'] = 104;
-                $data['msg']    = '中文名为必填';
-            }  
+                $data['status'] = 105;
+                $data['msg']    = '英文名错误';
+            }
         }else{
-            $data['status'] = 102;
-            $data['msg']    = '没有选择图片';
+            $data['status'] = 104;
+            $data['msg']    = '中文名为必填';
         }
         $this->response($data,'json');
     }
@@ -177,26 +169,6 @@ class ImageCategoryController extends BaseController
         }else{
             $data['status'] = 101;
             $data['msg']    = '暂无数据';
-        }
-        $this->response($data,'json');
-    }
-
-    /**
-     * 模块内移动类目
-     * @param  id      移动到的类目id
-     * @param  moveid  需移动的类目id
-     *
-     */
-    public function move(){
-        $moveid = (int)I('post.moveid');
-        $id = (int)I('post.id');
-        $data = \Think\Product\ImageCategory::GetAncestors($moveid,$id);
-        if($data == 1){
-            $data['status'] = 100;
-            updateGalleryCache();
-        }else{
-            $data['status'] = 101;
-            $data['msg']    = '移动失败';
         }
         $this->response($data,'json');
     }
@@ -268,14 +240,16 @@ class ImageCategoryController extends BaseController
     // @param category_id 所属产品类目id
     public function treeGallery()
     {
-        $id = isset($_POST['category_id']) ? (int)I('category_id') : 0;
+        $id = (int)I('category_id');
         $gallery = S('gallery');
         // 有缓存
         if($gallery){
             if($id == 0){
+                // 传的是顶级直接返回
                 $data['status']  = 100;
                 $data['value'][] = $gallery;
             }else{
+                // 不是顶级则抽出相关类目的返回
                 foreach($gallery as $k => $val){
                     foreach($val as $ks => $v){
                         if($v['category_id'] == $id){
@@ -294,7 +268,6 @@ class ImageCategoryController extends BaseController
                 );
             }
         }else{
-
             // 查询一组相册里面的顶级一个
             $parentss = M()->query("select min(left_id) as minl from imageview where category_id=".$id);
             if($parentss[0]['minl'] != ""){
@@ -331,7 +304,6 @@ class ImageCategoryController extends BaseController
                 $data['value']  = array( "warning" => "没有图片目录" );
             }
         }
-
         $this->response($data,'json');
     }
 

@@ -2,15 +2,14 @@
 namespace Think\Product;
 class Product_Item_Template{
 
-	public static function get($type,$template_id,$field){
+	public static function get($type,$template_id){
 		if($type == 'info'){
 			$tem = M("product_item_template");
 		}elseif ($type == 'batch') {
 			$tem = M("product_batch_item_template");
 		}
 		if(empty($template_id)) return 102;
-		$fields = !empty($field) ? $field : "*" ;
-		$result = $tem->where(array("enabled"=>1,"template_id"=>$template_id))->order("no asc")->field($fields)->select();
+		$result = $tem->where(array("enabled"=>1,"template_id"=>$template_id))->order("no asc")->select();
 		if($result){
 			foreach ($result as $key => $value) {
 				$result[$key]['save_text'] = '';   // 添加一个前端存放数据的键
@@ -71,8 +70,6 @@ class Product_Item_Template{
 				$res['status'] = 104;
                 $res['msg']    = '该状态下不可操作';
 			}else{
-//				$data["enabled"] = 0;
-//				$result = $tem->where("template_id=$id")->save($data);
 				$result = $tem->where("template_id=$id")->delete();
 				if($result){
 					$res['error'] = 0;
@@ -165,52 +162,6 @@ class Product_Item_Template{
             $res['msg']    = "修改数据不能为空";
 			return $res;
 		}
-	}
-
-	// 复制模板
-	public static function copy($template_id){
-		$tem = M("product_item_template");
-		if(!empty($template_id)){
-			$result = $tem->where(array('template_id' => $template_id , 'enabled' => 1))->order('no asc')->select();
-			if($result){
-				foreach ($result as $value) {
-					$arr[] = array(
-                        'no'             	=> $value['no'],
-                        'en_name'        	=> $value['en_name'],
-                        'cn_name'        	=> $value['cn_name'],
-                        'title'          	=> $value['title'],
-                        'data_type_code' 	=> $value['data_type_code'],
-                        'length'         	=> $value['length'],
-                        'precision'      	=> $value['precision'],
-                        'dafault_value'  	=> $value['dafault_value'],
-                        'enabled'        	=> $value['enabled'],
-                        'creator_id'     	=> isset($_SESSION['user_id']) ? session('user_id') : 0,
-                        'created_time'   	=> date('Y-m-d H:i:s',time()),
-                        'modified_time'  	=> date('Y-m-d H:i:s',time()),
-                        'form_type_code' 	=> $value['form_type_code']
-                    );
-				}
-				S('copy_template',$arr);
-				$copy_template = S('copy_template');
-				if($copy_template){
-					$res['error'] = 0;
-					$res['value'] = $copy_template;
-				}else{
-					$res['error'] = 1;
-					$res['status'] = 101;
-                    $res['msg']    = '暂无相关信息';
-				}
-			}else{
-				$res['error'] = 1;
-				$res['status'] = 101;
-                $res['msg']    = '暂无相关信息';
-			}
-		}else{
-			$res['error'] = 1;
-			$res['status'] = 102;
-            $res['msg']    = '未选择模板';
-		}
-		return $res;
 	}
 
 	/*
@@ -308,7 +259,6 @@ class Product_Item_Template{
         $virtual=M('product_item_valid_value v');
         $sql=$virtual->field("item_id")->where("template_id=%d",array($template_id))->group("item_id")->select();
         $field="b.title,v.value";
-        $i=0;
         foreach($sql as $key => $value){
             $query=$virtual->field($field)->join("tbl_product_batch_item_template b on b.id=v.item_id")->where("v.item_id=%d",array($value['item_id']))->find();
             $array[$query['title']]=$query['value'];
@@ -327,8 +277,6 @@ class Product_Item_Template{
                 $res['status'] = 101;
                 $res['msg']    = '模板不存在';
             }
-
-
         }elseif($type_code == 'batch'){
             $m = M('product_batch_template');
             $n = M('product_batch_item_template');
@@ -366,6 +314,5 @@ class Product_Item_Template{
                 $res['msg']    = '模板不存在';
         }
         return $res;
-       
     }
 }

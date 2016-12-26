@@ -421,6 +421,6 @@ function updateGalleryCache(){
 
 // sql防注入处理
 function __sqlSafe__($sql){
-    $entities_match = array(';','$','!','@','#','^','&','{','}','|',':','"','?','[',']','\\','/','+','~','`');
+    $entities_match = array(';','$','!','@','#','^','&','{','}','"','?','[',']','\\','/','+','~','`');
     return str_replace($entities_match, '', trim($sql));
 }
