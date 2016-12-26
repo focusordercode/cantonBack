@@ -203,7 +203,7 @@ class PictureController extends BaseController
         if(!empty($edit_data['id']) && preg_match("/^[0-9]+$/",$edit_data['id'])){
             if(!empty($edit_data['title']) && !empty($edit_data['tags'])){
                 $arr = array(
-                    'tags'          => implode("||",__sqlSafe__($edit_data['tags'])),
+                    'tags'          => implode("||",$edit_data['tags']),
                     'title'         => $edit_data['title'],
                     'modified_time' => date('Y-m-d H:i:s' , time()),
                 );
