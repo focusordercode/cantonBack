@@ -215,21 +215,15 @@ class Picture {
 
     // 清空回收站
     static function clear_rubbish(){
-        //if(isset($_SESSION['user_id'])){
-            $clear = M("product_picture")->where("gallery_id=0")->delete();
-            if($clear){
-                $data["error"] = 0;
-                delfile("./Pictures/RUBBISH");
-            }else{
-                $data["error"]  = 1;
-                $data["status"] = 101;
-                $data['msg']    = '暂无数据，不需要清除';
-            }
-        //}else{
-        //    $data["error"]  = 1;
-        //    $data["status"] = 102;
-        //}
-
+        $clear = M("product_picture")->where("gallery_id=0")->delete();
+        if($clear){
+            $data["error"] = 0;
+            delfile("./Pictures/RUBBISH");
+        }else{
+            $data["error"]  = 1;
+            $data["status"] = 101;
+            $data['msg']    = '暂无数据，不需要清除';
+        }
         return $data;
     }
 
@@ -263,11 +257,11 @@ class Picture {
                         foreach ($checkpic as $ks => $vals) {
                              $product_ids = $form->field("product_id")->where("form_id=%d",array($vals['form_id']))->select();
                             foreach ($product_ids as $keys => $values) {
-                                $datas['char_value'] = $folder['dir'].'/'.$sql['file_name'];
+                                $datas['char_value']    = $folder['dir'].'/'.$sql['file_name'];
                                 $datas['modified_time'] = date('Y-m-d H:i:s',time());
-                                $where['product_id'] = $values['product_id'];
-                                $where['char_value'] = $sql['path'].'/'.$sql['file_name'];
-                                $updapic = $info->data($datas)->where($where)->save(); 
+                                $where['product_id']    = $values['product_id'];
+                                $where['char_value']    = $sql['path'].'/'.$sql['file_name'];
+                                $info->data($datas)->where($where)->save();
                             }   
                         }  
                     }

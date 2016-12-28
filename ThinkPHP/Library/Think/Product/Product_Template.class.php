@@ -259,6 +259,7 @@ class Product_Template{
             $for = M('product_batch_form');
 		}
         $sql = $m->where($where)->order('id desc')->limit($start,$pageSize)->select();
+//        echo $m->_sql();
         $count = $m->where($where)->count();
         if($sql){
             foreach($sql as $key => $value){

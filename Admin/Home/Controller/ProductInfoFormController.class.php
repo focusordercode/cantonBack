@@ -51,7 +51,7 @@ class ProductInfoFormController extends BaseController
 		$type_code   = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-		$res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code,$status_code,$template_id);
+		$res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code, $status_code, $template_id);
 		if($res){
 			$data['status'] = 100;
 			$data['value']  = $res;
@@ -267,7 +267,10 @@ class ProductInfoFormController extends BaseController
         $tel_id       = $form->field("template_id")->where("id=%d",array($product_form_id))->find();
 
         //获取资料表与批量表的关联关系
-        $array = $item2batch->field("title1_id,title2_id")->where("template1_id=%d and template2_id=%d",array($tel_id['template_id'],$batch_tel_id['template_id']))->select();
+        $array = $item2batch
+            ->field("title1_id,title2_id")
+            ->where("template1_id=%d and template2_id=%d",array($tel_id['template_id'],$batch_tel_id['template_id']))
+            ->select();
         foreach ($array as $key => $value) {
             $items  = $item->field("en_name")->where("id=%d",array($value['title1_id']))->find();
             $bitems = $batch_item->field("en_name")->where("id=%d",array($value['title2_id']))->find();

@@ -263,7 +263,6 @@ class TemplateController extends BaseController
 		$type_code = I("type_code");
 		$pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-
 		$text = __sqlSafe__(I('post.name'));
         $status_code = __sqlSafe__(I("post.status_code"));
 
@@ -344,7 +343,7 @@ class TemplateController extends BaseController
     //获取模板信息可模糊搜索
     // @param type_code info/batch
     public function getitemValue(){
-    	$enabled   = (int)I("post.enabled");    // 可用状态参数，默认为可用 1
+    	$enabled   = I("post.enabled");    // 可用状态参数，默认为可用 1
 		$type_code = I('post.type_code');
         $num       = isset($_POST['num']) ? (int)I('post.num') : 8;
         $next      = isset($_POST['next']) ? (int)I('post.next') : 1;

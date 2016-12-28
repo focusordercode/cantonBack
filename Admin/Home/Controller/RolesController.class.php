@@ -209,7 +209,7 @@ class RolesController extends BaseController{
 		$role_org = M('auth_role_org');
 		$query = $role_user->field("id")->where("role_id=%d",array($id))->find();
 		if(empty($query['id'])){
-			$sql = $role->where("id=%d",array($id))->delete();
+			$role->where("id=%d",array($id))->delete();
 			$sql = $role_org->where("role_id=%d",array($id))->delete();
 			if($sql !== 'flase'){
 				$arr['status'] = 100;

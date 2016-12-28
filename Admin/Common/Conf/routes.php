@@ -15,15 +15,15 @@ return [
         'logout'  => 'Login/logout', // 登陆
 
         // Subarea
-		'get/table'              => 'Subarea/getAllTable',    //获取所有没有分区的表
-        'get/zone'               => 'Subarea/getTable',       //获取已经分区的所有表
-        'get/fields'             => 'Subarea/getFields',      //获取数据表的字段
-        'establish/partition'    => 'Subarea/setSubarea',     //为表创建分区
-        'dilatation/partition'   => 'Subarea/Dilatation',     //分区扩容
-        'update/partition'       => 'Subarea/updateSubarea',  //修改分区
-        'check'                  => 'Subarea/check',          //检测分区的情况（是否可以提交，提交是否成功等）
-        'qingchu'                => 'Subarea/Eliminate',      //分区出现失误时，清除缓存，重新使用
-        'get/tablecount'         => 'Subarea/getTableCount',  //获取每张表的数据统计
+		'get/table'              => 'Subarea/getAllTable',    // 获取所有没有分区的表
+        'get/zone'               => 'Subarea/getTable',       // 获取已经分区的所有表
+        'get/fields'             => 'Subarea/getFields',      // 获取数据表的字段
+        'establish/partition'    => 'Subarea/setSubarea',     // 为表创建分区
+        'dilatation/partition'   => 'Subarea/Dilatation',     // 分区扩容
+        'update/partition'       => 'Subarea/updateSubarea',  // 修改分区
+        'check'                  => 'Subarea/check',          // 检测分区的情况（是否可以提交，提交是否成功等）
+        'qingchu'                => 'Subarea/Eliminate',      // 分区出现失误时，清除缓存，重新使用
+        'get/tablecount'         => 'Subarea/getTableCount',  // 获取每张表的数据统计
 
         // GetGlobalID
         'get/sysId'              => 'GetGlobalID/getSysId',
@@ -176,7 +176,7 @@ return [
         'get/linkage'            => 'Template/getLinkage',
         'vague/templatename'     => 'Template/vagueName',
         'get/template10'         => 'Template/get_template_by_category',
-        'get/temvalue'           => 'Template/getitemValue',         //获取模板数据，可以获取全部也可以模糊获取
+        'get/temvalue'           => 'Template/getitemValue',            //获取模板数据，可以获取全部也可以模糊获取
 
         // CenterItem
         'add/centeritem'         => 'CenterItem/addCenterItem',         //添加词库项目
@@ -221,9 +221,9 @@ return [
         'get/rule2role'          => 'Roles/getRule2Role',//读取角色的权限
         'allot/rule2role'        => 'Roles/allotRule2Role',//给角色分配权限
 
-
         'get/temformat'          => 'ProductInfoExtend/getTemFormat',//获取模板的数据格式
         'commit/data'            => 'ProductInfoExtend/dataCommit',//暂存
+
         'upload/pic'             => 'Picture/uploadPic',//上传图片
         'get/progress'           => 'Picture/getProgress',//获取上传图片的进度
         'copy/datas'             => 'TestCaseOperation/copyDatas',//复制数据做测试
@@ -233,5 +233,8 @@ return [
         'edit/personal'          => 'Ucenter/userEdit',                 // 普通用户编辑权限
         'usernav'                => 'Ucenter/navManage',                // 普通用户编辑权限
         'get/userbyid'           => 'Ucenter/getUserInfoById',             // 查询用户
+
+
+        'ts'            => 'ProductInfoExtend/testAdd',//暂存
     ],
 ];
