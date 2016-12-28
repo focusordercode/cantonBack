@@ -2,14 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e53b2c7-4d48-44f1-8ec6-bfe77a895f72" name="默认的" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Common/Conf/routes.php" afterPath="$PROJECT_DIR$/Admin/Common/Conf/routes.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/PictureController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/PictureController.class.php" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/cantonBack.iml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoFormController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoFormController.class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/RolesController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/RolesController.class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/TemplateController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/TemplateController.class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ThinkPHP/Library/Think/Product/Picture.class.php" afterPath="$PROJECT_DIR$/ThinkPHP/Library/Think/Product/Picture.class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ThinkPHP/Library/Think/Product/Product_Template.class.php" afterPath="$PROJECT_DIR$/ThinkPHP/Library/Think/Product/Product_Template.class.php" />
     </list>
     <ignored path="cantonBack.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -34,7 +33,7 @@
       <file leaf-file-name="ProductInfoFormController.class.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoFormController.class.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-11.645162">
+            <state vertical-scroll-proportion="-15.935484">
               <caret line="199" column="42" selection-start-line="199" selection-start-column="42" selection-end-line="199" selection-end-column="42" />
               <folding />
             </state>
@@ -44,8 +43,8 @@
       <file leaf-file-name="ProductInfoExtendController.class.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5728518">
-              <caret line="344" column="51" selection-start-line="344" selection-start-column="51" selection-end-line="344" selection-end-column="51" />
+            <state vertical-scroll-proportion="0.5466999">
+              <caret line="98" column="44" selection-start-line="98" selection-start-column="44" selection-end-line="98" selection-end-column="44" />
               <folding />
             </state>
           </provider>
@@ -54,7 +53,7 @@
       <file leaf-file-name="routes.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Admin/Common/Conf/routes.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-21.709677">
+            <state vertical-scroll-proportion="0.0">
               <caret line="237" column="51" selection-start-line="237" selection-start-column="51" selection-end-line="237" selection-end-column="51" />
               <folding />
             </state>
@@ -64,7 +63,7 @@
       <file leaf-file-name="ProductInfoController.class.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoController.class.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="14.258064">
+            <state vertical-scroll-proportion="0.0">
               <caret line="362" column="11" selection-start-line="362" selection-start-column="11" selection-end-line="362" selection-end-column="11" />
               <folding>
                 <marker date="1482832988715" expanded="true" signature="5240:5414" placeholder="select id FR... tbl_product_batch_information" />
@@ -77,7 +76,7 @@
       <file leaf-file-name="ProductInfo.class.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ThinkPHP/Library/Think/Product/ProductInfo.class.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-19.032259">
+            <state vertical-scroll-proportion="0.0">
               <caret line="380" column="99" selection-start-line="380" selection-start-column="99" selection-end-line="380" selection-end-column="99" />
               <folding />
             </state>
@@ -110,7 +109,7 @@
       <file leaf-file-name="ProductInfoForm.class.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ThinkPHP/Library/Think/Product/ProductInfoForm.class.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="7.548387">
+            <state vertical-scroll-proportion="0.0">
               <caret line="9" column="20" selection-start-line="9" selection-start-column="20" selection-end-line="9" selection-end-column="20" />
               <folding>
                 <marker date="1482310809149" expanded="true" signature="6525:6651" placeholder="SELECT id,ca... tbl_product_form" />
@@ -168,8 +167,8 @@
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="439" />
-    <option name="y" value="67" />
+    <option name="x" value="88" />
+    <option name="y" value="56" />
     <option name="width" value="1787" />
     <option name="height" value="978" />
   </component>
@@ -205,7 +204,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -302,6 +300,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -354,7 +353,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="439" y="67" width="1787" height="978" extended-state="0" />
+    <frame x="88" y="56" width="1787" height="978" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17278373" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -429,7 +428,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -444,7 +442,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -592,10 +589,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.91033626">
           <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding>
-            <marker date="1482478508769" expanded="true" signature="2290:2355" placeholder="select id,cn... productcategoryview" />
-            <marker date="1482478508769" expanded="true" signature="2916:3030" placeholder="select id,cn... tbl_product_category" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -603,10 +596,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3325031">
           <caret line="69" column="20" selection-start-line="69" selection-start-column="20" selection-end-line="69" selection-end-column="20" />
-          <folding>
-            <marker date="1482743408836" expanded="true" signature="2119:2174" placeholder="select id,cn... imageview" />
-            <marker date="1482743408836" expanded="true" signature="2711:2807" placeholder="select * fro... tbl_product_gallery" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -651,7 +640,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.3237858">
           <caret line="35" column="67" selection-start-line="35" selection-start-column="67" selection-end-line="35" selection-end-column="67" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -659,7 +647,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.93897885">
           <caret line="7" column="27" selection-start-line="7" selection-start-column="27" selection-end-line="7" selection-end-column="27" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -707,9 +694,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.44956413">
           <caret line="255" column="68" selection-start-line="255" selection-start-column="68" selection-end-line="255" selection-end-column="68" />
-          <folding>
-            <marker date="1482822102202" expanded="true" signature="2595:2707" placeholder="select id,cn... tbl_image_category" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -717,9 +701,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.25529265">
           <caret line="650" column="41" selection-start-line="650" selection-start-column="41" selection-end-line="650" selection-end-column="41" />
-          <folding>
-            <marker date="1482822077018" expanded="true" signature="9730:9852" placeholder="SELECT * FRO... marrypic" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -727,7 +708,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-15.67742">
           <caret line="262" column="26" selection-start-line="262" selection-start-column="26" selection-end-line="262" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -735,7 +715,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.91033626">
           <caret line="268" column="54" selection-start-line="268" selection-start-column="54" selection-end-line="268" selection-end-column="54" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -743,13 +722,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.41718554">
           <caret line="211" column="12" selection-start-line="211" selection-start-column="12" selection-end-line="211" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ThinkPHP/Library/Think/Product/ProductInfoForm.class.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="7.548387">
+        <state vertical-scroll-proportion="0.0">
           <caret line="9" column="20" selection-start-line="9" selection-start-column="20" selection-end-line="9" selection-end-column="20" />
           <folding>
             <marker date="1482310809149" expanded="true" signature="6525:6651" placeholder="SELECT id,ca... tbl_product_form" />
@@ -760,23 +738,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ThinkPHP/Library/Think/Product/ProductInfo.class.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-19.032259">
+        <state vertical-scroll-proportion="0.0">
           <caret line="380" column="99" selection-start-line="380" selection-start-column="99" selection-end-line="380" selection-end-column="99" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoFormController.class.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-11.645162">
-          <caret line="199" column="42" selection-start-line="199" selection-start-column="42" selection-end-line="199" selection-end-column="42" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoController.class.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="14.258064">
+        <state vertical-scroll-proportion="0.0">
           <caret line="362" column="11" selection-start-line="362" selection-start-column="11" selection-end-line="362" selection-end-column="11" />
           <folding>
             <marker date="1482832988715" expanded="true" signature="5240:5414" placeholder="select id FR... tbl_product_batch_information" />
@@ -787,16 +757,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Admin/Common/Conf/routes.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-21.709677">
+        <state vertical-scroll-proportion="0.0">
           <caret line="237" column="51" selection-start-line="237" selection-start-column="51" selection-end-line="237" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoFormController.class.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-15.935484">
+          <caret line="199" column="42" selection-start-line="199" selection-start-column="42" selection-end-line="199" selection-end-column="42" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5728518">
-          <caret line="344" column="51" selection-start-line="344" selection-start-column="51" selection-end-line="344" selection-end-column="51" />
+        <state vertical-scroll-proportion="0.5466999">
+          <caret line="98" column="44" selection-start-line="98" selection-start-column="44" selection-end-line="98" selection-end-column="44" />
           <folding />
         </state>
       </provider>
