@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1e53b2c7-4d48-44f1-8ec6-bfe77a895f72" name="默认的" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/cantonBack.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php" afterPath="$PROJECT_DIR$/Admin/Home/Controller/ProductInfoExtendController.class.php" />
-    </list>
+    <list default="true" id="1e53b2c7-4d48-44f1-8ec6-bfe77a895f72" name="默认的" comment="" />
     <ignored path="cantonBack.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
