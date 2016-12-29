@@ -50,8 +50,8 @@ class ProductInfoFormController extends BaseController
 		$status_code = I('post.status_code');
 		$type_code   = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-
 		$res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code, $status_code, $template_id);
+
 		if($res){
 			$data['status'] = 100;
 			$data['value']  = $res;
@@ -397,8 +397,12 @@ class ProductInfoFormController extends BaseController
 	 * 修改表格名称
 	 * @param type_code   info / batch
 	 */
-	public function updaInfoForm()
-    {
+
+	public function updaInfoForm(){
+
+		$type_code = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
         // 拉参数
 		$type_code             = I('post.type_code');
 		$id                    = (int)I('post.id');
@@ -408,7 +412,6 @@ class ProductInfoFormController extends BaseController
 		$data['title']         = I('post.title');
 		$data['modified_time'] = date('Y-m-d H:i:s',time());
 		$data['site_name']     = I('post.site_name');
-
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 		if($id == 0) $this->response(['status'=> 102, 'msg' => '未选择表格']);
 		if($data['category_id'] == 0) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
@@ -542,7 +545,9 @@ class ProductInfoFormController extends BaseController
         if(!preg_match("/^[0-9]+$/",$pageSize) || !preg_match("/^[0-9]+$/",$next)){
             $data['status'] = 102;
             $data['msg']    = '分页数据错误';
-            $this->response($data);
+
+        $this->response($data);
+
         }
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 

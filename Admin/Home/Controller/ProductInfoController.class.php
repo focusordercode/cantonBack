@@ -392,18 +392,19 @@ class ProductInfoController extends BaseController{
         $size1 = (int)$reludata['size1'];
         $size2 = (int)$reludata['size2'];
 
-        //获取表格表头数据
         $tem_data = \Think\Product\Product_Item_Template::get('info',$template_id,"no,en_name,data_type_code,length,default_value");
         $z = 0;
         $j = 0;
+
 
         $code = $sku_num1;
         $size_start = $size1;
         $form_info = M('product_form_information');
         $info = M('product_information');
-        $info->startTrans();
+        
         $is_count = $form_info->field("product_id")->where("form_id=%d",array($form_id))->select();
         if(!empty($is_count[0]['product_id'])){//判断是否已经有表格数据
+            $info->startTrans();
             foreach ($getdata['default'] as $gkey => $gvalue) {//修改常规默认值
                 $whe['title'] = $gkey;
                 $whe['product_id'] = $is_count[0]['product_id']; 
@@ -473,8 +474,7 @@ class ProductInfoController extends BaseController{
                 }                
             }else{//检查是否有变体，有就执行
                 foreach ($is_count as $qkey => $qvalue) {
-                    $price = rand($priceUsd1,$priceUsd2);
-                    $decimal  = rand(1,99) / 100;
+                    
                     if(!empty($quantity1) && !empty($quantity2)){//规则中的Quantity on hand有值
                         $q_where['product_id'] = $qvalue['product_id'];
                         $q_where['parent_id'] = array('NEQ','0');
@@ -491,30 +491,15 @@ class ProductInfoController extends BaseController{
                         $w_data['char_value'] = rand($weight1,$weight2);
                         $w_upda = $info->data($w_data)->where($w_where)->save();
                     }
-                    if(!empty($priceUsd1) && !empty($priceUsd2)){//规则中的Price (USD)有值
-                        $usd_where['parent_id'] = $qvalue['product_id'];
-                        $usd_where['title'] = 'Price (USD)';
-                        $usd_data['decimal_value'] = $price+$decimal;
-                        $usd_data['char_value'] = $price+$decimal;
-                        $usd_upda = $info->data($usd_data)->where($usd_where)->save();
-                    }
-                    if(!empty($priceUsd1) && !empty($priceUsd2)){//规则中的Price (GBP)有值
-                        $gbp_where['parent_id'] =  $qvalue['product_id'];
-                        $gbp_where['title'] = "Price (GBP)";
-                        $gbp_data['decimal_value'] = $price-1+$decimal;
-                        $gbp_data['char_value'] = $price-1+$decimal;
-                        $gbp_upda = $info->data($gbp_data)->where($gbp_where)->save();
-                    }
-
                 }
-                //填写SKU
-                if (!empty($SKUprefix) && !empty($sku_num1) && !empty($sku_num2)) {
-                    $pid_where['tbl_product_information.parent_id'] = 0;
+                $pid_where['tbl_product_information.parent_id'] = 0;
                     $pid_where['pf.form_id'] = $form_id;
                     $pid_where['title'] = 'SKU';
                     $sel_product_id = $info->field("tbl_product_information.product_id as id")->join("left join tbl_product_form_information pf on pf.product_id = tbl_product_information.product_id")->where($pid_where)->select();
-                     //SKU与size有变体的算法
-                    foreach ($sel_product_id as $sel_key => $sel_value) {
+                foreach ($sel_product_id as $sel_key => $sel_value) {
+                    if (!empty($SKUprefix) && !empty($sku_num1) && !empty($sku_num2)) {
+                        //SKU与size有变体的算法
+                        
                         $sel_where['_string'] = "product_id = ".$sel_value['id']." or parent_id = ".$sel_value['id'];
                         $sel_where['title'] = 'SKU';
                         $sel_id = $info->field("product_id,parent_id")->where($sel_where)->select();
@@ -548,6 +533,23 @@ class ProductInfoController extends BaseController{
                         $code++; 
                         $size_start = $size1;
                     }
+                    if(!empty($priceUsd1) && !empty($priceUsd2)){//规则中的Price (USD)有值
+                        $price = rand($priceUsd1,$priceUsd2);
+                        $decimal  = rand(1,99) / 100;
+                            //$usd_where['product_id'] = $qvalue['product_id'];
+                            $usd_where['parent_id'] = $sel_value['id'];
+                            $usd_where['title'] = 'Price (USD)';
+                            $usd_data['decimal_value'] = $price+$decimal;
+                            $usd_data['char_value'] = $price+$decimal;
+                            $usd_upda = $info->data($usd_data)->where($usd_where)->save();
+
+                            //$gbp_where['product_id'] = $qvalue['product_id'];
+                            $gbp_where['parent_id'] =  $sel_value['id'];
+                            $gbp_where['title'] = "Price (GBP)";
+                            $gbp_data['decimal_value'] = $price-1+$decimal;
+                            $gbp_data['char_value'] = $price-1+$decimal;
+                            $gbp_upda = $info->data($gbp_data)->where($gbp_where)->save();
+                        }
                 }
             }
             
@@ -558,19 +560,17 @@ class ProductInfoController extends BaseController{
         }
         $f = 1;
         $s = 0;
-        //获取全局id （产品id，产品记录id）
         $id = GetSysId('product_information',$num);
         $ids = GetSysId('product_information_record',count($tem_data['value'])*$num);
-
+        $info->startTrans();
         if(empty($variant_num)){//没有变体的自动填表
             
             for($i = 0 ;$i < $product_count; $i++){
                 $price = rand($priceUsd1,$priceUsd2);
                 $decimal  = rand(1,99) / 100;
                 if(empty($hc_data[$s])){
-                    $s = 0;
+                    $s =0;
                 }
-                //填写数据
                 foreach ($tem_data['value'] as $keys => $values ) {
                     $data['id'] = $ids[$z];
                     $data['category_id'] = $category_id;
@@ -587,9 +587,9 @@ class ProductInfoController extends BaseController{
                     switch ($data['data_type_code']) {
                         case 'int':
                             if(empty($values['default_value'])){
-                                if(array_key_exists($values['en_name'], $getdata['default'])){//判断是否是常规数据
+                                if(array_key_exists($values['en_name'], $getdata['default'])){
                                     $data['interger_value'] = $getdata['default'][$values['en_name']];
-                                }elseif(array_key_exists($values['en_name'], $getdata['variant'])){//判断是否是变化值数据
+                                }elseif(array_key_exists($values['en_name'], $getdata['variant'])){
                                     $data['interger_value'] = $getdata['variant'][$values['en_name']][0];
                                 }elseif($values['en_name'] == 'Quantity on hand'){
                                     if(!empty($quantity1) && !empty($quantity2)){
@@ -609,9 +609,9 @@ class ProductInfoController extends BaseController{
                                     }
                                 }
                             }else{
-                                if(array_key_exists($values['en_name'], $getdata['default'])){//判断是否是常规数据
+                                if(array_key_exists($values['en_name'], $getdata['default'])){
                                     $data['interger_value'] = $getdata['default'][$values['en_name']];
-                                }elseif(array_key_exists($values['en_name'], $getdata['variant'])){//判断是否是变化值数据
+                                }elseif(array_key_exists($values['en_name'], $getdata['variant'])){
                                     $data['interger_value'] = $getdata['variant'][$values['en_name']][0];
                                 }else{
                                     $data['interger_value'] = $values['default_value'];
@@ -620,7 +620,7 @@ class ProductInfoController extends BaseController{
                             }
                             break;
                         case 'char':
-                            if($values['en_name'] == 'SKU'){//判断是否是SKU
+                            if($values['en_name'] == 'SKU'){
                                 if(!empty($SKUprefix) && !empty($sku_num1) && !empty($sku_num2)){
                                     $data['char_value'] = $SKUprefix.str_pad($code,4,"0",STR_PAD_LEFT);
                                 }  
@@ -758,9 +758,9 @@ class ProductInfoController extends BaseController{
                 $s++;
             }
         }else{
-            for ($i=1; $i < $product_count+1; $i++) { //product_count 变体产品数量
+            for ($i=1; $i < $product_count+1; $i++) { //主体
                 
-                if($i % $variant_num== 1){//主体
+                if($i % $variant_num== 1){
                     $price = rand($priceUsd1,$priceUsd2);
                     $decimal  = rand(1,99) / 100;
                     if($i != 1){
@@ -891,7 +891,6 @@ class ProductInfoController extends BaseController{
                     $j++; 
                     $f = 1;
                 }
-                //添加主体的变体产品
                 foreach ($tem_data['value'] as $keys => $values ) {
                     $data['id'] = $ids[$z];
                     $data['category_id'] = $category_id;
