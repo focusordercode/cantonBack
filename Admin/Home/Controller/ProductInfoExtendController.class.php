@@ -19,19 +19,14 @@ class ProductInfoExtendController extends BaseController
      * @param type_code  资料表或者批量表 
 	 */
 	public function getTemFormat(){
-		$template_id = I('post.template_id');
-		$type_code = I('post.type_code');
-		if($type_code != 'info' && $type_code !='batch'){
-			$arr['status'] = 119;
-			$arr['msg'] = "系统错误";
-			$this->response($arr);
-			exit();
-		}
-		if(empty($template_id)){
+		$template_id = (int)I('post.template_id');
+		$type_code   = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
+		if($template_id == 0){
 			$arr['status'] = 102;
 			$arr['msg'] = "模板信息错误";
 			$this->response($arr);
-			exit();
 		}
 		$res = \Think\Product\ProductInfoExtend::GetTemplateFormat($template_id,$type_code);
 		$this->response($res);
@@ -234,12 +229,12 @@ class ProductInfoExtendController extends BaseController
                         $data['template_id']    = $template_id;
                         $data['product_id']     = $product_id;
                         $data['parent_id']      = $parent_id;
-                        $data['no'] = $data_style[$value_key]['no'];
-                        $data['title'] = $value_key;
+                        $data['no']             = $data_style[$value_key]['no'];
+                        $data['title']          = $value_key;
                         $data['data_type_code'] = $data_style[$value_key]['data_type_code'];
-                        $data['length'] = $data_style[$value_key]['length'];
-                        $data['precision'] = $data_style[$value_key]['precision'];
-                        $data['created_time'] = date('Y-m-d H:i:s',time());
+                        $data['length']         = $data_style[$value_key]['length'];
+                        $data['precision']      = $data_style[$value_key]['precision'];
+                        $data['created_time']   = date('Y-m-d H:i:s',time());
                         $query = $info->data($data)->add();
                         if($query === 'flase'){
                             $info->rollback();

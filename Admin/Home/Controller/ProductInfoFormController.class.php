@@ -160,7 +160,8 @@ class ProductInfoFormController extends BaseController
 	 * @param template_id 模板id
 	 * @param type_code   info / batch
 	 */
-	public function addInfoForm(){
+	public function addInfoForm()
+    {
 		$array     = array();
 		$type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
@@ -230,14 +231,14 @@ class ProductInfoFormController extends BaseController
         }
 		$res = \Think\Product\ProductInfoForm::AddInfoForm($type_code,$data);
 		if($res){
+            if($type_code == 'batch'){
+                // 所需要的主题数量
+                $this->get_product_msg($data['id'],$data['product_form_id'],$product_count , $Zt['variant_num'],$creator_id);
+            }
+
 			$array['status'] = 100;
 			$array['title'] = $data['title'];
 			$array['id']    = $data['id'];
-
-             if($type_code == 'batch'){
-                 // 所需要的主题数量
-                 $this->get_product_msg($data['id'],$data['product_form_id'],$product_count , $Zt['variant_num'],$creator_id);
-             }
 		}else{
 			$array['status'] = 101;
             $array['msg']    = '暂无相关信息';
@@ -366,24 +367,12 @@ class ProductInfoFormController extends BaseController
                         if(!empty($bitem[$data['title']])){
                             switch ($data['data_type_code']) {
                                 case 'int':
-                                case 'upc_code':
-                                    $data['interger_value'] = $info[$ks][$bitem[$data['title']]];
-                                    break;
-                                case 'char':
-                                    $data['char_value']   = $info[$ks][$bitem[$data['title']]];
-                                    break;
-                                case 'dc':
-                                    $data['decimal_value'] = $info[$ks][$bitem[$data['title']]];
-                                    break;
-                                case 'dt':
-                                    $data['date_value']    = $info[$ks][$bitem[$data['title']]];
-                                    break;
-                                case 'bl':
-                                    $data['boolean_value'] = $info[$ks][$bitem[$data['title']]];
-                                    break;
-                                case 'pic':
-                                    $data['char_value']    = $info[$ks][$bitem[$data['title']]];
-                                    break;
+                                case 'upc_code':$data['interger_value'] = $info[$ks][$bitem[$data['title']]];break;
+                                case 'char':    $data['char_value']     = $info[$ks][$bitem[$data['title']]];break;
+                                case 'dc':      $data['decimal_value']  = $info[$ks][$bitem[$data['title']]];break;
+                                case 'dt':      $data['date_value']     = $info[$ks][$bitem[$data['title']]];break;
+                                case 'bl':      $data['boolean_value']  = $info[$ks][$bitem[$data['title']]];break;
+                                case 'pic':     $data['char_value']     = $info[$ks][$bitem[$data['title']]];break;
                             }
                         }
                         $data['enabled']       = 1;
@@ -408,40 +397,28 @@ class ProductInfoFormController extends BaseController
 	 * 修改表格名称
 	 * @param type_code   info / batch
 	 */
-	public function updaInfoForm(){
-
-		$type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+	public function updaInfoForm()
+    {
         // 拉参数
-		$id                    = I('post.id');
-		$data['category_id']   = I('post.category_id');
-		$data['template_id']   = I('post.template_id');
+		$type_code             = I('post.type_code');
+		$id                    = (int)I('post.id');
+		$data['category_id']   = (int)I('post.category_id');
+		$data['template_id']   = (int)I('post.template_id');
 		$data['client_id']     = isset($_COOKIE["user_id"]) ? cookie("user_id") : 0;
 		$data['title']         = I('post.title');
 		$data['modified_time'] = date('Y-m-d H:i:s',time());
 		$data['site_name']     = I('post.site_name');
-		if(empty($id) || !preg_match("/^[0-9]*$/",$id)){//判断id是否为空或者id是否为数字
-			$array['status'] = 102;
-            $data['msg']    = '未选择表格';
-			$this->response($array);
-		}
+
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+		if($id == 0) $this->response(['status'=> 102, 'msg' => '未选择表格']);
+		if($data['category_id'] == 0) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
+		if($data['template_id'] == 0) $this->response(['status'=> 104, 'msg' => '未选择模板']);
+
 		if($type_code == 'batch'){
-			if(empty($data['site_name'])){
-				$array['status'] = 102;
-        	    $data['msg']    = '请选择站点';
-				$this->response($array);
-			}
+			if(empty($data['site_name'])) $this->response(['status'=> 102, 'msg' => '请选择站点']);
 		}
 		
-		if(empty($data['category_id']) || !preg_match("/^[0-9]*$/",$data['category_id'])){//判断类目id是否为空或者id是否为数字
-			$array['status'] = 103;
-            $array['msg']    = '未选择产品类目';
-			$this->response($array);
-		}elseif(empty($data['template_id']) || !preg_match("/^[0-9]*$/",$data['template_id'])){//判断模板id是否为空或者id是否为数字
-			$array['status'] = 104;
-            $array['msg']    = '未选择模板';
-			$this->response($array);
-		}elseif(empty($data['client_id']) || !preg_match("/^[0-9]*$/",$data['template_id'])){//判断客户id是否为空或者id是否为数字
+		if(empty($data['client_id']) || !preg_match("/^[0-9]*$/",$data['template_id'])){
 			$data['client_id'] = 1;
 		}
 		if(empty($data['title'])){//判断表单名称是否为空
@@ -565,14 +542,14 @@ class ProductInfoFormController extends BaseController
         if(!preg_match("/^[0-9]+$/",$pageSize) || !preg_match("/^[0-9]+$/",$next)){
             $data['status'] = 102;
             $data['msg']    = '分页数据错误';
-            $this->response($data );exit();
+            $this->response($data);
         }
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         if(!empty($status_code) && !preg_match("/^[a-z0-9]+$/" , $status_code)){
             $data['status'] = 103;
             $data['msg']    = '表格状态错误';
-            $this->response($data );exit();
+            $this->response($data);
         }
 
         $result = \Think\Product\ProductInfo::search_form($type_code,$status_code,$keyword,$category_id,$pageSize,$next);
@@ -586,7 +563,7 @@ class ProductInfoFormController extends BaseController
             $data['status'] = $result['status'];
             $data['msg']    = $result['msg'];
         }
-        $this->response($data );
+        $this->response($data);
     }
 
 }

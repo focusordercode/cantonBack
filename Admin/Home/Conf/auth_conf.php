@@ -16,6 +16,7 @@ return [
             ],
             'call/upc'   => [
                 'Upc/marry_upc',
+                'Upc/unLockUpc',
             ]
         ],
 

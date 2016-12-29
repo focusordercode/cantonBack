@@ -183,4 +183,48 @@ class UpcController extends BaseController
         }
         $this->response($returnArr);
     }
+
+    /*
+     * 解绑upc
+     * @param form_id 表格id
+     * */
+    public function unLockUpc()
+    {
+        $form_id = (int)I('form_id');
+        $uid     = (int)I('create_id');
+
+        if($form_id == 0) $this->response(['status' => 102, 'msg' => '表格未选取']);
+        if($uid == 0)     $this->response(['status' => 102, 'msg' => '请确认是否已登录']);
+        $result = \Think\Product\Upc::unLock($form_id ,$uid);
+        if($result['error'] == 0){
+            $ret['status'] = 100;
+        }else{
+            $ret['status'] = $result['status'];
+            $ret['msg']    = $result['msg'];
+        }
+        $this->response($ret);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -21,9 +21,9 @@ class CustomController extends BaseController
     public function getCustom()
     {
         $m = M("customer");
-        $enabled = isset($_POST['enabled']) ? (int)I('enabled') : 1;
-        $pageSize = isset($_POST['pageSize']) ? (int)I('pageSize') :10;
-        $pageNow = isset($_POST['pageNow']) ? (int)I('pageNow') :1;
+        $enabled  = isset($_POST['enabled'])  ? (int)I('enabled')  : 1;
+        $pageSize = isset($_POST['pageSize']) ? (int)I('pageSize') : 10;
+        $pageNow  = isset($_POST['pageNow'])  ? (int)I('pageNow')  : 1;
 
         $count = $m->where(array('enabled'=>$enabled))->count();
         $start_id = ( $pageNow - 1 ) * $pageSize;
@@ -54,12 +54,15 @@ class CustomController extends BaseController
      * @param data   需要修改的数据包
      * @param id     客户id
      */
-    public function update(){
+    public function update()
+    {
         $m = M('customer');
         $da = $_POST['data'];
         $id = $da['id'];
         unset($da['id']); // id赋值之后删除
-        if(isset($da['checked'])){
+
+        if(isset($da['checked']))
+        {
             unset($da['checked']);  // 删除前台赋值的元素
         }
         if(empty($da['company']) || !preg_match($this->rule_enname , $da['en_name']) || empty($da['custom_name'])){
@@ -70,7 +73,7 @@ class CustomController extends BaseController
             if($s){
                 $data['status'] = 100;
                 $data['value']  = $s;
-            }else{
+            } else {
                 $data['status'] = 101;
                 $data['msg']    = '修改失败';
             }
@@ -89,7 +92,7 @@ class CustomController extends BaseController
         $arr = array();
         if(!is_array($id)){    // 按照数组批量删除的方式删除数据
             $arr[] = $id;
-        }elseif(is_array($id)){
+        } elseif (is_array($id)){
             $arr = $id;
         }
         $i = 0;
@@ -180,7 +183,7 @@ class CustomController extends BaseController
         $where['code'] = $code;
         $sql = $data_code->where($where)->find();
         $databasecode = '01';
-        $businesscode = $databasecode.$sql['code'].$sql['number'];
+        $businesscode = $databasecode . $sql['code'].$sql['number'];
         $data['number'] = str_pad($sql['number']+1,8,"0",STR_PAD_LEFT);
         $data['update_time'] =date('Y-m-d H:i:s',time());
         $data_code->where($where)->save($data);

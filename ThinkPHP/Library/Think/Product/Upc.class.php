@@ -182,4 +182,46 @@ class  Upc {
 
         return ['status' => 100 , 'error' => 0];
     }
+
+    /*
+     * upc解锁
+     * @param form_id 表格id
+     * @param uid     操作用户
+     * */
+    static function unLock($form_id ,$uid)
+    {
+        $table = M("product_upc_code");
+        $table->startTrans();
+        $unlock = $table
+            ->where('form_id = '.$form_id)
+            ->save([
+                'form_id'      => 0,
+                'enabled'      => 1,
+                'locked'       => 0,
+                'operation_id' => $uid,
+            ]);
+        if($unlock){
+            $product_id = M('product_batch_form_information')
+                ->where('form_id = '.$form_id)
+                ->field('product_id')
+                ->select();
+            $p_id = implode("," ,array_column($product_id, 'product_id'));
+            $formSave = M('product_batch_information')
+                ->where("data_type_code = 'upc_code' AND product_id IN ($p_id)")
+                ->save([
+                    'interger_value' => null,
+                    'char_value'     => null,
+                ]);
+            if($formSave){
+                $table->commit();
+                return ['error' => 0];
+            }else{
+                $table->rollback();
+                return ['error' => 1 , 'status' => 101 , 'msg' => '表格数据恢复失败'];
+            }
+        }else{
+            $table->rollback();
+            return ['error' => 1 , 'status' => 101 , 'msg' => 'UPC恢复失败'];
+        }
+    }
 }

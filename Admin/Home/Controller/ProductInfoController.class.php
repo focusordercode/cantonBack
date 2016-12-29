@@ -23,13 +23,7 @@ class ProductInfoController extends BaseController{
 		$id        = (int)I('post.product_id');
         $type_code = I('post.type_code');
 
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
-
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if(empty($id)){
             $data['status'] = 102;
             $data['msg']    = '没有选择要删除的数据';
@@ -42,7 +36,7 @@ class ProductInfoController extends BaseController{
                 $data['msg']    = '删除失败';
             }  
         }
-		$this->response($data,'json');
+		$this->response($data);
 	}
 
 	/**
@@ -57,17 +51,11 @@ class ProductInfoController extends BaseController{
         $type_code   = I('post.type_code');
         $status      = I('post.status');
 
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data,'json');
-            exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         if(empty($form_id) || empty($template_id) || empty($type_code)){
             $data['status'] = 102;
             $data['msg']    = '资料表、模板为必选项';
-            $this->response($data,'json');
-            exit();
+            $this->response($data);
         }
          $data = array();
          $res  = \Think\Product\ProductInfo::GetOneFormInfo($type_code,$form_id,$status);
@@ -81,7 +69,7 @@ class ProductInfoController extends BaseController{
             $data['status'] = 100;
             $data['value'] = array();    
          }
-        $this->response($data,'json');
+        $this->response($data);
 	}
 
     /**
@@ -141,7 +129,6 @@ class ProductInfoController extends BaseController{
         M('product_batch_form')->where(array('id'=>$form_id))->save($status_code);
 
         $this->response(['status' => 100],'json');
-        
     }
 
     // 生成批量表
@@ -156,7 +143,6 @@ class ProductInfoController extends BaseController{
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr,'json');
-            exit();
         }
         if($productSelect == 1){
             $sql = M()->query("select id FROM tbl_product_batch_information where  product_id in (SELECT product_id FROM tbl_product_batch_form_information where form_id = ".$form_id." ) and parent_id <> 0");
@@ -177,8 +163,8 @@ class ProductInfoController extends BaseController{
         $name = $batch['path'] . $batch['file'];
         $ch   = curl_init();
         $data['form_id']     = (int)$form_id;
-        $data['template_id'] =  (int)$template_id;
-        $data['path']        =  C('SAVE_PATH') . substr ($name, 1 );
+        $data['template_id'] = (int)$template_id;
+        $data['path']        = C('SAVE_PATH') . substr ($name, 1 );
         $date = M('product_batch_form')->field("file_name")->where("id=%d",array($form_id))->find();
         $num = M('product_batch_template')->field("number")->where("id=%d",array($template_id))->find();
         if(empty($date['file_name'])){
@@ -219,7 +205,7 @@ class ProductInfoController extends BaseController{
             $arr['status'] = 101;
             $arr['msg']    = $result;
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
     /*
      * 返回上一步 cxl
@@ -231,7 +217,7 @@ class ProductInfoController extends BaseController{
         if(!preg_match("/^[0-9]+$/" , $form_id)){
             $data['status'] = 102;
             $data['msg']    = '表单未选择';
-            $this->response($data , 'json');exit();
+            $this->response($data);
         }
         // 处理返回
         $result = \Think\Product\ProductInfo::back_step($form_id);
@@ -241,7 +227,7 @@ class ProductInfoController extends BaseController{
             $array['status'] = $result['status'];
             $array['msg']    = $result['msg'];
         }
-        $this->response($array,'json');
+        $this->response($array);
     }
 
     //根据资料表id获取批量表模板
@@ -255,7 +241,7 @@ class ProductInfoController extends BaseController{
             $arr['status'] = 100;
             $arr['value']  = "";
         }
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
     /*
@@ -270,13 +256,9 @@ class ProductInfoController extends BaseController{
         if(!preg_match("/^[0-9]+$/",$product_id)){
             $data['status'] = 102;
             $data['msg']    = '未选择需删除产品';
-            $this->response($data , 'json');exit();
+            $this->response($data);
         }
-        if($type_code != 'info' && $type_code != 'batch'){
-            $data['status'] = 119;
-            $data['msg']    = '系统错误';
-            $this->response($data , 'json');exit();
-        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         $result = \Think\Product\ProductInfo::del_product($type_code , $product_id);
         if($result['error'] == 0){
@@ -285,8 +267,7 @@ class ProductInfoController extends BaseController{
             $arr['status'] = $result['status'];
             $arr['msg']    = $result['msg'];
         }
-
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
 
@@ -301,13 +282,11 @@ class ProductInfoController extends BaseController{
         $category_id = (int)I('post.category_id');
         $picDate     = I('post.picData');
         if(empty($category_id) || empty($form_no)){
-            $this->response(['status' => 119, 'msg' => "系统错误"],'json');
-            exit();
+            $this->response(['status' => 119, 'msg' => "系统错误"]);
         }
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
-            $this->response(['status' => 1012],'json');
-            exit();
+            $this->response(['status' => 1012]);
         }
         // 数据包写入文件缓存
         S($form_no.'_data' ,$data);
@@ -326,10 +305,9 @@ class ProductInfoController extends BaseController{
             $datas['created_time'] = date('Y-m-d H:i:s',time());
             $datas['used_time']    = date('Y-m-d H:i:s',time()+3600*24*30*3);
             $query = $pic->data($datas)->add();
-            if($query === 'flase'){
+            if($query === 'false'){
                 $pic->rollback();
-                $this->response(['status' => 101, 'msg' => "添加失败"],'json');
-                exit();
+                $this->response(['status' => 101, 'msg' => "添加失败"]);
             }
             $das['app_code1'] = 'DL';
             $das['data1_id'] = $value['id'];
@@ -342,8 +320,7 @@ class ProductInfoController extends BaseController{
                 $pic->rollback();
                 $arr['status'] = 101;
                 $arr['msg'] = "添加失败";
-                $this->response($arr,'json');
-                exit();
+                $this->response($arr);
             }
         }
         
@@ -351,15 +328,14 @@ class ProductInfoController extends BaseController{
         if(empty($check[0])){
             $arr['status'] = 101;
             $arr['msg'] = "添加失败";
-            $this->response($arr,'json');
-            exit();
+            $this->response($arr);
         }
         $pic->commit();
         $arr['status'] = 100;
-        $this->response($arr,'json');
+        $this->response($arr);
     }
 
-        /*
+    /*
      * 资料表自动填表
      * @param table_info 资料表表格信息
      */
@@ -1125,10 +1101,10 @@ class ProductInfoController extends BaseController{
         $DefaultData = I('post.DefaultData');
         $VariantData = I('post.VariantData');
         if(empty($DefaultData) && empty($VariantData)){
-            $this->response(['status' => 102 , 'msg' => '没有填充数据'] , 'json');exit();
+            $this->response(['status' => 102 , 'msg' => '没有填充数据']);
         }
         if(!preg_match("/^[0-9]+$/" , $form_id)){
-            $this->response(['status' => 102 , 'msg' => '表格选择有误'] , 'json');exit();
+            $this->response(['status' => 102 , 'msg' => '表格选择有误']);
         }
 
         $mo = M('product_batch_information');
@@ -1219,7 +1195,7 @@ class ProductInfoController extends BaseController{
                                         if (preg_match("/^[0-9]*$/", $values)) {
                                             $arr['interger_value'] = $values;
                                         } else {
-                                            $this->response(['status' => 103 , 'msg' => '整数数据类型填写错误'] , 'json');exit();
+                                            $this->response(['status' => 103 , 'msg' => '整数数据类型填写错误']);
                                         }
                                         break;
                                     case 'char': $arr['char_value'] = $values; break;
@@ -1227,14 +1203,14 @@ class ProductInfoController extends BaseController{
                                         if (preg_match("/^(\d*\.)?\d+$/", $values)) {
                                             $arr['decimal_value'] = $values;
                                         } else {
-                                            $this->response(['status' => 104 , 'msg' => '小数数据类型填写错误'] , 'json');exit();
+                                            $this->response(['status' => 104 , 'msg' => '小数数据类型填写错误']);
                                         }
                                         break;
                                     case 'dt':
                                         if (preg_match($this->dt, $values) || preg_match($this->dt1, $values) || preg_match($this->dt2, $values) || preg_match($this->dt3, $values)) {
                                             $arr['date_value'] = $values; break;
                                         } else {
-                                            $this->response(['status' => 105 , 'msg' => '日期数据类型填写错误'] , 'json');exit();
+                                            $this->response(['status' => 105 , 'msg' => '日期数据类型填写错误']);
                                         }
                                         break;
                                     case 'bl': $arr['boolean_value'] = $values; break;
@@ -1247,7 +1223,7 @@ class ProductInfoController extends BaseController{
             }
         }
         $mo->commit();
-        $this->response(['status' => 100],'json');
+        $this->response(['status' => 100]);
     }
 
     // 资料表撤销后退
@@ -1257,10 +1233,10 @@ class ProductInfoController extends BaseController{
         if(!preg_match("/^[0-9]+$/" , $form_id) || empty($form_id)){
             $data['status'] = 102;
             $data['msg']    = '表单未选择';
-            $this->response($data , 'json');exit();
+            $this->response($data);
         }
         // 处理返回
         $result = \Think\Product\ProductInfo::RollbackProduct($form_id);
-        $this->response($result,'json');
+        $this->response($result);
     }
 }
