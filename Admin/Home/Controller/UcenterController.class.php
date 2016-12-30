@@ -153,4 +153,17 @@ class UcenterController extends RestController
             $this->response(['status' => $result['status'],'msg' => $result['msg']],'json');
         }
     }
+
+
+    public function GetFormMsg()
+    {
+        $id = (int)I('post.form_id');
+        if($id == 0) $this->response(['status' => 102]);
+
+        $result = M('product_batch_form')->field('id,title')->where("id=$id")->find();
+        if($result){
+            $this->response(['status' => 100,'value' => $result]);
+        }
+        $this->response(['status' => 101]);
+    }
 }

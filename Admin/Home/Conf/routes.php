@@ -234,5 +234,6 @@ return [
         'edit/personal'          => 'Ucenter/userEdit',                 // 普通用户编辑权限
         'usernav'                => 'Ucenter/navManage',                // 普通用户编辑权限
         'get/userbyid'           => 'Ucenter/getUserInfoById',             // 查询用户
+        'get/formname'           => 'Ucenter/GetFormMsg',             // 查询用户
     ],
 ];

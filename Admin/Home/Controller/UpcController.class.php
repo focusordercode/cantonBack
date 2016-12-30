@@ -207,28 +207,3 @@ class UpcController extends BaseController
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
-}
->>>>>>> lrf
