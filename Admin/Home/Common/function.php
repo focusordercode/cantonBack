@@ -267,6 +267,7 @@ function imageUpload( $name, $path, $type, $form_id, $id, $num)
     $post_data = array(
         'pic' => new CURLFile(realpath($path), $type, $name),
         'categoryid' => 1,
+        'form_id' => $form_id,
         'ids' => json_encode($id)
     );
     \Think\Log::record("jshu时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);

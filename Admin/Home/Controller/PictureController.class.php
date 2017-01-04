@@ -235,7 +235,7 @@ class PictureController extends BaseController
         $num         = (int)I('num');   // 产品数量
         $variant_num = (int)I('v_num');     // 变体数量
         $category_id = (int)I('category_id');     // 产品目录
-        $gallery_id  = (int)I('gallery_id');      // 图片目录
+        $gallery_id  = I('gallery_id');      // 图片目录
         $pic_rate    = (int)I('pic_rate');        // 图片比
         $pro_rate    = (int)I('pro_rate');        // 产品比
         $re_date     = I('re_date');         // 可重复使用时间
@@ -482,7 +482,8 @@ class PictureController extends BaseController
     // 上传图片到图片空间接口
     // @param form_id 表格id
     // @param picCount 图片总数
-    public function uploadPic(){
+    public function uploadPic()
+    {
         set_time_limit(0);
         $form_id   = I('post.form_id');
         $countPic  = I('post.picCount');
