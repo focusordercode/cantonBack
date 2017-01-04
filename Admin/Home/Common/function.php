@@ -263,7 +263,8 @@ function imageUpload( $name, $path, $type, $form_id, $id, $num)
     \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
     set_time_limit(0);
     // 图片API服务器
-    $url = 'http://120.25.228.115/InterPhotos/upload.api.php';
+    $url = 'http://photo.focusorder.com/upload.api.php';
+    //$url = 'http://120.25.228.115/InterPhotos/upload.api.php';
     $post_data = array(
         'pic' => new CURLFile(realpath($path), $type, $name),
         'categoryid' => 1,

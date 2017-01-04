@@ -50,7 +50,7 @@ class ProductInfoExtendController extends BaseController
 		$template_id = I('post.template_id');
 		$category_id = I('post.category_id');
 		$type_code   = I('post.type_code');
-		$type        = I('post.type');     // 暂存或者提交
+		$type        = I('post.save_type');     // 暂存或者提交
 		$max         = I('post.max');
         $gridColumns = I('post.gridColumns');
 		$text        = file_get_contents("php://input");
