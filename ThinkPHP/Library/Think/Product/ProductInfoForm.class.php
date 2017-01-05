@@ -340,6 +340,9 @@ class ProductInfoForm{
  				$upda = $upc->data($data)->where("form_id=%d",array($id))->save();
  			}
  			if($query!=='false'){
+                // 如果是批量表删除成功，需要到服务器删除图片数据
+                // http://120.25.228.115/DeletePic.api.php
+                // 参数 form_id   token -> 'FocusorderAmazon_' . form_id
  				$form->commit(); 
  				return 1;
  			}else{

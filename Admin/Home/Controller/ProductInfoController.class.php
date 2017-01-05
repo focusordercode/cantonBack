@@ -180,7 +180,7 @@ class ProductInfoController extends BaseController{
         // 推动到java端进行表格生成
 
         $data['savepath'] =  C('SAVE_PATH').substr(C('BATCH_SAVE_PATH'),1).str_replace(" ","_",$fileName).'.'.$batch['file_type'];
-        curl_setopt($ch, CURLOPT_URL, "http://localhost/excel4php/javaoptexcel.php");  
+        curl_setopt($ch, CURLOPT_URL, "http://localhost/excel4php/javaoptexcel.php");
         curl_setopt($ch, CURLOPT_HEADER, false);  
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
         curl_setopt($ch, CURLOPT_POST, 1);

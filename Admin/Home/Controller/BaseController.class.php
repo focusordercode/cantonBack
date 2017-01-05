@@ -15,6 +15,8 @@ class BaseController extends RestController
     protected $allowMethod    = array('get','post','put','delete');
     protected $defaultType    = 'json';
 
+    public $loginid;
+
     /*
      * 初始化
      * @param user_id 用户验证id
@@ -35,6 +37,8 @@ class BaseController extends RestController
         if(!$auth->check($url , $uids)){
             $this->response(['status' => 1011,'msg' => '抱歉，权限不足']);
         }
+        $this->loginid = $uids;
+
         // 添加排除在外的行为地址
         $notInTrack = [
             'Logging/userTrack',
