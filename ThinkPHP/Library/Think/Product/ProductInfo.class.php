@@ -378,10 +378,10 @@ class ProductInfo{
             case 'creating':
                 $p_id = $n->where(['form_id' => $form_id])->select();
                 foreach($p_id as $v){
-                    $k->where("product_id = %d OR parent_id = %d" ,array($v['product_id'],$v['product_id']))->delete();
+                    $k->where("product_id = %d" ,array($v['product_id'],$v['product_id']))->delete();
                 }
                 $n->where(['form_id' => $form_id])->delete();
-                $m->where(['form_id' => $form_id])->delete();
+                $m->where(['id' => $form_id])->delete();
                 $where['app_code2'] = '';
                 $where['data2_id'] = $form_id;
                 $data_constraint->where($where)->delete();
