@@ -105,7 +105,11 @@ class CustomController extends BaseController
             $value = __sqlSafe__($value);
             $res = checkDataLimit('YF',$value);
             if($res == 1){
-                if(!limitOperation('customer' ,$value ,180 ,$this->loginid)) continue;
+
+                if(!limitOperation('customer' ,$value ,180 ,$this->loginid ,'R')){
+                    continue;
+                }
+
                 $del = $m->where(array('id'=>$value))->delete();
                 if($del){
                     $i ++;
