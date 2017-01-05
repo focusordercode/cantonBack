@@ -82,6 +82,13 @@ class ImageCategoryController extends BaseController
      */
     public function Delete(){
         $id = (int)I('post.id');
+        if($id == 0) $this->response(['status' => 100 ,'msg' => '请求失败']);
+
+        // 多人操作限制
+        if(!limitOperation('product_gallery' ,$id ,120 ,$this->loginid ,'R')){
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
+
         $res = \Think\Product\ImageCategory::Delete_album($id);
         $data = array();
         if($res == 1){
@@ -116,7 +123,12 @@ class ImageCategoryController extends BaseController
         $data = array();
         if($id == 0) $this->response(['status' => 102 ,'msg' => '没有选择类目'],'json');
         if($cn_name != null){
-            if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/", $en_name)){
+            if($en_name != null && preg_match("/^[a-zA-Z_0-9\s\'-]+$/", $en_name))
+            {
+                // 多人操作限制
+                if(!limitOperation('product_gallery' ,$id ,120 ,$this->loginid)){
+                    $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+                }
                 $res = \Think\Product\ImageCategory::UpdaName($id,$cn_name,$en_name);
                 if($res == 1){
                     $data['status'] = 100;
@@ -136,6 +148,7 @@ class ImageCategoryController extends BaseController
             $data['status'] = 104;
             $data['msg']    = '中文名为必填';
         }
+        EndEditTime('product_gallery' ,$id);
         $this->response($data,'json');
     }
     

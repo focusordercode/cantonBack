@@ -79,18 +79,22 @@ class RolesController extends BaseController{
 		$enabled = I('post.enabled');
 		$org_ids = I('post.org_ids');
 		$id = I('post.role_id');
+
 		if(empty($name)){
 			$arr['status'] = 102;
 			$arr['msg'] = "角色名称不能为空";
 			$this->response($arr,'json');
-			exit();
 		}
 		if(empty($enabled) && $enabled!=0 && $enabled !='0'){
 			$arr['status'] = 102;
 			$arr['msg'] = "角色状态不能为空";
 			$this->response($arr,'json');
-			exit();
 		}
+
+        // 多人同时操作限制
+        if(!limitOperation('auth_role' ,$id ,240 ,$this->loginid)) {
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
 		$role = M('auth_role');
 		$org = M('auth_role_org');
 		$role->startTrans();
@@ -110,11 +114,12 @@ class RolesController extends BaseController{
 					$role->rollback();
 					$arr['status'] = 101;
 					$arr['msg'] = "修改失败";
+                    EndEditTime('auth_role' ,$id);
 					$this->response($arr,'json');
-					exit();
 				}
 			}
 		}
+
 		if($sql !== 'flase'){
 			$role->commit();
 			$arr['status'] = 100;
@@ -123,6 +128,7 @@ class RolesController extends BaseController{
 			$arr['status'] = 101;
 			$arr['msg'] = "修改失败";
 		}
+        EndEditTime('auth_role' ,$id);
 		$this->response($arr,'json');
 	}
 
@@ -143,19 +149,16 @@ class RolesController extends BaseController{
 			$arr['status'] = 102;
 			$arr['msg'] = "角色名称不能为空";
 			$this->response($arr,'json');
-			exit();
 		}
 		if(empty($enabled)){
 			$arr['status'] = 102;
 			$arr['msg'] = "角色状态不能为空";
 			$this->response($arr,'json');
-			exit();
 		}
 		$creator_id = I('post.creator_id');
 		if(empty($creator_id)){
 			$arr['status'] = 1012;
 			$this->response($arr,'json');
-			exit();
 		}
 		$role = M('auth_role');
 		$org = M('auth_role_org');
@@ -178,7 +181,6 @@ class RolesController extends BaseController{
 				$arr['status'] = 101;
 				$arr['msg'] = "修改失败";
 				$this->response($arr,'json');
-				exit();
 			}
 		}
 		if($sql){
@@ -202,8 +204,13 @@ class RolesController extends BaseController{
 			$arr['status'] = 102;
 			$arr['msg'] = "请选择角色";
 			$this->response($arr,'json');
-			exit();
 		}
+
+        // 多人同时操作限制
+        if(!limitOperation('auth_role' ,$id ,240 ,$this->loginid ,'R')) {
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
+
 		$role = M('auth_role');
 		$role_user = M('auth_role_user');
 		$role_org = M('auth_role_org');
@@ -266,6 +273,12 @@ class RolesController extends BaseController{
 		$role_id = I('post.role_id');
 		$rule_ids = I('post.rule_ids');
 		$role = M('auth_role');
+
+        // 多人同时操作限制
+        if(!limitOperation('auth_role' ,$role_id ,240 ,$this->loginid)) {
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
+
 		$data['permissions'] = implode(",",$rule_ids);
 		$data['modified_time'] = date('Y-m-d H:i:s',time());
 		$sql = $role->data($data)->where("id=%d",array($role_id))->save();
@@ -275,6 +288,7 @@ class RolesController extends BaseController{
 			$arr['status'] = 101;
 			$arr['msg'] = "分配失败";
 		}
+        EndEditTime('auth_role' ,$role_id);
 		$this->response($arr,'json');
 	}
 }

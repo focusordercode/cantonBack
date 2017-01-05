@@ -432,13 +432,15 @@ function __sqlSafe__($sql){
  * @param $operationId  操作的数据id
  * @param $overTime     默认超时时间（必需以秒为单位  例：1分钟 填写 60）
  * @param $uid          登陆用户的id
+ * @param $type         访问类型 只是读取 R  需要编辑操作 W
  * */
-function limitOperation($table ,$operationId ,$overTime ,$uid)
+function limitOperation($table ,$operationId ,$overTime ,$uid , $type = 'W')
 {
     $t = M($table);
     $result = $t->where("id = $operationId")->find();
 
     if($result['restrict'] == 0){
+        if($type == 'R') return true;
         $reSave1 = $t->where("id = $operationId")->save([
             'restrict' => time() . '_' .$uid
         ]);
@@ -454,6 +456,8 @@ function limitOperation($table ,$operationId ,$overTime ,$uid)
     if($expired >= time()) return false;
 
     // 否则可以进去编辑，需要修改时间
+    if($type == 'R') return true;
+
     $reSave = $t->where("id = $operationId")->save([
         'restrict' => time() . '_' .$uid
     ]);
