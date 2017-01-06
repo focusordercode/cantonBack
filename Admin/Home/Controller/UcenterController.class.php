@@ -196,6 +196,8 @@ class UcenterController extends RestController
         if($result){
             $this->response(['status' => 100]);
         } else {
+            $id =  M('user_restrict')->field("uid")->where("operation_id=%d",array($operationId))->find();
+            $name =  M('auth_user')->field("username")->where("id=%d",array($id['uid']))->find();
             $this->response(['status' => 101 ,'msg' => '有同事正在操作该数据']);
         }
     }
