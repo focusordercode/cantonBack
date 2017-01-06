@@ -17,6 +17,15 @@ class BaseController extends RestController
 
     public $loginid;
 
+    private $modelArr = [
+        'CUSTOMER'    => 120,
+        'CATEGORY'    => 120,
+        'GALLERY'     => 120,
+        'ORG'         => 120,
+        'ROLES'       => 180,
+        'USER'        => 120,
+    ];
+    
     /*
      * 初始化
      * @param user_id 用户验证id
@@ -73,5 +82,47 @@ class BaseController extends RestController
         }else{
             return false;
         }
+    }
+
+    /*
+     * 多人用户操作限制
+     * @param model 模块
+     * @param operationId 操作数据的id
+     * */
+    public function limitUserOperation()
+    {
+        $operationId = (int)I('operationId');
+        $model       = I('model');
+        $mArr        = $this->modelArr;
+
+        if(!array_key_exists($model ,$mArr)){
+            $this->response(['status' => 100]);
+        }
+
+        $overTime    = $mArr[$model];
+        $result = limitOperation($model ,$operationId ,$overTime ,$this->loginid);
+        if($result){
+            $this->response(['status' => 100]);
+        } else {
+            $this->response(['status' => 101 ,'msg' => '有同事正在操作该数据']);
+        }
+    }
+
+    /*
+     * 解除多人用户操作限制
+     * @param model 模块
+     * @param operationId 操作数据的id
+     * */
+    public function clearOperationLimit()
+    {
+        $operationId = (int)I('operationId');
+        $model       = I('model');
+        $mArr        = $this->modelArr;
+
+        if(!array_key_exists($model ,$mArr)){
+            $this->response(['status' => 100]);
+        }
+        EndEditTime($model ,$operationId);
+        $this->response(['status' => 100]);
     }
 }

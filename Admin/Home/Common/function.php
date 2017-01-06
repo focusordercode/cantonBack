@@ -429,38 +429,47 @@ function __sqlSafe__($sql){
 
 /*
  * 操作限制
- * @param $table        操作的表格
+ * @param $model        操作的模块
  * @param $operationId  操作的数据id
  * @param $overTime     默认超时时间（必需以秒为单位  例：1分钟 填写 60）
  * @param $uid          登陆用户的id
  * @param $type         访问类型 只是读取 R  需要编辑操作 W
  * */
-function limitOperation($table ,$operationId ,$overTime ,$uid , $type = 'W')
+function limitOperation($model ,$operationId ,$overTime ,$uid , $type = 'W')
 {
-    $t = M($table);
-    $result = $t->where("id = $operationId")->find();
-    if($result['restrict'] == 0)
+    $t = M('user_restrict');
+    $result = $t->where("operation_id = $operationId AND model_name = '$model'")->find();
+    if(!$result)
     {
         if($type == 'R') return true;
-        $reSave1 = $t->where("id = $operationId")->save([
-            'restrict' => time() . '_' .$uid
+        $reSave1 = $t->add([
+            'model_name'    => $model,
+            'operation_id'  => $operationId,
+            'uid'           => $uid,
+            'modified_time' => time(),
         ]);
         if(!$reSave1) return false;
         return true;
     }
-    $restrict = explode("_" , $result['restrict']);
 
     // 还是刚刚用户操作
-    if($uid == $restrict[1]) return true;
+    if($uid == $result['uid']) {
+        $t->where("operation_id = $operationId AND model_name = '$model'")->save([
+            'modified_time' => time()
+        ]);
+        return true;
+    }
+
     // 查询到了最后操作时间 + 默认超时时间 = 过期时间
-    $expired = $restrict[0] + $overTime;
+    $expired = $result['modified_time'] + $overTime;
     if($expired >= time()) return false;
 
     // 否则可以进去编辑，需要修改时间
     if($type == 'R') return true;
 
-    $reSave = $t->where("id = $operationId")->save([
-        'restrict' => time() . '_' .$uid
+    $reSave = $t->where("operation_id = $operationId AND model_name = '$model'")->save([
+        'uid'           => $uid,
+        'modified_time' => time(),
     ]);
     if($reSave) return true;
     return false;
@@ -468,15 +477,12 @@ function limitOperation($table ,$operationId ,$overTime ,$uid , $type = 'W')
 
 /*
  * 手动结束编辑操作
- * @param $table        操作的表格
+ * @param $table        操作的模块
  * @param $operationId  操作的数据id
  * */
-function EndEditTime($table ,$operationId)
+function EndEditTime($model ,$operationId)
 {
-    $t = M($table);
-    $result = $t->where("id = $operationId")->save([
-        'restrict' => 0
-    ]);
-    if($result) return true;
-    return false;
+    $t = M('user_restrict');
+    $t->where("operation_id = $operationId AND model_name = '$model'")->delete();
+    return true;
 }
