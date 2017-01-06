@@ -14,9 +14,6 @@ return [
         'login'   => 'Login/dologin', // 登陆
         'logout'  => 'Login/logout', // 登陆
 
-        'check/limit'            => 'Base/limitUserOperation',   // 检查是否限制
-        'clear/limit'            => 'Base/clearOperationLimit',  // 清除操作限制
-
 
         // Subarea
 		'get/table'              => 'Subarea/getAllTable',    // 获取所有没有分区的表
@@ -237,7 +234,9 @@ return [
         // Ucenter
         'edit/personal'          => 'Ucenter/userEdit',                 // 普通用户编辑权限
         'usernav'                => 'Ucenter/navManage',                // 普通用户编辑权限
-        'get/userbyid'           => 'Ucenter/getUserInfoById',             // 查询用户
+        'get/userbyid'           => 'Ucenter/getUserInfoById',          // 查询用户
+        'limit/check'            => 'Ucenter/limitUserOperation',       // 检查是否限制
+        'limit/clear'            => 'Ucenter/clearOperationLimit',      // 清除操作限制
 
     ],
 ];
