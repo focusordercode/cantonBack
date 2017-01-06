@@ -10,11 +10,11 @@ return array(
     'DB_PORT'               =>  '3306',      // 端口
     'DB_PREFIX'             =>  'tbl_',      // 数据库表前缀
     
-    'MODULE_ALLOW_LIST'    =>    array('Home','Admin','User'),
-    'DEFAULT_MODULE'       =>    'Home',
+    'MODULE_ALLOW_LIST'     =>    array('Home','Admin','User'),
+    'DEFAULT_MODULE'        =>    'Home',
 
     'DB_TABLE_NAME'         =>  'table_to_subarea',//用于记录分区情况的表名
-    'EXCEL_TEMPLATE_NAME'  =>    'Template',
+    'EXCEL_TEMPLATE_NAME'   =>  'Template',
 
 
     'LOG_RECORD' => true,  // 进行日志记录

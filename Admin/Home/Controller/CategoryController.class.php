@@ -50,7 +50,13 @@ class CategoryController extends BaseController
      * @param  id 类目id
      */
     public function  Delete(){
-        $id   = I('post.id');
+        $id   = (int)I('post.id');
+
+        if($id == 0) $this->response(['status' => 101 ,'msg' => '请求失败']);
+
+        if(!limitOperation('product_category' ,$id ,120 ,$this->loginid ,'R')){
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
         $res  = \Think\Product\Category::Delete($id);
         $data = array();
         if($res == 1){
@@ -85,7 +91,12 @@ class CategoryController extends BaseController
         $en_name = I('post.en_name');
         $data    = array();
         if($id == 0) $this->response(['status' => 102, 'msg' => '类目未选取'],'json');
-        if($cn_name != null && $en_name != null){
+        if($cn_name != null && $en_name != null)
+        {
+            // 多人操作限制
+            if(!limitOperation('product_category' ,$id ,120 ,$this->loginid)){
+                $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+            }
             $res = \Think\Product\Category::UpdaName($id,$cn_name,$en_name);
             if($res == 1){
                 $this->updateCategoryCache();
@@ -98,6 +109,7 @@ class CategoryController extends BaseController
             $data['status'] = 104;
             $data['msg']    = '中英文名必填';
         }
+        EndEditTime('product_category' ,$id);
         $this->response($data,'json');
     }
 
@@ -145,6 +157,10 @@ class CategoryController extends BaseController
     public function move(){
         $moveid = I('post.moveid');
         $id     = I('post.id');
+        // 多人操作限制
+        if(!limitOperation('product_category' ,$moveid ,120 ,$this->loginid)){
+            $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+        }
         $data   = \Think\Product\Category::GetAncestors($moveid,$id);
         if($data == 1){
             $this->updateCategoryCache();
@@ -153,6 +169,7 @@ class CategoryController extends BaseController
             $data['status'] = 101;
             $data['msg']    = '移动失败';
         }
+        EndEditTime('product_category' ,$moveid);
         $this->response($data,'json');
     }
 

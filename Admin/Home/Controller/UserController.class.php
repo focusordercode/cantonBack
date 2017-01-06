@@ -143,6 +143,11 @@ class UserController extends BaseController
             $remark    = I('remark');
             $enabled   = (int)I('enabled');
 
+            // 多人同时操作限制
+            if(!limitOperation('auth_user' ,$uid ,180 ,$this->loginid)) {
+                $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+            }
+
             $user = M('auth_user')->where('id = %d',[$uid])->find();
             if(!empty($password)){
                 if(strlen($password) < 6){
@@ -180,6 +185,8 @@ class UserController extends BaseController
                 'modified_time' => date('Y-m-d H:i:s', time()),
             ];
             $edit = M('auth_user')->where('id = %d',[$uid])->save($edit_data);
+
+            EndEditTime('auth_user' ,$uid);
             if ($edit) {
                 $this->response(['status' => 100],'json');
             } else {
@@ -210,6 +217,11 @@ class UserController extends BaseController
                 if($value == 1){
                     continue;
                 }
+                // 多人同时操作限制
+                if(!limitOperation('auth_user' ,$value ,180 ,$this->loginid ,'R')) {
+                    continue;
+                }
+
                 $m->where(array('id' => $value))->delete();
                 $user_role->where(array('user_id' => $value))->delete();
             }
