@@ -14,6 +14,10 @@ return [
         'login'   => 'Login/dologin', // 登陆
         'logout'  => 'Login/logout', // 登陆
 
+        'check/limit'            => 'Base/limitUserOperation',   // 检查是否限制
+        'clear/limit'            => 'Base/clearOperationLimit',  // 清除操作限制
+
+
         // Subarea
 		'get/table'              => 'Subarea/getAllTable',    // 获取所有没有分区的表
         'get/zone'               => 'Subarea/getTable',       // 获取已经分区的所有表
