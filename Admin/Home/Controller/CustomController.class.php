@@ -61,6 +61,8 @@ class CustomController extends BaseController
         $id = $da['id'];
         unset($da['id']); // id赋值之后删除
 
+        // 多人同时操作限制
+        if(!limitOperation('customer' ,$id ,180 ,$this->loginid)) $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
         if(isset($da['checked']))
         {
             unset($da['checked']);  // 删除前台赋值的元素
@@ -69,6 +71,7 @@ class CustomController extends BaseController
             $data['status'] = 102;
             $data['msg']    = '客户名或英文名或公司名有填写错误';
         }else{
+
             $s = $m->where(array('id'=>$id))->save($da);
             if($s){
                 $data['status'] = 100;
@@ -78,6 +81,8 @@ class CustomController extends BaseController
                 $data['msg']    = '修改失败';
             }
         }
+
+        EndEditTime('customer' ,$id);
         $this->response($data);
     }
 
@@ -100,6 +105,11 @@ class CustomController extends BaseController
             $value = __sqlSafe__($value);
             $res = checkDataLimit('YF',$value);
             if($res == 1){
+
+                if(!limitOperation('customer' ,$value ,180 ,$this->loginid ,'R')){
+                    continue;
+                }
+
                 $del = $m->where(array('id'=>$value))->delete();
                 if($del){
                     $i ++;

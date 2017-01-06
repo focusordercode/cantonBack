@@ -53,6 +53,10 @@ class OrgController extends BaseController
             if(empty($name)){
                 $this->response(['status' => 102, 'msg' => '机构名称必填'],'json');
             }
+            if(!limitOperation('auth_org' ,$org_id ,180 ,$this->loginid)){
+                $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+            }
+
             $edit_data = [
                 'name'          => $name,
                 'no'            => $no,
@@ -67,6 +71,8 @@ class OrgController extends BaseController
                 $edit_data['relationship'] = $forg['relationship'].",".$org_id;
             }
             $edit = M('auth_org')->where('id = %d',[$org_id])->save($edit_data);
+
+            EndEditTime('auth_org' ,$org_id);
             if ($edit) {
                 $this->response(['status' => 100],'json');
             } else {
@@ -127,6 +133,10 @@ class OrgController extends BaseController
         if (IS_POST) {
             $org_id = (int)I('org_id');
             if($org_id == 0) $this->response(['status' => 103, 'msg' => '请求失败'],'json');
+
+            if(!limitOperation('auth_org' ,$org_id ,180 ,$this->loginid ,'R')){
+                $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
+            }
 
             // 查询关联关系
             $roles = M('auth_role_org')->where(['org_id' => $org_id])->find();
