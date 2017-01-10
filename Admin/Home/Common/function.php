@@ -258,17 +258,51 @@ function __str_replace($str){
  * @param $form_id 图片所属的表格id
  * @return json 图片上传结果
  */
-function imageUpload( $name, $path, $type, $form_id, $id, $num)
+function imageUpload( $name, $path, $type, $form_id, $id, $num, $pic_id='')
 {
     \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
     set_time_limit(0);
     // 图片API服务器
-    $url = 'http://photo.focusorder.com/upload.api.php';
+    //$url = 'http://photo.focusorder.com/upload.api.php';
     //$url = 'http://120.25.228.115/InterPhotos/upload.api.php';
+    $url = 'http://192.168.1.40/interphoto/upload.api.php';
     $post_data = array(
         'pic' => new CURLFile(realpath($path), $type, $name),
-        'categoryid' => 1,
+        'categoryid' => 1,// gallery_id
         'form_id' => $form_id,
+        'pic_id'  => $pic_id,
+        'ids' => json_encode($id)
+    );
+    \Think\Log::record("jshu时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST,true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 0);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+    $res = curl_exec($ch);
+    curl_close($ch);
+    \Think\Log::record("wc时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
+    return $res;
+}
+
+/**
+ * CURL模拟POST到图片空间检测图片是否存在
+ * @param $url  图片服务器API地址
+ * @return pic_id 图片id
+ * @param $num  图片需要复制的次数 
+ */
+function imageCheck($pic_id,$categoryid,$id)
+{
+    \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
+    set_time_limit(0);
+    // 图片API服务器
+    //$url = 'http://photo.focusorder.com/upload.api.php';
+    //$url = 'http://120.25.228.115/InterPhotos/upload.api.php';
+    $url = 'http://192.168.1.40/interphoto/imageupload.php';
+    $post_data = array(
+        'pic_id' => $pic_id,
+        'categoryid' => $categoryid,
         'ids' => json_encode($id)
     );
     \Think\Log::record("jshu时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);

@@ -534,6 +534,8 @@ class PictureController extends BaseController
                 $arrays[] = $va;
             }
         }
+        $picture = M('product_picture');
+        $picture->startTrans();
         S('PicProgress_'.$form_id,null);
         foreach ($arrays as $key => $valu) {
             $qian = array('http://',$_SERVER['HTTP_HOST'],__ROOT__);
@@ -543,11 +545,14 @@ class PictureController extends BaseController
             $tmpName = pathinfo($valu['image_url'],PATHINFO_BASENAME);
             $tmpType = pathinfo($valu['image_url'],PATHINFO_EXTENSION);
             \Think\Log::record("图片大小:".ceil(filesize($tmpFile) / 1000) . "k",'DEBUG',true);
-                
-            //执行上传
-            $re = json_decode(imageUpload( $tmpName, $tmpFile, $tmpType, $form_id, $valu['ids'],$valu['num']),true);
-            if($re['status'] == 100){
-                foreach ($re['value'] as $rekey => $re_value) {
+
+            $where['path'] = '.'.pathinfo($url,PATHINFO_DIRNAME);
+            $where['file_name'] = $tmpName;
+            $sql = $picture->field('id,gallery_id')->where($where)->find();
+            $categoryid = M('product_gallery')->field('category_id')->where("id=%d",array($sql['gallery_id']))->find();
+            $res = json_decode(imageCheck($sql['id'],$categoryid['category_id'],$valu['ids']),true);
+            if($res['status'] == 100){
+                foreach ($res['value'] as $rekey => $re_value) {
                     $data[$i]['id'] = $re_value['ids'];
                     $data[$i]['image_url'] = $re_value['image_url'];
                     $data[$i]['photo'] = $valu['image_url'];
@@ -556,16 +561,30 @@ class PictureController extends BaseController
                 }
                 $success++;
             }else{
-                foreach ($valu['ids'] as $id_key => $id_value) {
-                    $data[$i]['status_msg'] = '';
-                    $data[$i]['msg'] = $re['msg'];
-                    $data[$i]['id'] = $id_value;
-                    $data[$i]['photo'] = $valu['image_url'];
-                    $data[$i]['image_url'] = $valu['image_url'];
-                    $i++;
+                //执行上传
+                $re = json_decode(imageUpload( $tmpName, $tmpFile, $tmpType, $form_id, $valu['ids'],$valu['num'],$sql['id']),true);
+                if($re['status'] == 100){
+                    foreach ($re['value'] as $rekey => $re_value) {
+                        $data[$i]['id'] = $re_value['ids'];
+                        $data[$i]['image_url'] = $re_value['image_url'];
+                        $data[$i]['photo'] = $valu['image_url'];
+                        $data[$i]['status_msg'] = $re_value['status_msg'];
+                        $i++;
+                    }
+                    $success++;
+                }else{
+                    foreach ($valu['ids'] as $id_key => $id_value) {
+                        $data[$i]['status_msg'] = '';
+                        $data[$i]['msg'] = $re['msg'];
+                        $data[$i]['ids'] = $id_value;
+                        $data[$i]['photo'] = $valu['image_url'];
+                        $data[$i]['image_url'] = $valu['image_url'];
+                        $i++;
+                    }
+                    $error++;
                 }
-                $error++;
             }
+            
             $cache = S('PicProgress_'.$form_id);
             if(empty($cache['num'])){
                 $das['count'] = $countPic;
@@ -577,9 +596,14 @@ class PictureController extends BaseController
                 S('PicProgress_'.$form_id,$das);
             }
         }
-        $array['status'] = 100;
-        S('PicProgress_'.$form_id,null);
-        $array['value'] = $data;
+        $picture->commit();
+        if(empty($success)){
+            $array['status'] = 101;
+        }else{
+            $array['status'] = 100;
+            S('PicProgress_'.$form_id,null);
+            $array['value'] = $data;
+        }
         $this->response($array);
     }
 
