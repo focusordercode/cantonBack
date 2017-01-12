@@ -258,7 +258,7 @@ function __str_replace($str){
  * @param $form_id 图片所属的表格id
  * @return json 图片上传结果
  */
-function imageUpload( $name, $path, $type, $form_id, $id, $num, $pic_id='')
+function imageUpload( $name, $path, $type, $form_id, $id, $num, $categoryid, $pic_id='')
 {
     \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
     set_time_limit(0);
@@ -268,7 +268,7 @@ function imageUpload( $name, $path, $type, $form_id, $id, $num, $pic_id='')
     $url = 'http://192.168.1.40/interphoto/upload.api.php';
     $post_data = array(
         'pic' => new CURLFile(realpath($path), $type, $name),
-        'categoryid' => 1,// gallery_id
+        'categoryid' => $categoryid,
         'form_id' => $form_id,
         'pic_id'  => $pic_id,
         'ids' => json_encode($id)

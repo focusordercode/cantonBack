@@ -1,16 +1,12 @@
 <?php
 namespace Home\Controller;
-use Think\Controller\RestController;
-header('Access-Control-Allow-Origin:*');
-header('Access-Control-Allow-Methods:POST,GET');
-header('Access-Control-Allow-Credentials:true');
-header("Content-Type: application/json;charset=utf-8");
+use Think\Controller;
 /*
  * 新的数据添加，采用新的MYSQL插入方法
  * @author lrf
  * @modify 2016/1/4
  */
-class InsertExtensionController extends RestController
+class InsertExtensionController extends BaseController
 {
 	//资料表自动填表
 	public function tableAutomatic(){

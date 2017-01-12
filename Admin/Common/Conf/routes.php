@@ -238,5 +238,6 @@ return [
         'limit/check'            => 'Ucenter/limitUserOperation',       // 检查是否限制
         'limit/clear'            => 'Ucenter/clearOperationLimit',      // 清除操作限制
 
+        'table/automatic'        => 'InsertExtension/tableAutomatic',   //资料表自动填表新的方法
     ],
 ];

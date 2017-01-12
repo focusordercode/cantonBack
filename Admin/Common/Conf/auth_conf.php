@@ -145,6 +145,7 @@ return [
                 'Picture/pic_upload_paration',
                 'Picture/marry_pic',
                 'ProductInfoExtend/dataCommit',
+                'InsertExtension/tableAutomatic',
             ],
             'edit/info'  => [
                 'ProductInfo/rollbackProduct',
