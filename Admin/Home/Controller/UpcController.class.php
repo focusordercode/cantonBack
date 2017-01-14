@@ -31,7 +31,7 @@ class UpcController extends BaseController
         $handle = @fopen($file, "r");
         if ($handle) {
             while (!feof($handle)) {
-                $buffer = fgets($handle, 15); // 逐行读取upc
+                $buffer = fgets($handle); // 逐行读取upc
                 $v = trim($buffer);
                 if(preg_match("/^\d{12,13}\b/", trim($v))){
                     $isset = $u->where("upc_code='$v'")->find(); // 查询upc是否已经存在
