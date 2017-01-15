@@ -17,22 +17,16 @@ if(version_compare(PHP_VERSION,'5.3.0','<'))  die('require PHP > 5.3.0 !');
 // 开启调试模式 建议开发阶段开启 部署阶段注释或者设为false
 define('APP_DEBUG',True);
 
-$install_dir = "./Intall/install.html";
+define('INSTALL_PATH','./');
 
-if(file_exists($install_dir)){
+// 定义应用目录
+define('APP_NAME','Admin');
+define('APP_PATH','./Admin/');
 
-	header('Location: ./Intall/install.html');
+// 引入ThinkPHP入口文件
+require './ThinkPHP/ThinkPHP.php';
 
-}else{
+// 亲^_^ 后面不需要任何代码了 就是如此简单
 
-	// 定义应用目录
-	define('APP_NAME','Admin');
-	define('APP_PATH','./Admin/');
 
-	// 引入ThinkPHP入口文件
-	require './ThinkPHP/ThinkPHP.php';
-
-	// 亲^_^ 后面不需要任何代码了 就是如此简单
-
-}
 
