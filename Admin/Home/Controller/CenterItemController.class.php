@@ -349,7 +349,7 @@ class CenterItemController extends BaseController
 		if(empty($enabled)){
 			$enabled = 1;
 		}
-		$data['value'] = $value;
+		$data['value'] = __str_replace($value);
 		$data['modified_time'] = date('Y-m-d H:i:s',time());
 		$res = \Think\Product\CenterItem::UpdaCenterItemValue($id,$data);
 		if($res == 1){

@@ -1,23 +1,80 @@
-主要项目目录
+主要文件为php脚本
+使用的框架为thinkphp
+
+目录结构
 Admin---------------------------------项目主要目录
     Common----------------------------通用模块公共函数目录
         Conf--------------------------通用模块配置文件目录
+			auth_conf.php--------------------------------------权限节点配置文件
+			config.php-----------------------------------------系统配置文件
+			default_config.php---------------------------------程序配置文件
+			routew.php-----------------------------------------路由配置文件
     Home------------------------------主要接口控制器目录
         Common------------------------当前模块公共函数目录
+			function------------------公共方法
         Conf--------------------------当前模块配置文件目录
         Controller--------------------控制器目录
-        Model-------------------------模型目录
+			AsynController.class.php---------------------------异步处理数据库分区控制器
+			AuthNodesController.class.php----------------------权限节点控制器
+			BaseController.class.php---------------------------基本控制器，用于做权限控制
+			BusinessCodeController.class.php-------------------业务编码控制器
+			BusinessModelController.class.php------------------业务模块控制器
+			CategoryController.class.php-----------------------类目控制器
+			CenterItemController.class.php---------------------词库项目控制器
+			CustomController.class.php-------------------------客户控制器
+			FileManagerController.class.php--------------------文件管理器控制器
+			GetGlobalIDController.class.php--------------------获取全局id控制器
+			ImageCategoryController.class.php------------------图片类目控制器
+			InsertExtensionController.class.php----------------采用Mysql 的LOAD DATA方法的
+			LoggingController.class.php------------------------获取日志控制器
+			LoginController.class.php--------------------------登录登出的控制器
+			OrgController.class.php----------------------------组织机构控制器
+			PictureController.classs.php-----------------------图片控制器
+			ProductCenterController.class.php------------------产品中心控制器
+			ProductInfoController.class.php--------------------资料表与批量表数据控制器
+			ProductInfoExtendController.class.php--------------资料表与批量表数据扩展控制器
+			ProductInfoFormController.class.php----------------资料表与批量表表格控制器
+			RolesController.class.php--------------------------角色控制器
+			SubareaController.class.php------------------------数据库分区控制器
+			TemplateController.class.php-----------------------资料表与批量表模板控制器
+			TemplateItemController.class.php-------------------资料表与批量表模板数据控制器
+			TestCaseOperationController.class.php--------------测试用例操作控制器
+			UcenterController.class.php------------------------个人用户中心控制器
+			UpcController.class.php----------------------------UPC控制器
+			UserController.class.php---------------------------用户中心控制器
+        Model------------------------模型目录
+			Batch2ProductViewModel.class.php-------------------批量表数据视图
+			Center2GoodViewModel.class.php---------------------产品关联词库与类目视图
+			Good2CenterValueViewModel.class.php----------------产品关联词库内容
+			Info2ProductViewModel.class.php--------------------资料表数据视图
+			TemplateContactViewModel---------------------------批量表模板与资料表模板关联视图
     Runtime---------------------------缓存日志等目录
 Database------------------------------存放数据库文件目录 *.sql
 Public--------------------------------公共文件存放地址
     data------------------------------日志下载压缩包
     file------------------------------词库模板文件
     template--------------------------批量表模板文件夹
-        Data--------------------------生成的表格
-        Item--------------------------批量表模板
+        Data--------------------------生成的表格文件夹
+        Item--------------------------批量表上传模板文件夹
     upc-------------------------------upc
 Thinkphp------------------------------PHP框架系统包
     ThinkPHP\Library\Think\Product----项目分装类
-Pictures------------------------------图片目录
+		BusinessModel.class.php--------------------------------业务模块类
+		Category.class.php-------------------------------------类目类
+		CenterItem.class.php-----------------------------------词库项目类
+		Custom.class.php---------------------------------------客户类
+		DeleteLimit.class.php----------------------------------删除限制
+		ImageCategory.class.php--------------------------------图片类目类
+		PAuth.class.php----------------------------------------权限认证类
+		Picture.classs.php-------------------------------------图片类
+		ProductCenter.class.php--------------------------------产品中心类
+		ProductInfo.class.php----------------------------------资料表与批量表数据类
+		ProductInfoExtend.class.php----------------------------资料表与批量表数据扩展类
+		ProductInfoForm.class.php------------------------------资料表与批量表表格类
+		Product_Template.class.php-----------------------------资料表与批量表模板类
+		Product_Item_Template.class.php------------------------资料表与批量表模板数据类
+		Upc.class.php-----------------UPC类
+		User.class.php----------------用户中心类
+Pictures------------------------------图片文件夹
 
 index.php-----------------------------系统入口文件
