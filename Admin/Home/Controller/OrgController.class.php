@@ -114,8 +114,13 @@ class OrgController extends BaseController
                 'created_time'  => date('Y-m-d H:i:s', time()),
                 'modified_time' => date('Y-m-d H:i:s', time()),
             ];
-            $add = M('auth_org')->add($insert_data);
+            $o = M('auth_org');
+            $add = $o->add($insert_data);
             if ($add) {
+                // 修改机构的数据库层级关系，访问更清晰
+                $relationship = $o->field('relationship')->find($father_id);
+                $o->save(['relationship' => $relationship['relationship'] . ',' . $o->getLastInsID()]);
+
                 $this->response(['status' => 100],'json');
             } else {
                 $this->response(['status' => 101, 'msg' => '添加有误'],'json');

@@ -90,7 +90,7 @@ class RolesController extends BaseController{
 			$arr['msg'] = "角色状态不能为空";
 			$this->response($arr,'json');
 		}
-
+        if($id == 2 || $id == 5) $this->response(['status' => 104,'msg' => '超级管理员与总经理角色不能修改']);
         // 多人同时操作限制
         if(!limitOperation('auth_role' ,$id ,240 ,$this->loginid)) {
             $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
@@ -210,7 +210,7 @@ class RolesController extends BaseController{
         if(!limitOperation('auth_role' ,$id ,240 ,$this->loginid ,'R')) {
             $this->response(['status' => 101 ,'msg' => '有同事在操作该数据']);
         }
-
+        if($id == 2 || $id == 5) $this->response(['status' => 104,'msg' => '超级管理员与总经理角色不能删除']);
 		$role = M('auth_role');
 		$role_user = M('auth_role_user');
 		$role_org = M('auth_role_org');

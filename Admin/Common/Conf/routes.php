@@ -103,6 +103,7 @@ return [
         'use/infoform'           => 'ProductInfoForm/useInfoForm',
         'stop/infoform'          => 'ProductInfoForm/stopInfoForm',
         'update/infoform'        => 'ProductInfoForm/updaInfoForm',
+        'transfer/form'          => 'ProductInfoForm/transferForm',      // 表格移交
 
         // Upc
         'post/upc'               => 'Upc/upload_upc_file',

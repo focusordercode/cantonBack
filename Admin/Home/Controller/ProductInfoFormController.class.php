@@ -1,6 +1,7 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
+use Home\Model;
 
 /**
  * 产品资料表格控制器
@@ -9,12 +10,29 @@ use Think\Controller;
  */
 class ProductInfoFormController extends BaseController
 {
-	/*
-	 * 获取同一个类目下的产品资料表格
-	 * @param category_id 类目id
-	 * @param status_code 状态码
-	 * @param type_code   info / batch
-	 */
+    protected $formKey_and;
+    protected $formKey;
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $d = D('Auth');
+        $user_ids = $d->GetOwnUser($this->loginid);
+        if($user_ids == 'ALL'){
+            $this->formKey       = '';
+            $this->formKey_and   = '';
+        }else{
+            $this->formKey_and   = " AND creator_id IN ($user_ids)";
+            $this->formKey       = $user_ids;
+        }
+    }
+
+    /*
+     * 获取同一个类目下的产品资料表格
+     * @param category_id 类目id
+     * @param status_code 状态码
+     * @param type_code   info / batch
+     */
 	public function getInfoForm()
 	{
 		$category_id = (int)I('post.category_id');
@@ -24,7 +42,7 @@ class ProductInfoFormController extends BaseController
         $next        = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-		$res = \Think\Product\ProductInfoForm::GetInfoForm($type_code,$status_code,$category_id,$pageSize,$next);
+		$res = \Think\Product\ProductInfoForm::GetInfoForm($this->formKey_and,$type_code,$status_code,$category_id,$pageSize,$next);
 		if($res){
 			$data['status']    = 100;
 			$data['value']     = $res['value'];
@@ -820,7 +838,7 @@ class ProductInfoFormController extends BaseController
             $this->response($data);
         }
 
-        $result = \Think\Product\ProductInfo::search_form($type_code,$status_code,$keyword,$category_id,$pageSize,$next);
+        $result = \Think\Product\ProductInfoForm::search_form($this->formKey_and ,$type_code,$status_code,$keyword,$category_id,$pageSize,$next);
         if($result['error'] == 0){
             $data['status']    = 100;
             $data['value']     = $result['value'];
@@ -834,4 +852,28 @@ class ProductInfoFormController extends BaseController
         $this->response($data);
     }
 
+    /*
+     * 表格移交
+     * @param uid 移交的用户
+     * @param form_id 表格id
+     * */
+    public function transferForm()
+    {
+        $uid       = (int)I('uid');
+        $form_id   = (int)I('form_id');
+        $type_code = I('type_code');
+
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        if($type_code == 'info'){
+            $m = M('product_form');
+        }else{
+            $m = M('product_batch_form');
+        }
+        $is_head = M('auth_user')->where('id = '. $this->loginid)->field('is_head')->find();
+        if($is_head['is_head'] == 0) $this->response(['status' => 101, 'msg' => '抱歉没有移交权限']);
+
+        $refreshForm = $m->where('id = '.$form_id)->save(['creator_id' => $uid]);
+        if($refreshForm) $this->response(['status'=> 100, 'msg' => '移交成功']);
+        $this->response(['status'=> 101, 'msg' => '移交失败']);
+    }
 }

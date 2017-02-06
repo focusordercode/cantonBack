@@ -229,51 +229,6 @@ class ProductInfo{
         }
     }
 
-    // 资料表格搜索
-    static function search_form($type_code , $status_code = '' , $keyword = '' , $category_id = '' , $pageSize = 20, $next = 1){
-        if($type_code == 'info'){
-            $m = M('product_form');
-        }else{
-            $m = M('product_batch_form');
-        }
-        $where = "enabled=1";
-        if(!empty($status_code)){
-            $where .= " AND status_code='".$status_code."'";
-        }
-        if(!empty($keyword)){
-            $where .= " AND `title` like '%".$keyword."%'";
-        }
-        if(!empty($category_id)){
-            $where .= " AND category_id=".$category_id;
-        }
-        $start  = ( $next - 1 ) * $pageSize;
-        $count  = $m->where($where)->count();
-        $result = $m->where($where)->limit($start,$pageSize)->order('id desc')->select();
-        if($result){
-            foreach ($result as $key => $value) {
-                $name    = M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find(); // 类目
-                $result[$key]['name']      = $name['cn_name'];
-
-                $cn_name = M('product_template')->field("cn_name")->where("id=%d",array($value['template_id']))->find(); // 模板
-                $result[$key]['tempname']  = $cn_name['cn_name'];
-
-                $client = M('customer')->where(array('id' => $value['client_id']))->field('custom_name,company')->find();          // 客户
-                $result[$key]['client_name'] = $client['custom_name'];
-                $result[$key]['company_name'] = $client['company'];
-            }
-            $res['error']     = 0;
-            $res['value']     = $result;
-            $res['count']     = $count;
-            $res['pageNow']   = $next;
-            $res['countPage'] = ceil($count / $pageSize);
-        }else{
-            $res['error']  = 1;
-            $res['status'] = 101;
-            $res['msg']    = '没有您所搜索的该类型数据。';
-        }
-        return $res;
-    }
-
     /*
      * 暂存提交接口类
      */

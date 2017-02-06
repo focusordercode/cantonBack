@@ -7,7 +7,7 @@ class ProductInfoForm{
 	/*
 	 * 根据类目id获取相关表格/产品批量表格
 	 */
-	static function GetInfoForm($type_code , $status_code , $category_id, $pageSize = 15, $next = 1){
+	static function GetInfoForm($formKey,$type_code , $status_code , $category_id, $pageSize = 15, $next = 1){
 		//判断是产品信息表（info）还是产品批量表（batch）
 		if($type_code == 'info'){
 			$form = M("product_form");
@@ -20,22 +20,20 @@ class ProductInfoForm{
             $cou  = M('product_batch_form_information');
             $field = "id,form_no,category_id,template_id,client_id,title,status_code,creator_id,created_time,modified_time,site_name";
 		}
-
+        $where = 'enabled = 1';
 		//判断是否存在类目id（为空是查询所有表单）
 		if(!empty($category_id)){
-            $where['category_id'] = $category_id;
+            $where .= ' AND category_id ='. $category_id;
 		}
 
 		//判断要获取什么状态下的表单（为空是查询所有表单）
 		if(!empty($status_code)){
-            $where['status_code'] = $status_code;
+            $where .= ' AND status_code ='. $status_code;
 		}
 
-		$where['enabled'] = 1;
-
         $start = ( $next - 1 ) * $pageSize;
-        $count = $form->where($where)->count();
-		$sql   = $form->where($where)->field($field)->order('id desc')->limit($start,$pageSize)->select();
+        $count = $form->where($where.$formKey)->count();
+		$sql   = $form->where($where.$formKey)->field($field)->order('id desc')->limit($start,$pageSize)->select();
 
 		foreach ($sql as $key => $value) {
 
@@ -72,13 +70,14 @@ class ProductInfoForm{
 			$tem=M("product_batch_template");
             $field = "id,category_id,template_id,client_id,title,status_code,creator_id,created_time,modified_time,site_name";
 		}
+        $where = 'enabled = 1';
 		if(!empty($template_id)){
-            $where['template_id'] = $template_id;
+            $where .= ' AND template_id  = ' .$template_id;
 		}
 		if(!empty($status_code)){
-            $where['status_code'] = $status_code;
+            $where .= ' AND status_code = '.$status_code;
 		}
-		$where['enabled'] = 1;
+
 		$sql   = $form->field($field)->where($where)->select();
 		foreach ($sql as $key => $value) {
 			$name    = M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find();
@@ -166,7 +165,7 @@ class ProductInfoForm{
 	static function VagueTitle($type_code,$title){
 		if($type_code=='info'){
 			$tem=M("product_template");
-			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id FROM tbl_product_form WHERE title LIKE '%".$title."%' ");
+			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id FROM tbl_product_form WHERE title LIKE '%".$title."%'");
 		    foreach ($sql as $key => $value) {
 				$name=M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find();
 				$cn_name=$tem->field("cn_name")->where("id=%d",array($value['template_id']))->find();
@@ -178,7 +177,7 @@ class ProductInfoForm{
 			}
 		}elseif ($type_code=='batch') {
 			$tem=M("product_batch_template");
-			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id,site_name FROM tbl_product_batch_form WHERE title LIKE '%".$title."%' ");
+			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id,site_name FROM tbl_product_batch_form WHERE title LIKE '%".$title."%'");
 			foreach ($sql as $key => $value) {
 				$name=M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find();
 				$cn_name=$tem->field("cn_name")->where("id=%d",array($value['template_id']))->find();
@@ -431,4 +430,50 @@ class ProductInfoForm{
  			return -1;
  		}
  	}
+
+
+    // 资料表格搜索
+    static function search_form($formKey,$type_code , $status_code = '' , $keyword = '' , $category_id = '' , $pageSize = 20, $next = 1){
+        if($type_code == 'info'){
+            $m = M('product_form');
+        }else{
+            $m = M('product_batch_form');
+        }
+        $where = "enabled=1";
+        if(!empty($status_code)){
+            $where .= " AND status_code='".$status_code."'";
+        }
+        if(!empty($keyword)){
+            $where .= " AND `title` like '%".$keyword."%'";
+        }
+        if(!empty($category_id)){
+            $where .= " AND category_id=".$category_id;
+        }
+        $start  = ( $next - 1 ) * $pageSize;
+        $count  = $m->where($where.$formKey)->count();
+        $result = $m->where($where.$formKey)->limit($start,$pageSize)->order('id desc')->select();
+        if($result){
+            foreach ($result as $key => $value) {
+                $name    = M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find(); // 类目
+                $result[$key]['name']      = $name['cn_name'];
+
+                $cn_name = M('product_template')->field("cn_name")->where("id=%d",array($value['template_id']))->find(); // 模板
+                $result[$key]['tempname']  = $cn_name['cn_name'];
+
+                $client = M('customer')->where(array('id' => $value['client_id']))->field('custom_name,company')->find();          // 客户
+                $result[$key]['client_name'] = $client['custom_name'];
+                $result[$key]['company_name'] = $client['company'];
+            }
+            $res['error']     = 0;
+            $res['value']     = $result;
+            $res['count']     = $count;
+            $res['pageNow']   = $next;
+            $res['countPage'] = ceil($count / $pageSize);
+        }else{
+            $res['error']  = 1;
+            $res['status'] = 101;
+            $res['msg']    = '没有您所搜索的该类型数据。';
+        }
+        return $res;
+    }
 }
