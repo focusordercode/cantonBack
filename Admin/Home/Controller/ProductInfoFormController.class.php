@@ -10,14 +10,15 @@ use Home\Model;
  */
 class ProductInfoFormController extends BaseController
 {
+    protected $model;
     protected $formKey_and;
     protected $formKey;
 
     public function _initialize()
     {
         parent::_initialize();
-        $d = D('Auth');
-        $user_ids = $d->GetOwnUser($this->loginid);
+        $this->model = D('Auth');
+        $user_ids = $this->model->GetOwnUser($this->loginid);
         if($user_ids == 'ALL'){
             $this->formKey       = '';
             $this->formKey_and   = '';
@@ -860,7 +861,7 @@ class ProductInfoFormController extends BaseController
     public function transferForm()
     {
         $uid       = (int)I('uid');
-        $form_id   = (int)I('form_id');
+        $form_id   = I('form_id');
         $type_code = I('type_code');
 
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
@@ -869,11 +870,33 @@ class ProductInfoFormController extends BaseController
         }else{
             $m = M('product_batch_form');
         }
-        $is_head = M('auth_user')->where('id = '. $this->loginid)->field('is_head')->find();
-        if($is_head['is_head'] == 0) $this->response(['status' => 101, 'msg' => '抱歉没有移交权限']);
+        $m->startTrans();
+        if(!is_array($form_id)) {
+            $this->response(['status'=> 102, 'msg' => '请求有误']);
+        }
 
-        $refreshForm = $m->where('id = '.$form_id)->save(['creator_id' => $uid]);
-        if($refreshForm) $this->response(['status'=> 100, 'msg' => '移交成功']);
-        $this->response(['status'=> 101, 'msg' => '移交失败']);
+        $success = 0;
+        $error   = 0;
+        $no      = 0;
+        foreach($form_id as $val)
+        {
+            if(!preg_match("/^[0-9]+$/" ,$val)) {
+                $m->rollback();
+                $this->response(['status'=> 101, 'msg' => '移交失败']);
+            }
+            $move = $m->where('id = '.$val)->save(['creator_id' => $uid]);
+            if(!$move) {
+                $error; continue;
+            }
+            $success ++;
+        }
+        $m->commit();
+        $this->response([
+                'status'  => 100,
+                'success' => $success ,
+                'failed'  => $error ,
+                'cannot'  => $no
+            ]
+        );
     }
 }

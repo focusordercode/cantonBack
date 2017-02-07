@@ -35,6 +35,7 @@ return [
         'update/custom'          => 'Custom/update',
         'post/custom'            => 'Custom/add',
         'vague/custom'           => 'Custom/selVague',
+        'transearch/custom'      => 'Custom/TransformSearchCustomer',
 
         // Logging
         'get/nowlog'             => 'Logging/getNowLog',      //获取当月的所有日志

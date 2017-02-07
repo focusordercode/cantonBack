@@ -227,4 +227,37 @@ class CustomController extends BaseController
         }
         $this->response($data);
     }
+
+    /*
+     * 表格移交专属客户搜索
+     * */
+    public function TransformSearchCustomer()
+    {
+        $users = M()
+            ->table("tbl_auth_role_user ru")
+            ->join("tbl_auth_user u ON u.id=ru.user_id")
+            ->where("u.id = ".$this->loginid)
+            ->field("ru.role_id")
+            ->select();
+
+        $where = "";
+        $us = M("auth_user")->find($this->loginid);
+        if($us['is_head'] == 0) $where = "u.is_head = 0 AND";
+
+        if(!$users) $this->response(['status' => 101 ,'msg' => '暂无相关信息']);
+        foreach($users as $val){
+            $roles[] = M()
+                ->table("tbl_auth_role_user ru")
+                ->join("tbl_auth_user u ON u.id=ru.user_id")
+                ->where("$where u.enabled=1 AND ru.role_id = ".$val['role_id'])
+                ->field("u.id,u.username,u.real_name")
+                ->select();
+        }
+        foreach($roles as $rval){
+            foreach($rval as $v){
+                $arr[] = $v;
+            }
+        }
+        $this->response(['status' => 100 ,'value' => $arr]);
+    }
 }

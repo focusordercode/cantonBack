@@ -73,4 +73,33 @@ class AuthModel extends Model
         }
         return implode(',' ,$uids);
     }
+
+    /*
+     * 判断用户是否有移交权限
+     * @param  form_id  表格id
+     * @param  uid      移交者的id
+     * @param  toUid    移交给的id
+     * @param  typeCode info/batch
+     * */
+    public function CheckMoveFormAuth($uid ,$form_id ,$typeCode)
+    {
+        // 判断是资料表还是批量表
+        if($typeCode == 'info') {
+            $formTbl = M("product_form");
+        } elseif ($typeCode == 'batch') {
+            $formTbl = M("product_batch_form");
+        }
+        $form = $formTbl->where("id = $form_id")->find();
+        $whoseForm = $form['creator_id'];
+
+        // 只判断是否有移交权限
+        $user = M("auth_user")->where("id = $uid")->find();
+        if($user['is_head'] != 1 && $whoseForm == $uid) {
+            return true;
+        }
+        if($user['is_head'] == 1){
+            return true;
+        }
+        return false;
+    }
 }

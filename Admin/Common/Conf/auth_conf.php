@@ -180,6 +180,7 @@ return [
             ],
             'transfer/form'  => [
                 'ProductInfoForm/transferForm',
+                'Custom/TransformSearchCustomer',
             ],
         ],
 
