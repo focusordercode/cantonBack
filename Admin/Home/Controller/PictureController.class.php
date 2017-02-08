@@ -281,7 +281,16 @@ class PictureController extends BaseController
         // 从图片表的视图中快速筛选
         $gaid = __sqlSafe__($gaid);
         $tags = __sqlSafe__($tags);
-        $result = M()->query("SELECT * FROM marrypic WHERE gallery_id IN($gaid) $f AND rubbish=0 AND u_time<='$do_date' $tags ORDER BY RAND() ASC limit $pic_num");
+        $result_ids = M()->query("SELECT id FROM marrypic WHERE gallery_id IN($gaid) $f AND rubbish=0 AND u_time<='$do_date' $tags ORDER BY RAND() ASC limit $pic_num");
+        foreach ($result_ids as $keys => $values) {
+            $data_ids[] = $values['id'];
+        }
+        $dids = implode(",", $data_ids);
+        if(strlen($dids) == 0){
+            $result = 0;
+        }else{
+            $result = M()->query("SELECT * FROM marrypic where id in ($dids) ORDER BY tags ASC");
+        }
         if($result){
             $rand_id         = rand(100000,999999);
             $data['status']  = 100;
