@@ -79,17 +79,12 @@ class AuthModel extends Model
      * @param  form_id  表格id
      * @param  uid      移交者的id
      * @param  toUid    移交给的id
-     * @param  typeCode info/batch
+     * @param  table    表格
      * */
-    public function CheckMoveFormAuth($uid ,$form_id ,$typeCode)
+    public function CheckMoveFormAuth($uid ,$form_id ,$table)
     {
-        // 判断是资料表还是批量表
-        if($typeCode == 'info') {
-            $formTbl = M("product_form");
-        } elseif ($typeCode == 'batch') {
-            $formTbl = M("product_batch_form");
-        }
-        $form = $formTbl->where("id = $form_id")->find();
+        $form = $table->where("id = $form_id")->find();
+        if(!$form) return false;
         $whoseForm = $form['creator_id'];
 
         // 只判断是否有移交权限

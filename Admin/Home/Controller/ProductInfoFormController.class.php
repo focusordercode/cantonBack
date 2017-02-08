@@ -855,7 +855,7 @@ class ProductInfoFormController extends BaseController
 
     /*
      * 表格移交
-     * @param uid 移交的用户
+     * @param uid 移交到的用户
      * @param form_id 表格id
      * */
     public function transferForm()
@@ -871,6 +871,7 @@ class ProductInfoFormController extends BaseController
             $m = M('product_batch_form');
         }
         $m->startTrans();
+        // 规定以一维数组方式传递参数
         if(!is_array($form_id)) {
             $this->response(['status'=> 102, 'msg' => '请求有误']);
         }
@@ -880,19 +881,25 @@ class ProductInfoFormController extends BaseController
         $no      = 0;
         foreach($form_id as $val)
         {
+            // 验证id  有必要
             if(!preg_match("/^[0-9]+$/" ,$val)) {
                 $m->rollback();
                 $this->response(['status'=> 101, 'msg' => '移交失败']);
             }
+            // 判断该表格，当前用户是否有移交权限
+            $moveCkeck = $this->model->CheckMoveFormAuth($this->loginid ,$val ,$m);
+            if(!$moveCkeck){
+                $no ++; continue;
+            }
             $move = $m->where('id = '.$val)->save(['creator_id' => $uid]);
             if(!$move) {
-                $error; continue;
+                $error ++; continue;
             }
             $success ++;
         }
         $m->commit();
         $this->response([
-                'status'  => 100,
+                'status'  => 100 ,
                 'success' => $success ,
                 'failed'  => $error ,
                 'cannot'  => $no
