@@ -413,277 +413,12 @@ class ProductInfoFormController extends BaseController
         }
         \Think\Product\ProductInfo::AddProductInfo('batch',$datas,$form_id,$pid);
     }
-    // public function get_product_msg($form_id,$product_form_id,$product_count = '', $vnum,$creator_id){
-    //     set_time_limit(0);
 
-    //     $batch_form  = M('product_batch_form');
-    //     $form        = M('product_form');
-    //     $item        = M('product_item_template');
-    //     $batch_item  = M('product_batch_item_template');
-    //     $item2batch  = M('product_item2batch_item');
-    //     $form_info   = M('product_batch_form_information');
-    //     $batch_info  = M('product_batch_information');
-
-    //     //获取资料表与批量表的模板id
-    //     $batch_tel_id = $batch_form->field("template_id,category_id")->where("id=%d",array($form_id))->find();
-    //     $tel_id       = $form->field("template_id")->where("id=%d",array($product_form_id))->find();
-
-    //     //获取资料表与批量表的关联关系
-    //     $array = $item2batch
-    //         ->field("title1_id,title2_id")
-    //         ->where("template1_id=%d and template2_id=%d",array($tel_id['template_id'],$batch_tel_id['template_id']))
-    //         ->select();
-    //     foreach ($array as $key => $value) {
-    //         $items  = $item->field("en_name")->where("id=%d",array($value['title1_id']))->find();
-    //         $bitems = $batch_item->field("en_name")->where("id=%d",array($value['title2_id']))->find();
-    //         $bitem[$bitems['en_name']] = $items['en_name'];
-    //     }
-
-    //     $info = \Think\Product\ProductInfo::GetOneFormInfo('info',$product_form_id);
-    //     // 只拿相对应的产品数量
-    //     if(!empty($product_count)){
-    //         if($vnum == 0 || empty($vnum)){
-    //             $vnum = 1;
-    //         }
-    //         $parentnum = ceil($product_count / $vnum);
-    //         $all_product = $product_count;
-    //     }else{
-    //         $all_product = count($info);
-    //         $parentnum = ceil($all_product / ($vnum + 1));
-    //     }
-
-    //     $p = 0;
-    //     foreach ($info as $k => $va) {
-    //         if($p == $parentnum){
-    //             break;
-    //         }
-    //         if($va['parent_id'] == 0){
-    //             $zhuti[] = $va;
-    //             $p ++;
-    //         }
-    //     }
-    //     if(empty($product_count)){
-    //         $all_product = $all_product - count($zhuti);
-    //     }
-    //     // 产品id数
-    //     $bproduct_id = GetSysId('product_batch_information',$parentnum);
-    //     $bie  = \Think\Product\Product_Item_Template::get('batch',$batch_tel_id['template_id']);
-    //     $bienum = count($bie['value']);
-    //     // 计算需要的产品资料id数
-    //     $nums = $parentnum * $bienum;
-    //     $brecord_id = GetSysId('product_batch_information_record',$nums);
-    //     $z = 0;
-    //     $btproduct_id = GetSysId('product_batch_information',$all_product);
-    //     $biantinums   = $all_product * $bienum;
-    //     $btrecord_id  = GetSysId('product_batch_information_record',$biantinums);
-    //     $j = 0;
-    //     $u = 0;
-    //     $now = $bie['value'];
-
-    //     //写入文件的地址与名称
-    //     $time = "batch".time();
-    //     $myfile = fopen("./public/data/".$time.".txt", "w") or die("Unable to open file!");
-
-    //     $valss = null;       
-    //     $form_info->startTrans();
-
-    //     // 资料表赋值到批量表
-    //     for ($i = 0; $i < $parentnum; $i ++) {
-    //         foreach ($now as $keys => $values) {
-    //             $data['id']          = $brecord_id[$z];
-    //             $data['product_id']  = $bproduct_id[$i];
-    //             $data['category_id'] = $batch_tel_id['category_id'];
-    //             $data['template_id'] = $batch_tel_id['template_id'];
-    //             $data['parent_id']   = 0;
-    //             $data['no']          = $now[$keys]['no'];
-    //             $data['title']       = $now[$keys]['en_name'];
-    //             $data['length']      = $now[$keys]['length'];
-    //             $data['data_type_code'] = $now[$keys]['data_type_code'];
-    //             switch ($data['data_type_code']) {
-    //                 case 'int':
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['interger_value'] = $valss;
-    //                     }else{
-    //                         $data['interger_value'] = $zhuti[$i][$bitem[$data['title']]];
-    //                     }  
-    //                     $data['char_value']     = $valss;
-    //                     $data['decimal_value']  = $valss;
-    //                     $data['date_value']     = $valss; 
-    //                   break;
-    //                 case 'upc_code': 
-    //                     $data['interger_value'] = $valss;
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['char_value'] = $valss;
-    //                     }else{
-    //                         $data['char_value']     = $zhuti[$i][$bitem[$data['title']]];
-    //                     }
-    //                     $data['decimal_value']  = $valss;
-    //                     $data['date_value']     = $valss; 
-    //                   break;
-    //                 case 'char': 
-    //                     $data['interger_value'] = $valss;
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['char_value'] = $valss;
-    //                     }else{
-    //                         $data['char_value']     = $zhuti[$i][$bitem[$data['title']]];
-    //                     } 
-    //                     $data['decimal_value']  = $valss;
-    //                     $data['date_value']     = $valss; 
-    //                   break;
-    //                 case 'dc': 
-    //                     $data['interger_value'] = $valss;
-    //                     $data['char_value']     = $valss;
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['decimal_value'] = $valss;
-    //                     }else{
-    //                         $data['decimal_value']     = $zhuti[$i][$bitem[$data['title']]];
-    //                     }  
-    //                     $data['date_value']     = $valss;
-    //                   break;
-    //                 case 'dt':
-    //                     $data['interger_value'] = $valss;
-    //                     $data['char_value']     = $valss;
-    //                     $data['decimal_value']  = $valss;
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['date_value'] = $valss;
-    //                     }else{
-    //                         $data['date_value']     = $zhuti[$i][$bitem[$data['title']]];
-    //                     }   
-    //                   break;
-    //                 case 'bl':   
-    //                     $data['boolean_value']  = $zhuti[$i][$bitem[$data['title']]];
-    //                   break;
-    //                 case 'pic':  
-    //                     $data['interger_value'] = $valss;
-    //                     if(empty($zhuti[$i][$bitem[$data['title']]])){
-    //                         $data['char_value'] = $valss;
-    //                     }else{
-    //                         $data['char_value'] = $zhuti[$i][$bitem[$data['title']]];
-    //                     } 
-    //                     $data['decimal_value']  = $valss;
-    //                     $data['date_value']     = $valss; 
-    //                   break;
-    //             }
-    //             $data['enabled']    = 1;
-    //             $data['creator_id'] = $creator_id;
-    //             $data['created_time']  = date('Y-m_d H:i:s',time());
-    //             $data['modified_time'] = date('Y-m_d H:i:s',time());
-    //             $txt = implode("|,|", $data)."\n";
-    //             fwrite($myfile, $txt);
-    //             $txt = null;
-    //             $data    = array();
-    //             $z ++;
-    //         }
-    //         $a    = $zhuti[$i]['product_id'];
-    //         $pid[] = $bproduct_id[$i];
-
-    //         foreach ($info as $ks => $vas) {
-    //             if($vas['parent_id'] == $a){
-    //                 foreach ($now as $kes => $vs) {
-    //                     $data['id']          = $btrecord_id[$u];
-    //                     $data['product_id']  = $btproduct_id[$j];
-    //                     $data['category_id'] = $batch_tel_id['category_id'];
-    //                     $data['template_id'] = $batch_tel_id['template_id'];
-    //                     $data['parent_id']   = $bproduct_id[$i];
-    //                     $data['no']          = $now[$kes]['no'];
-    //                     $data['title']       = $now[$kes]['en_name'];
-    //                     $data['length']      = $now[$kes]['length'];
-    //                     $data['data_type_code'] = $now[$kes]['data_type_code'];
-    //                     switch ($data['data_type_code']) {
-    //                         case 'int':
-    //                             if(empty($info[$ks][$bitem[$data['title']]])){
-    //                                 $data['interger_value'] = $valss;
-    //                             }else{
-    //                                 $data['interger_value'] = $info[$ks][$bitem[$data['title']]]; 
-    //                             }     
-    //                             $data['char_value']     = $valss;
-    //                             $data['decimal_value']  = $valss;
-    //                             $data['date_value']     = $valss;
-    //                           break;
-    //                         case 'upc_code':
-    //                         case 'char':
-    //                             $data['interger_value'] = $valss;
-    //                             if(empty($info[$ks][$bitem[$data['title']]])){
-    //                                 $data['char_value'] = $valss;
-    //                             }else{
-    //                                 $data['char_value']     = $info[$ks][$bitem[$data['title']]];
-    //                             }
-    //                             $data['decimal_value']  = $valss;
-    //                             $data['date_value']     = $valss;
-    //                           break;
-    //                         case 'dc': 
-    //                             $data['interger_value'] = $valss;
-    //                             $data['char_value']     = $valss;
-    //                             if(empty($info[$ks][$bitem[$data['title']]])){
-    //                                 $data['decimal_value'] = $valss;
-    //                             }else{
-    //                                 $data['decimal_value']  = $info[$ks][$bitem[$data['title']]];
-    //                             }     
-    //                             $data['date_value']     = $valss;
-    //                           break;
-    //                         case 'dt': 
-    //                             $data['interger_value'] = $valss;
-    //                             $data['char_value']     = $valss; 
-    //                             $data['decimal_value']  = $valss;
-    //                             if(empty($info[$ks][$bitem[$data['title']]])){
-    //                                 $data['date_value'] = $valss;
-    //                             }else{ 
-    //                                 $data['date_value']     = $info[$ks][$bitem[$data['title']]];
-    //                             }    
-    //                           break;
-    //                         case 'bl':      
-    //                             $data['boolean_value']  = $info[$ks][$bitem[$data['title']]];
-    //                           break;
-    //                         case 'pic':
-    //                             $data['interger_value'] = $valss;
-    //                             if(empty($info[$ks][$bitem[$data['title']]])){
-    //                                 $data['char_value'] = $valss;
-    //                             }else{
-    //                                 $data['char_value']     = $info[$ks][$bitem[$data['title']]];
-    //                             }       
-    //                             $data['decimal_value']  = $valss;
-    //                             $data['date_value']     = $valss;
-    //                           break;
-    //                     }
-    //                     $data['enabled']       = 1;
-    //                     $data['creator_id']    = $creator_id;
-    //                     $data['created_time']  = date('Y-m_d H:i:s',time());
-    //                     $data['modified_time'] = date('Y-m_d H:i:s',time());
-    //                     $txt = implode("|,|", $data)."\n";
-    //                     fwrite($myfile, $txt);
-    //                     $data    = array();
-    //                     $txt = null;
-    //                     $u++;
-    //                 }
-    //                 $pid[] = $btproduct_id[$j];
-    //                 $j++;
-    //                 if($j > $all_product-1){
-    //                   break 2;
-    //                   }
-    //             }
-
-    //         }
-    //     }
-    //     M()->execute("LOAD DATA  INFILE '".C('SAVE_PATH')."/public/data/".$time.".txt' INTO TABLE tbl_product_batch_information  FIELDS TERMINATED BY '|,|' OPTIONALLY ENCLOSED BY '' LINES TERMINATED BY '\n'(`id`,`product_id`,`category_id`,`template_id`,`parent_id`,`no`,`title`,`length`,`data_type_code`,`interger_value`,`char_value`,`decimal_value`,`date_value`,`enabled`,`creator_id`,`created_time`,`modified_time`)");
-    //     $datas['form_id'] = $form_id;
-    //     foreach ($pid as  $value) {
-    //         $datas['product_id'] = $value;
-    //         $datas['created_time'] = date('Y-m-d H:i:s',time());
-    //         $form_info->data($datas)->add();
-    //         $dass['interger_value'] = $valss;
-    //         $batch_info->data($dass)->where("interger_value = %d and product_id = %d",array(0,$value))->save();
-    //         $das['decimal_value'] = $valss;
-    //         $batch_info->data($das)->where("decimal_value = %d and product_id = %d",array(0.00,$value))->save();
-    //     }
-    //     $form_info->commit();
-    //     unlink(C('SAVE_PATH')."/public/data/".$time.".txt");
-    // }
 
 	/*
 	 * 修改表格名称
 	 * @param type_code   info / batch
 	 */
-
 	public function updaInfoForm(){
 
 		$type_code = I('post.type_code');
@@ -702,10 +437,17 @@ class ProductInfoFormController extends BaseController
 		if($data['category_id'] == 0) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
 		if($data['template_id'] == 0) $this->response(['status'=> 104, 'msg' => '未选择模板']);
 
+        $m = M('product_form');
 		if($type_code == 'batch'){
+            $m = M('product_batch_form');
 			if(empty($data['site_name'])) $this->response(['status'=> 102, 'msg' => '请选择站点']);
 		}
-	
+
+        $moveCkeck = $this->model->CheckMoveFormAuth($this->loginid ,$id ,$m);
+        if(!$moveCkeck){
+            $this->response(['status'=> 105, 'msg' => '抱歉，您不能操作当前表格']);
+        }
+
 		if(empty($data['title'])){//判断表单名称是否为空
 			$array['status'] = 105;
             $array['msg']    = '表格为必填';
@@ -737,6 +479,17 @@ class ProductInfoFormController extends BaseController
 			$data['status'] = 102;
             $data['msg']    = '未选择表格';
 		}else{
+            if($type_code == 'info'){
+                $m = M('product_form');
+            }else{
+                $m = M('product_batch_form');
+            }
+
+            $moveCkeck = $this->model->CheckMoveFormAuth($this->loginid ,$id ,$m);
+            if(!$moveCkeck){
+                $this->response(['status'=> 105, 'msg' => '抱歉，您不能操作当前表格']);
+            }
+
 			$res = \Think\Product\ProductInfoForm::DelInfoForm($type_code,$id);
 			if($res == 1){
 				$data['status'] = 100;

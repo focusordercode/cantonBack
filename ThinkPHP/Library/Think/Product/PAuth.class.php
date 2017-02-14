@@ -144,12 +144,3 @@ class PAuth
         return $uids;
     }
 }
-
-
-
-
-
-
-
-
-
