@@ -499,15 +499,12 @@ class SubareaController extends BaseController
 	public function getTableCount(){
 		$db = M();
 		$db->startTrans();
-		$sql=M()->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".C('DB_NAME')."'  and table_type='base table'");//查询所有表名
-		foreach ($sql as $key => $value) {
-			$data[$key]['table_name'] = $value['table_name'];
-			$count = $db->table($value['table_name'])->count();
-			$data[$key]['count'] = $count;
+		$data = $db->query("select table_name,table_rows as count from INFORMATION_SCHEMA.tables where table_schema = 'canton' and TABLE_TYPE = 'BASE TABLE' order by table_rows desc");
+		foreach ($data as $key => $value) {
 			$where['tbl_name'] = $value['table_name'];
 			$query = $db->table('tbl_table_to_subarea')->field("num,subnum")->where($where)->find();
 			if($query){
-				$num = ($query['num']+$query['subnum'])*500000;
+				$num = ($query['num']+$query['subnum'])*1000000;
 				$data[$key]['subarea_num'] = $query['num'];
 				$data[$key]['subarea_subnum'] = $query['subnum'];
 			}else{
@@ -515,7 +512,7 @@ class SubareaController extends BaseController
 				$data[$key]['subarea_num'] = 0;
 				$data[$key]['subarea_subnum'] = 0;
 			}
-			$data[$key]['percentage']  = sprintf("%.2f", ($count / $num)*100);
+			$data[$key]['percentage']  = sprintf("%.2f", ($value['count'] / $num)*100);
 		}
 		$db->commit();
 		$arr['status'] = 100;

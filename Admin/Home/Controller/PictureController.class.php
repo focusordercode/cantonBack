@@ -460,7 +460,7 @@ class PictureController extends BaseController
         foreach($p_id as $v){
             $p[] = $v['product_id'];
         }
-        
+
         $result = [];
         // 查图片
         foreach ($p as $key => $value) {
@@ -496,12 +496,14 @@ class PictureController extends BaseController
         set_time_limit(0);
         $form_id   = I('post.form_id');
         $countPic  = I('post.picCount');
+        $nums       = I('post.nums');
+        $count     = I('post.count');
         $text      = file_get_contents("php://input");
         $textdata  = urldecode($text);
         $num = ceil($countPic / 50);
         $i = 0;
         $success = 0;
-        $error = 0; 
+        $error = 0;
         $j = 0;
         $s = 0;
         $n = 0;
@@ -571,7 +573,7 @@ class PictureController extends BaseController
                 $success++;
             }else{
                 //执行上传
-                $re = json_decode(imageUpload( $tmpName, $tmpFile, $tmpType, $form_id, $valu['ids'],$valu['num'],$sql['id']),true);
+                $re = json_decode(imageUpload( $tmpName, $tmpFile, $tmpType, $form_id, $valu['ids'],$valu['num'],$categoryid['category_id'],$sql['id']),true);
                 if($re['status'] == 100){
                     foreach ($re['value'] as $rekey => $re_value) {
                         $data[$i]['id'] = $re_value['ids'];
@@ -593,26 +595,26 @@ class PictureController extends BaseController
                     $error++;
                 }
             }
-            
+
             $cache = S('PicProgress_'.$form_id);
             if(empty($cache['num'])){
-                $das['count'] = $countPic;
-                $das['num'] = $valu['num'];
+                $das['num'] = $nums+1;
                 S('PicProgress_'.$form_id,$das);
             }else{
-                $das['count'] = $countPic;
-                $das['num'] = $valu['num'] + $cache['num'];
+                $das['num'] = $nums+1;
                 S('PicProgress_'.$form_id,$das);
             }
+            $num = ($das['num'] / $count)*100;
+            $progress = sprintf("%.2f", $num);
         }
         $picture->commit();
-        if(empty($success)){
-            $array['status'] = 101;
-        }else{
-            $array['status'] = 100;
-            S('PicProgress_'.$form_id,null);
-            $array['value'] = $data;
-        }
+        // if(empty($success)){
+        //     $array['status'] = 101;
+        // }else{
+        $array['status'] = 100;
+        $array['value'] = $data;
+        $array['progress'] = $progress;
+        // }
         $this->response($array);
     }
 

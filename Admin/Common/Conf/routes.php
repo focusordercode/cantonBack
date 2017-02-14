@@ -148,6 +148,8 @@ return [
         'ready/uploadImages'     => 'Picture/pic_upload_paration', // 上传图片准备读取展示接口
         'move/image'             => 'Picture/movePicture',//移动图片
         'add/tags'               => 'Picture/addTags',//批量添加图片标签
+        'upload/pic'             => 'Picture/uploadPic',//上传图片
+        'get/progress'           => 'Picture/getProgress',//获取上传图片的进度
 
         // TemplateItem
         'get/templateitem'       => 'TemplateItem/get_item_template',
@@ -228,8 +230,6 @@ return [
         'get/temformat'          => 'ProductInfoExtend/getTemFormat',//获取模板的数据格式
         'commit/data'            => 'ProductInfoExtend/dataCommit',//暂存
 
-        'upload/pic'             => 'Picture/uploadPic',//上传图片
-        'get/progress'           => 'Picture/getProgress',//获取上传图片的进度
         'copy/datas'             => 'TestCaseOperation/copyDatas',//复制数据做测试
         'del/datas'              => 'TestCaseOperation/delDatas',//删除测试数据
             
