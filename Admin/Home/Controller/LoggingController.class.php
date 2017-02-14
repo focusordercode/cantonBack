@@ -16,6 +16,9 @@ class LoggingController extends BaseController
         $m  = date('m',time());
         $di = $d. '/'.$m.'/';
         $value = read_file($di);
+        foreach ($value as $key => $values) {
+        	$value[$key]['url'] = 'http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)).$values['url'];
+        }
         if(empty($value)){
         	$arr['status'] = 101;
         	$arr['msg'] = "没有数据！";
@@ -54,18 +57,24 @@ class LoggingController extends BaseController
         }else{
         	if(empty($day)){
         		$arr['status']=100;
+        		foreach ($value as $key => $values) {
+        			$value[$key]['url'] = 'http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)).$values['url'];
+        		}
         		$arr['value']=$value;
 			}else{
 				$i=0;
 				$char=substr($year,2).'_'.$month.'_'.$day;
 				//筛选想要搜索的日子的文件
-				foreach ($value as $key => $data) {
+				foreach ($value as $keys => $data) {
 					if(strpos($data['name'], $char)!==false){
 						$array[$i]['name']=$data['name'];
 						$array[$i]['url']=$data['url'];
 						$i++;
 					}
 				}
+				foreach ($array as $k => $val) {
+        			$array[$key]['url'] = 'http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)).$val['url'];
+        		}
 				$arr['status']=100;
        			$arr['value']=$array;
 			}     
@@ -83,14 +92,16 @@ class LoggingController extends BaseController
 		$fail=0;
 		if(is_array($url)){
 			foreach ($url as $key => $u) {
-				if(unlink(C('LOG_PATH').$u)){
+				$url_data = str_replace('http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)),'',$u);
+				if(unlink(C('LOG_PATH').$url_data)){
   					$success++;
 				}else{
 					$fail++;
 				}
 			}
 		}else{
-			if(unlink(C('LOG_PATH').$url)){
+			$url_data = str_replace('http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)),'',$url);
+			if(unlink(C('LOG_PATH').$url_data)){
   				$success++;
 			}else{
 				$fail++;
@@ -111,24 +122,29 @@ class LoggingController extends BaseController
 		$url=I('url');
 		if(is_array($url)){
 			foreach ($url as $key => $value) {
-				$arr[]=substr($value,0,7);
-				$download_file[]=substr($value,8);
+				$url_data = str_replace('http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)),'',$value);
+				$arr[]= substr($url_data, 0, 7);
+				//$arr[] = $value;
+				$download_file[]=substr($url_data,8);
 			}
 			$url=array_unique($arr);
 			$cur_file = C('LOG_PATH').$url[0];
 		}else{
-			$arr=substr($url,0,7);
-			$download_file[]=substr($url,8);
+			$arr=str_replace('http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)),'',$url);
+			$arr=substr($arr, 0, 7);
+			//$arr = $url;
+			$download_file[]=substr($arr,8);
 			$cur_file = C('LOG_PATH').$arr;
 		}
-		$save_path=C('SAVE_PATH');
+		$save_path='./Public/data/';
 		if(is_dir($save_path)){
 			mkdir($save_path);
 		}
 		$scandir = new \Org\Util\traverseDir($cur_file,$save_path); //$save_path zip包文件目录
 		$a=$scandir->tozip($download_file);
+		$a=substr($a, 1);
 		$a=C('DOWNLOAD_URL').$a;
-		 $this->response($a,'json');exit();
+		$this->response($a,'json');exit();
 	}
 
 	/*
