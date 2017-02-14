@@ -23,11 +23,11 @@ return array(
 
 
     'SPVE_PATH'            =>    './Public/data/',
-    'DOWNLOAD_URL'         =>    'http://192.168.1.42/canton',
-    'ENTRANCE'			   =>    'E:\www\canton\index.php',
-    'MY_HTTP_PATH'         =>    'http://192.168.1.42/canton',
+    'DOWNLOAD_URL'         =>    'http://localhost/Canton',
+    'ENTRANCE'			   =>    'f:\phpStudy\www\Canton\index.php',
+    'MY_HTTP_PATH'         =>    'http://localhost/Canton',
     'BATCH_SAVE_PATH'      =>    './Public/Template/Data/',
-    'SAVE_PATH'            =>    'e:/www/canton',
+    'SAVE_PATH'            =>    'f:/phpStudy/www/Canton',
 
     'ENCODE_USERID'         => 'user_md5',
     'ENCODE_KEY'            => 'key_md5',

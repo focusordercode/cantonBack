@@ -265,8 +265,8 @@ function imageUpload( $name, $path, $type, $form_id, $id, $num, $categoryid, $pi
     set_time_limit(0);
     // 图片API服务器
     //$url = 'http://photo.focusorder.com/upload.api.php';
-    //$url = 'http://120.25.228.115/InterPhotos/upload.api.php';
-    $url = 'http://192.168.1.40/interphoto/upload.api.php';
+    $url = 'http://120.25.228.115/InterPhotos/upload.api.php';
+//    $url = 'http://192.168.1.40/interphoto/upload.api.php';
     $post_data = array(
         'pic' => new CURLFile(realpath($path), $type, $name),
         'categoryid' => $categoryid,
@@ -298,9 +298,9 @@ function imageCheck($pic_id,$categoryid,$id)
     \Think\Log::record("开始时间:".date('Y-m-d H:i:s',time()),'DEBUG',true);
     set_time_limit(0);
     // 图片API服务器
-    //$url = 'http://photo.focusorder.com/upload.api.php';
-    //$url = 'http://120.25.228.115/InterPhotos/upload.api.php';
-    $url = 'http://192.168.1.40/interphoto/imageupload.php';
+    //$url = 'http://photo.focusorder.com/imageupload.php';
+    $url = 'http://120.25.228.115/InterPhotos/imageupload.php';
+//    $url = 'http://192.168.1.40/interphoto/imageupload.php';
     $post_data = array(
         'pic_id' => $pic_id,
         'categoryid' => $categoryid,
