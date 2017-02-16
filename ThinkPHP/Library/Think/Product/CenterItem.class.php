@@ -50,7 +50,7 @@ class CenterItem{
 	}
 
 	//获取词库项目列表
-	static function GetAllCenterItem($enabled,$vague,$pages,$num){
+	static function GetAllCenterItem($enabled,$vague,$pages,$num,$orderBy,$sort){
 		$centeritem = M('content_item ci');
 		$ids = ($pages - 1) * $num;
 		if($enabled){
@@ -61,7 +61,17 @@ class CenterItem{
 		}elseif($vague == '0'){
 			$where['_string']='(ci.name like "%'.$vague.'%")  OR (ci.remark like "%'.$vague.'%")';
 		}
-		$sql = $centeritem->where($where)->limit($ids,$num)->select();
+
+        switch ($orderBy){
+            case 'A': $order = 'name '.$sort;          break;
+            case 'B': $order = 'remark '.$sort;        break;
+            case 'C': $order = 'created_time '.$sort;  break;
+            case 'D': $order = 'modified_time '.$sort; break;
+            case 'E': $order = 'enabled '.$sort;       break;
+            default: $order = 'remark '.$sort;
+        }
+
+		$sql = $centeritem->where($where)->limit($ids,$num)->order($order)->select();
 		$count = $centeritem->where($where)->count();
 		if($sql){
 			$arr['count'] = $count;

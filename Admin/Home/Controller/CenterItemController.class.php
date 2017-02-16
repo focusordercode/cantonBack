@@ -159,17 +159,22 @@ class CenterItemController extends BaseController
 	 * @param num 每页展示数量
 	 */
 	public function getAllCenterItem(){
-		$enabled = I('post.enabled');
-		$vague = I('post.vague');
-		$pages = I('post.pages');
-		$num = I('post.num');
+        $enabled  = I('post.enabled');
+		$vague    = I('post.vague');
+		$pages    = I('post.pages');
+		$num      = I('post.num');
+        $orderBy  = I('post.orderKey');       // 排序字段
+        $sort     = isset($_POST['sort']) ? $_POST['sort'] : 'desc'; // 排序方式  倒序/顺序
+        $sortS    = strtolower($sort);
+        if($sortS != 'desc' && $sortS != 'asc') $this->response(['status'=> 102, 'msg' => '排序方式有误']);
+
 		if(empty($pages)){
 			$pages = 1;
 		}
 		if(empty($num)){
 			$num = 25;
 		}
-		$res = \Think\Product\CenterItem::GetAllCenterItem($enabled,$vague,$pages,$num);
+		$res = \Think\Product\CenterItem::GetAllCenterItem($enabled,$vague,$pages,$num,$orderBy,$sort);
 		if($res == -1){
 			$arr['status'] = 101;
 			$arr['msg'] = "没有数据";

@@ -24,11 +24,24 @@ class CustomController extends BaseController
         $enabled  = isset($_POST['enabled'])  ? (int)I('enabled')  : 1;
         $pageSize = isset($_POST['pageSize']) ? (int)I('pageSize') : 10;
         $pageNow  = isset($_POST['pageNow'])  ? (int)I('pageNow')  : 1;
-
+        $orderBy  = I('post.orderKey');       // 排序字段
+        $sort     = isset($_POST['sort']) ? $_POST['sort'] : 'desc'; // 排序方式  倒序/顺序
+        $sortS    = strtolower($sort);
+        if($sortS != 'desc' && $sortS != 'asc') $this->response(['status'=> 102, 'msg' => '排序方式有误']);
+        switch ($orderBy){
+            case 'A': $order = 'custom_name '.$sort;  break;
+            case 'B': $order = 'en_name '.$sort;      break;
+            case 'C': $order = 'company '.$sort;      break;
+            case 'D': $order = 'mobile '.$sort;       break;
+            case 'E': $order = 'email '.$sort;        break;
+            case 'F': $order = 'address '.$sort;      break;
+            case 'G': $order = 'custom_number '.$sort;break;
+            default: $order = 'id '.$sort;
+        }
         $count = $m->where(array('enabled'=>$enabled))->count();
         $start_id = ( $pageNow - 1 ) * $pageSize;
         $counts = ceil($count/$pageSize);
-        $list  = $m->where(array('enabled'=>$enabled))->order('id desc')->limit($start_id,$pageSize)->select();
+        $list  = $m->where(array('enabled'=>$enabled))->order($order)->limit($start_id,$pageSize)->select();
         foreach ($list as $key => $value) {
             if($value['mobile'] == 0 || $value['mobile'] == '0'){
                 $value['mobile'] = ' ';

@@ -50,7 +50,7 @@ class ProductCenter {
 	}
 
 	//获取产品中心产品信息
-	public function GetAllProductCenter($category_id,$enabled,$vague,$pages,$num){
+	public function GetAllProductCenter($category_id,$enabled,$vague,$pages,$num,$orderBy,$sort){
 		$ids = ($pages - 1) * $num;
 		if(!empty($category_id)){
 			$where['p.category_id'] = $category_id;
@@ -63,12 +63,27 @@ class ProductCenter {
 		}elseif($vague == '0'){
 			$where['_string']='(p.cn_name like "%'.$vague.'%")  OR (p.en_name like "%'.$vague.'%")';
 		}
+
+        switch ($orderBy){
+            case 'A': $order = 'p.cn_name '.$sort;       break;
+            case 'B': $order = 'p.en_name '.$sort;       break;
+            case 'C': $order = 'p.category_id '.$sort;   break;
+            case 'D': $order = 'p.modified_time '.$sort; break;
+            case 'E': $order = 'p.enabled '.$sort;       break;
+            default: $order = 'p.id '.$sort;
+        }
+
 		$product = M('good_info p');
 		$count = $product->where($where)->count();
 		$field = "p.id,p.cn_name,p.en_name,p.enabled,p.remark,p.category_id,p.creator_id,p.created_time,p.modified_time,c.cn_name as category_name";
-		$sql = $product->field($field)->join("left join tbl_product_category c on p.category_id = c.id")->where($where)->limit($ids,$num)->select();
-		// echo $product->getLastSQL();
-		// exit();
+		$sql = $product
+            ->field($field)
+            ->join("left join tbl_product_category c on p.category_id = c.id")
+            ->where($where)
+            ->order($order)
+            ->limit($ids,$num)
+            ->select();
+
 		if($sql){
 			$arr['count'] = $count;
 			$arr['pages'] = ceil($count/$num);
@@ -85,7 +100,7 @@ class ProductCenter {
 		$product = M('good_info p');
 		$where['p.id'] = $id;
 		$field = "p.id,p.cn_name,p.en_name,p.enabled,p.remark,p.category_id,c.cn_name as category_name";
-		$sql = $product->field($field)->join("left join tbl_product_category c on p.category_id = c.id")->where($where)->limit($ids,$num)->select();
+		$sql = $product->field($field)->join("left join tbl_product_category c on p.category_id = c.id")->where($where)->select();
 		if($sql){
 			return($sql);
 		}else{

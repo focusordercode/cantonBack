@@ -569,20 +569,23 @@ class ProductInfoFormController extends BaseController
 	 * @param type_code   info / batch
      * @param keyword     搜索关键词
      * */
-    public function search_form(){
+    public function search_form()
+    {
         $type_code    = I('type_code');
         $status_code  = I('status_code');
         $keyword      = strip_tags(trim(I('keyword')));
         $category_id  = I('post.category_id');
         $pageSize     = isset($_POST['num']) ? (int)$_POST['num'] : 20;
         $next         = isset($_POST['next']) ? (int)$_POST['next'] : 1;
+        $orderBy      = I('post.orderKey');       // 排序字段
+        $sort         = isset($_POST['sort']) ? $_POST['sort'] : 'desc'; // 排序方式  倒序/顺序
+        $sortS        = strtolower($sort);
+        if($sortS != 'desc' && $sortS != 'asc') $this->response(['status'=> 102, 'msg' => '排序方式有误']);
 
         if(!preg_match("/^[0-9]+$/",$pageSize) || !preg_match("/^[0-9]+$/",$next)){
             $data['status'] = 102;
             $data['msg']    = '分页数据错误';
-
-        $this->response($data);
-
+            $this->response($data);
         }
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
@@ -592,7 +595,7 @@ class ProductInfoFormController extends BaseController
             $this->response($data);
         }
 
-        $result = \Think\Product\ProductInfoForm::search_form($this->formKey_and ,$type_code,$status_code,$keyword,$category_id,$pageSize,$next);
+        $result = \Think\Product\ProductInfoForm::search_form($this->formKey_and ,$type_code,$status_code,$keyword,$category_id,$pageSize,$next,$orderBy,$sort);
         if($result['error'] == 0){
             $data['status']    = 100;
             $data['value']     = $result['value'];

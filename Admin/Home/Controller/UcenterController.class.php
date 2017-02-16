@@ -221,4 +221,48 @@ class UcenterController extends RestController
         EndEditTime($model ,$operationId);
         $this->response(['status' => 100]);
     }
+
+    public function ssss(){
+//        set_time_limit(0);
+//        form_id='20160216',enabled=1,locked=1   6926050380548
+//        6926050340238    6926050364715   6926050362131
+//        $m = M('product_upc_code');
+//        $upc = $m->select();
+//        foreach($upc as $k){
+//            $m->where('upc_code = '.$k['upc_code'])->save([
+//                'form_id' => 20160216,
+//                'enabled' => 1,
+//                'locked' => 1,
+//            ]);
+//
+//            echo $m->getLastSql().";"."\n";
+//        }
+
+
+        /*
+        $m = M('picss');
+        $ks = M('product_for_picture');
+        $kd = M('product_picture');
+        $upc = $m->field('pics')->select();
+        foreach($upc as $k){
+            $c = $kd->where("file_name = '".$k['pics']."'")->field('id,gallery_id')->find();
+            $ks->add([
+                'category_id' => $c['gallery_id'],
+                'form_id' => 20170216,
+                'picture_id'   => $c['id'],
+                'created_time' => date('Y-m-d H:i:s' ,time()),
+            ]);
+            echo $ks->getLastSql().";"."\n";
+        }
+        */
+    }
 }
+
+
+
+
+
+
+
+
+

@@ -355,7 +355,8 @@ class ProductInfoForm{
  	/*
  	 * 停用产品资料表格/产品批量表格
  	 */
- 	static function StopInfoForm($type_code,$id){
+ 	static function StopInfoForm($type_code,$id)
+    {
  		if($type_code=='info'){
 			$form=M("product_form");
 		}elseif ($type_code=='batch') {
@@ -433,7 +434,7 @@ class ProductInfoForm{
 
 
     // 资料表格搜索
-    static function search_form($formKey,$type_code , $status_code = '' , $keyword = '' , $category_id = '' , $pageSize = 20, $next = 1){
+    static function search_form($formKey,$type_code , $status_code = '' , $keyword = '' , $category_id = '' , $pageSize = 20, $next = 1 ,$orderBy ,$sort){
         if($type_code == 'info'){
             $m = M('product_form');
         }else{
@@ -449,9 +450,21 @@ class ProductInfoForm{
         if(!empty($category_id)){
             $where .= " AND category_id=".$category_id;
         }
+
+        switch ($orderBy){
+            case 'A': $order = 'creator_id '.$sort;    break;
+            case 'B': $order = 'category_id '.$sort;   break;
+            case 'C': $order = 'template_id '.$sort;   break;
+            case 'D': $order = 'client_id '.$sort;     break;
+            case 'E': $order = 'created_time '.$sort;  break;
+            case 'F': $order = 'modified_time '.$sort; break;
+            case 'G': $order = 'status_code '.$sort;   break;
+            default: $order = 'id '.$sort;
+        }
         $start  = ( $next - 1 ) * $pageSize;
         $count  = $m->where($where.$formKey)->count();
-        $result = $m->where($where.$formKey)->limit($start,$pageSize)->order('id desc')->select();
+        $result = $m->where($where.$formKey)->limit($start,$pageSize)->order($order)->select();
+
         if($result){
             foreach ($result as $key => $value) {
                 $name    = M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find(); // 类目
