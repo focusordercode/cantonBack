@@ -894,6 +894,7 @@ class InsertExtensionController extends BaseController
             }      
         }
         M()->execute("LOAD DATA  INFILE '".C('SAVE_PATH')."/public/data/".$time.".txt' INTO TABLE tbl_product_information FIELDS TERMINATED BY '|,|' OPTIONALLY ENCLOSED BY '' LINES TERMINATED BY '\n'(`id`,`category_id`,`template_id`,`product_id`,`parent_id`,`no`,`title`,`data_type_code`,`length`,`creator_id`,`created_time`,`modified_time`,`interger_value`,`char_value`,`decimal_value`,`date_value`)");
+        fclose("./public/data/".$time.".txt");
         for ($q=0; $q < $num; $q++) { 
             $da['form_id'] = $form_id;
             $da['product_id'] = $id[$q];

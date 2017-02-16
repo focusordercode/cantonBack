@@ -241,5 +241,8 @@ return [
         'limit/clear'            => 'Ucenter/clearOperationLimit',      // 清除操作限制
 
         'table/automatic'        => 'InsertExtension/tableAutomatic',   //资料表自动填表新的方法
+
+        'test/pthread'           => 'Test/TestPthreads',//测试
+        'test/commit'            => 'Test/dataCommit',
     ],
 ];
