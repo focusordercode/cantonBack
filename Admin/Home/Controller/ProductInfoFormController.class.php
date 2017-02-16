@@ -34,188 +34,188 @@ class ProductInfoFormController extends BaseController
      * @param status_code 状态码
      * @param type_code   info / batch
      */
-	public function getInfoForm()
-	{
-		$category_id = (int)I('post.category_id');
-		$status_code = I('post.status_code');
-		$type_code   = I('post.type_code');
+    public function getInfoForm()
+    {
+        $category_id = (int)I('post.category_id');
+        $status_code = I('post.status_code');
+        $type_code   = I('post.type_code');
         $pageSize    = isset($_POST['num']) ? (int)I('post.num') : 15; // 页面大小
         $next        = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-		$res = \Think\Product\ProductInfoForm::GetInfoForm($this->formKey_and,$type_code,$status_code,$category_id,$pageSize,$next);
-		if($res){
-			$data['status']    = 100;
-			$data['value']     = $res['value'];
+        $res = \Think\Product\ProductInfoForm::GetInfoForm($this->formKey_and,$type_code,$status_code,$category_id,$pageSize,$next);
+        if($res){
+            $data['status']    = 100;
+            $data['value']     = $res['value'];
             $data['count']     = $res['count'];
             $data['countPage'] = $res['countPage'];
             $data['pageNow']   = $res['pageNow'];
-		}else{
-			$data['status'] = 101;
+        }else{
+            $data['status'] = 101;
             $data['msg']    = '暂无相关信息';
-		}
-		$this->response($data);
-	}
+        }
+        $this->response($data);
+    }
 
-	/*
-	 * 获取同一个模板下的产品资料表格
-	 * @param template_id 模板id
-	 * @param status_code 状态码
-	 * @param type_code   info / batch
-	 */
-	public function getTemInfoForm()
-	{
-		$template_id = (int)I('post.template_id');
-		$status_code = I('post.status_code');
-		$type_code   = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		$res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code, $status_code, $template_id);
-
-		if($res){
-			$data['status'] = 100;
-			$data['value']  = $res;
-		}else{
-			$data['status'] = 101;
-            $data['msg']    = '暂无相关信息';
-		}
-		$this->response($data);
-	}
-
-	/*
-	 * 根据id获取产品资料表格
-	 * @param id 表格id
-	 * @param type_code   info / batch
-	 */
-	public function getOneForm()
-	{
-		$id = (int)I('post.id');
-		$type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-
-		if(empty($id)){
-			$data['status'] = 102;
-            $data['msg']    = '未选择表格信息';
-		}else{
-			$res=\Think\Product\ProductInfoForm::GetOneForm($type_code,$id);
-			if($res){
-				$data['status'] = 100;
-				$data['value']  = $res;
-			}else{
-				$data['status'] = 101;
-                $data['msg']    = '暂无相关信息';
-			}			
-		}
-
-		$this->response($data);
-	}
-
-	/*
-	 * 获取同一个类目下同一个模板的产品资料表格
-	 * @param category_id 类目id
-	 * @param template_id 模板id
-	 * @param type_code   info / batch
-	 */
-	public function getCTInfoForm()
-	{
-		$category_id = (int)I('post.category_id');
-		$template_id = I('post.template_id');
-		$type_code   = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		if(empty($category_id)){
-			$data['status'] = 103;
-            $data['msg']    = '未选择产品类目';
-		}elseif(empty($template_id)){
-			$res = \Think\Product\ProductInfoForm::GetInfoForm($type_code,$category_id);
-			if($res){
-				$data['status'] = 100;
-				$data['value']  = $res;
-			}else{
-				$data['status'] = 101;
-                $data['msg']    = '暂无相关信息';
-			}
-		}else{
-			$res = \Think\Product\ProductInfoForm::GetCTForm($type_code,$category_id,$template_id);
-			if($res){
-				$data['status'] = 100;
-				$data['value']  = $res;
-			}else{
-				$data['status'] = 101;
-                $data['msg']    = '暂无相关信息';
-			}
-		}
-		$this->response($data);
-	}
-
-	/*
-	 * 模糊搜索表格
-	 * @param title 搜索关键词
-	 * @param type_code   info / batch
-	 */
-	public function vagueTitle(){
-		$title     = I("post.title");
-		$type_code = I('post.type_code');
-        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		if(empty($title)){
-			$data['status'] = 105;
-            $data['msg']    = '标题为必填';
-		}else{
-            $title = __sqlSafe__($title);
-			$res = \Think\Product\ProductInfoForm::VagueTitle($type_code,$title);
-			if($res){
-				$data['status'] = 100;
-				$data['value']  = $res;
-			}else{
-				$data['status'] = 101;
-                $data['msg']    = '暂无相关信息';
-			}			
-		}
-		$this->response($data);
-	}
-
-
-	/*
-	 * 创建产品资料表格
-	 * @param category_id 类目id
-	 * @param template_id 模板id
-	 * @param type_code   info / batch
-	 */
-	public function addInfoForm()
+    /*
+     * 获取同一个模板下的产品资料表格
+     * @param template_id 模板id
+     * @param status_code 状态码
+     * @param type_code   info / batch
+     */
+    public function getTemInfoForm()
     {
-		$array     = array();
-		$type_code = I('post.type_code');
+        $template_id = (int)I('post.template_id');
+        $status_code = I('post.status_code');
+        $type_code   = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        $res = \Think\Product\ProductInfoForm::GetTempInfoForm($type_code, $status_code, $template_id);
+
+        if($res){
+            $data['status'] = 100;
+            $data['value']  = $res;
+        }else{
+            $data['status'] = 101;
+            $data['msg']    = '暂无相关信息';
+        }
+        $this->response($data);
+    }
+
+    /*
+     * 根据id获取产品资料表格
+     * @param id 表格id
+     * @param type_code   info / batch
+     */
+    public function getOneForm()
+    {
+        $id = (int)I('post.id');
+        $type_code = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+
+        if(empty($id)){
+            $data['status'] = 102;
+            $data['msg']    = '未选择表格信息';
+        }else{
+            $res=\Think\Product\ProductInfoForm::GetOneForm($type_code,$id);
+            if($res){
+                $data['status'] = 100;
+                $data['value']  = $res;
+            }else{
+                $data['status'] = 101;
+                $data['msg']    = '暂无相关信息';
+            }           
+        }
+
+        $this->response($data);
+    }
+
+    /*
+     * 获取同一个类目下同一个模板的产品资料表格
+     * @param category_id 类目id
+     * @param template_id 模板id
+     * @param type_code   info / batch
+     */
+    public function getCTInfoForm()
+    {
+        $category_id = (int)I('post.category_id');
+        $template_id = I('post.template_id');
+        $type_code   = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        if(empty($category_id)){
+            $data['status'] = 103;
+            $data['msg']    = '未选择产品类目';
+        }elseif(empty($template_id)){
+            $res = \Think\Product\ProductInfoForm::GetInfoForm($type_code,$category_id);
+            if($res){
+                $data['status'] = 100;
+                $data['value']  = $res;
+            }else{
+                $data['status'] = 101;
+                $data['msg']    = '暂无相关信息';
+            }
+        }else{
+            $res = \Think\Product\ProductInfoForm::GetCTForm($type_code,$category_id,$template_id);
+            if($res){
+                $data['status'] = 100;
+                $data['value']  = $res;
+            }else{
+                $data['status'] = 101;
+                $data['msg']    = '暂无相关信息';
+            }
+        }
+        $this->response($data);
+    }
+
+    /*
+     * 模糊搜索表格
+     * @param title 搜索关键词
+     * @param type_code   info / batch
+     */
+    public function vagueTitle(){
+        $title     = I("post.title");
+        $type_code = I('post.type_code');
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        if(empty($title)){
+            $data['status'] = 105;
+            $data['msg']    = '标题为必填';
+        }else{
+            $title = __sqlSafe__($title);
+            $res = \Think\Product\ProductInfoForm::VagueTitle($type_code,$title);
+            if($res){
+                $data['status'] = 100;
+                $data['value']  = $res;
+            }else{
+                $data['status'] = 101;
+                $data['msg']    = '暂无相关信息';
+            }           
+        }
+        $this->response($data);
+    }
+
+
+    /*
+     * 创建产品资料表格
+     * @param category_id 类目id
+     * @param template_id 模板id
+     * @param type_code   info / batch
+     */
+    public function addInfoForm()
+    {
+        $array     = array();
+        $type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
         $creator_id = I('post.creator_id');
         if(empty($creator_id)){
             $arr['status'] = 1012;
             $this->response($arr);
         }
-		$data['category_id']    = I('post.category_id');
-		$data['template_id']    = I('post.template_id');
-		$data['client_id']      = I('post.client_id');
-		$data['title']          = I('post.title');
-		$data['form_no']        = I('post.form_no');
-		$data['enabled']        = 1;
-		$data['status_code']    = "creating";
-		$data['creator_id']     = $creator_id;
-		$product_count          = (int)I('product_num');
-		$data['created_time']   = date('Y-m-d H:i:s',time());
-		$data['modified_time']  = date('Y-m-d H:i:s',time());
-		if(empty($data['category_id']) || !preg_match("/^[0-9]*$/",intval($data['category_id']))){
-			$array['status'] = 103;
+        $data['category_id']    = I('post.category_id');
+        $data['template_id']    = I('post.template_id');
+        $data['client_id']      = I('post.client_id');
+        $data['title']          = I('post.title');
+        $data['form_no']        = I('post.form_no');
+        $data['enabled']        = 1;
+        $data['status_code']    = "creating";
+        $data['creator_id']     = $creator_id;
+        $product_count          = (int)I('product_num');
+        $data['created_time']   = date('Y-m-d H:i:s',time());
+        $data['modified_time']  = date('Y-m-d H:i:s',time());
+        if(empty($data['category_id']) || !preg_match("/^[0-9]*$/",intval($data['category_id']))){
+            $array['status'] = 103;
             $array['msg']    = '未选择产品类目';
-			$this->response($array);
-		}elseif(empty($data['template_id']) || !preg_match("/^[0-9]*$/",intval($data['template_id']))){
-			$array['status_id'] = 104;
+            $this->response($array);
+        }elseif(empty($data['template_id']) || !preg_match("/^[0-9]*$/",intval($data['template_id']))){
+            $array['status_id'] = 104;
             $array['msg']       = '未选择模板';
-			$this->response($array);
-		}elseif(empty($data['title'])){
-			$array['status'] = 105;
+            $this->response($array);
+        }elseif(empty($data['title'])){
+            $array['status'] = 105;
             $array['msg']    = '标题为必填';
-			$this->response($array);
-		}
-		if(empty($data['client_id'])){
-			$data['client_id'] = 1;
-		}
+            $this->response($array);
+        }
+        if(empty($data['client_id'])){
+            $data['client_id'] = 1;
+        }
         if(empty($data['form_no'])){
             $array['status'] = 102; // 编号不能为空
             $array['msg']    = '编号为必填';
@@ -248,30 +248,30 @@ class ProductInfoFormController extends BaseController
             $s['variant_num'] = I('post.variant_num');
             S($data['form_no'],$s);
         }
-		$res = \Think\Product\ProductInfoForm::AddInfoForm($type_code,$data);
-		if($res){
+        $res = \Think\Product\ProductInfoForm::AddInfoForm($type_code,$data);
+        if($res){
             if($type_code == 'batch'){
                 // 所需要的主题数量
                 $this->get_product_msg($data['id'],$data['product_form_id'],$product_count , $Zt['variant_num'],$creator_id);
             }
 
-			$array['status'] = 100;
-			$array['title'] = $data['title'];
-			$array['id']    = $data['id'];
-		}else{
-			$array['status'] = 101;
+            $array['status'] = 100;
+            $array['title'] = $data['title'];
+            $array['id']    = $data['id'];
+        }else{
+            $array['status'] = 101;
             $array['msg']    = '暂无相关信息';
-		}
-		$this->response($array);
-	}
+        }
+        $this->response($array);
+    }
 
     /*
      * 获取关联资料表的数据
-	 * @param form_id 批量表id
-	 * @param product_form_id 资料表id
-	 * @param product_count   产品总数
-	 * @param vnum         变体数量
-	 * @param creator_id   创建者
+     * @param form_id 批量表id
+     * @param product_form_id 资料表id
+     * @param product_count   产品总数
+     * @param vnum         变体数量
+     * @param creator_id   创建者
      */
     public function get_product_msg($form_id,$product_form_id,$product_count = '', $vnum,$creator_id){
         set_time_limit(0);
@@ -281,6 +281,8 @@ class ProductInfoFormController extends BaseController
         $item        = M('product_item_template');
         $batch_item  = M('product_batch_item_template');
         $item2batch  = M('product_item2batch_item');
+        $form_info   = M('product_batch_form_information');
+        $batch_info  = M('product_batch_information');
 
         //获取资料表与批量表的模板id
         $batch_tel_id = $batch_form->field("template_id,category_id")->where("id=%d",array($form_id))->find();
@@ -300,9 +302,9 @@ class ProductInfoFormController extends BaseController
         $info = \Think\Product\ProductInfo::GetOneFormInfo('info',$product_form_id);
         // 只拿相对应的产品数量
         if(!empty($product_count)){
-        	if($vnum == 0 || empty($vnum)){
-        		$vnum = 1;
-        	}
+            if($vnum == 0 || empty($vnum)){
+                $vnum = 1;
+            }
             $parentnum = ceil($product_count / $vnum);
             $all_product = $product_count;
         }else{
@@ -320,7 +322,7 @@ class ProductInfoFormController extends BaseController
                 $p ++;
             }
         }
-		if(empty($product_count)){
+        if(empty($product_count)){
             $all_product = $all_product - count($zhuti);
         }
         // 产品id数
@@ -337,6 +339,14 @@ class ProductInfoFormController extends BaseController
         $j = 0;
         $u = 0;
         $now = $bie['value'];
+
+        //写入文件的地址与名称
+        $time = "batch".time();
+        $myfile = fopen("./public/data/".$time.".txt", "w") or die("Unable to open file!");
+
+        $valss = null;       
+        $form_info->startTrans();
+
         // 资料表赋值到批量表
         for ($i = 0; $i < $parentnum; $i ++) {
             foreach ($now as $keys => $values) {
@@ -349,22 +359,78 @@ class ProductInfoFormController extends BaseController
                 $data['title']       = $now[$keys]['en_name'];
                 $data['length']      = $now[$keys]['length'];
                 $data['data_type_code'] = $now[$keys]['data_type_code'];
-                if(!empty($bitem[$data['title']])){
-                    switch ($data['data_type_code']) {
-                        case 'int':  $data['interger_value'] = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'upc_code':  $data['interger_value'] = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'char': $data['char_value']     = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'dc':   $data['decimal_value']  = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'dt':   $data['date_value']     = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'bl':   $data['boolean_value']  = $zhuti[$i][$bitem[$data['title']]]; break;
-                        case 'pic':  $data['char_value']     = $zhuti[$i][$bitem[$data['title']]]; break;
-                    }
+                switch ($data['data_type_code']) {
+                    case 'int':
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['interger_value'] = $valss;
+                        }else{
+                            $data['interger_value'] = $zhuti[$i][$bitem[$data['title']]];
+                        }  
+                        $data['char_value']     = $valss;
+                        $data['decimal_value']  = $valss;
+                        $data['date_value']     = $valss; 
+                      break;
+                    case 'upc_code': 
+                        $data['interger_value'] = $valss;
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['char_value'] = $valss;
+                        }else{
+                            $data['char_value']     = $zhuti[$i][$bitem[$data['title']]];
+                        }
+                        $data['decimal_value']  = $valss;
+                        $data['date_value']     = $valss; 
+                      break;
+                    case 'char': 
+                        $data['interger_value'] = $valss;
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['char_value'] = $valss;
+                        }else{
+                            $data['char_value']     = $zhuti[$i][$bitem[$data['title']]];
+                        } 
+                        $data['decimal_value']  = $valss;
+                        $data['date_value']     = $valss; 
+                      break;
+                    case 'dc': 
+                        $data['interger_value'] = $valss;
+                        $data['char_value']     = $valss;
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['decimal_value'] = $valss;
+                        }else{
+                            $data['decimal_value']     = $zhuti[$i][$bitem[$data['title']]];
+                        }  
+                        $data['date_value']     = $valss;
+                      break;
+                    case 'dt':
+                        $data['interger_value'] = $valss;
+                        $data['char_value']     = $valss;
+                        $data['decimal_value']  = $valss;
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['date_value'] = $valss;
+                        }else{
+                            $data['date_value']     = $zhuti[$i][$bitem[$data['title']]];
+                        }   
+                      break;
+                    case 'bl':   
+                        $data['boolean_value']  = $zhuti[$i][$bitem[$data['title']]];
+                      break;
+                    case 'pic':  
+                        $data['interger_value'] = $valss;
+                        if(empty($zhuti[$i][$bitem[$data['title']]])){
+                            $data['char_value'] = $valss;
+                        }else{
+                            $data['char_value'] = $zhuti[$i][$bitem[$data['title']]];
+                        } 
+                        $data['decimal_value']  = $valss;
+                        $data['date_value']     = $valss; 
+                      break;
                 }
                 $data['enabled']    = 1;
                 $data['creator_id'] = $creator_id;
                 $data['created_time']  = date('Y-m_d H:i:s',time());
                 $data['modified_time'] = date('Y-m_d H:i:s',time());
-                $datas[] = $data;
+                $txt = implode("|,|", $data)."\n";
+                fwrite($myfile, $txt);
+                $txt = null;
                 $data    = array();
                 $z ++;
             }
@@ -383,102 +449,161 @@ class ProductInfoFormController extends BaseController
                         $data['title']       = $now[$kes]['en_name'];
                         $data['length']      = $now[$kes]['length'];
                         $data['data_type_code'] = $now[$kes]['data_type_code'];
-                        if(!empty($bitem[$data['title']])){
-                            switch ($data['data_type_code']) {
-                                case 'int':
-                                case 'upc_code':$data['interger_value'] = $info[$ks][$bitem[$data['title']]];break;
-                                case 'char':    $data['char_value']     = $info[$ks][$bitem[$data['title']]];break;
-                                case 'dc':      $data['decimal_value']  = $info[$ks][$bitem[$data['title']]];break;
-                                case 'dt':      $data['date_value']     = $info[$ks][$bitem[$data['title']]];break;
-                                case 'bl':      $data['boolean_value']  = $info[$ks][$bitem[$data['title']]];break;
-                                case 'pic':     $data['char_value']     = $info[$ks][$bitem[$data['title']]];break;
-                            }
+                        switch ($data['data_type_code']) {
+                            case 'int':
+                                if(empty($info[$ks][$bitem[$data['title']]])){
+                                    $data['interger_value'] = $valss;
+                                }else{
+                                    $data['interger_value'] = $info[$ks][$bitem[$data['title']]]; 
+                                }     
+                                $data['char_value']     = $valss;
+                                $data['decimal_value']  = $valss;
+                                $data['date_value']     = $valss;
+                              break;
+                            case 'upc_code':
+                            case 'char':
+                                $data['interger_value'] = $valss;
+                                if(empty($info[$ks][$bitem[$data['title']]])){
+                                    $data['char_value'] = $valss;
+                                }else{
+                                    $data['char_value']     = $info[$ks][$bitem[$data['title']]];
+                                }
+                                $data['decimal_value']  = $valss;
+                                $data['date_value']     = $valss;
+                              break;
+                            case 'dc': 
+                                $data['interger_value'] = $valss;
+                                $data['char_value']     = $valss;
+                                if(empty($info[$ks][$bitem[$data['title']]])){
+                                    $data['decimal_value'] = $valss;
+                                }else{
+                                    $data['decimal_value']  = $info[$ks][$bitem[$data['title']]];
+                                }     
+                                $data['date_value']     = $valss;
+                              break;
+                            case 'dt': 
+                                $data['interger_value'] = $valss;
+                                $data['char_value']     = $valss; 
+                                $data['decimal_value']  = $valss;
+                                if(empty($info[$ks][$bitem[$data['title']]])){
+                                    $data['date_value'] = $valss;
+                                }else{ 
+                                    $data['date_value']     = $info[$ks][$bitem[$data['title']]];
+                                }    
+                              break;
+                            case 'bl':      
+                                $data['boolean_value']  = $info[$ks][$bitem[$data['title']]];
+                              break;
+                            case 'pic':
+                                $data['interger_value'] = $valss;
+                                if(empty($info[$ks][$bitem[$data['title']]])){
+                                    $data['char_value'] = $valss;
+                                }else{
+                                    $data['char_value']     = $info[$ks][$bitem[$data['title']]];
+                                }       
+                                $data['decimal_value']  = $valss;
+                                $data['date_value']     = $valss;
+                              break;
                         }
                         $data['enabled']       = 1;
                         $data['creator_id']    = $creator_id;
                         $data['created_time']  = date('Y-m_d H:i:s',time());
                         $data['modified_time'] = date('Y-m_d H:i:s',time());
-                        $datas[] = $data;
+                        $txt = implode("|,|", $data)."\n";
+                        fwrite($myfile, $txt);
                         $data    = array();
+                        $txt = null;
                         $u++;
                     }
                     $pid[] = $btproduct_id[$j];
                     $j++;
                     if($j > $all_product-1){
-                        break 2;
-                    }
+                      break 2;
+                      }
                 }
 
             }
         }
-        \Think\Product\ProductInfo::AddProductInfo('batch',$datas,$form_id,$pid);
+        M()->execute("LOAD DATA  INFILE '".C('SAVE_PATH')."/public/data/".$time.".txt' INTO TABLE tbl_product_batch_information  FIELDS TERMINATED BY '|,|' OPTIONALLY ENCLOSED BY '' LINES TERMINATED BY '\n'(`id`,`product_id`,`category_id`,`template_id`,`parent_id`,`no`,`title`,`length`,`data_type_code`,`interger_value`,`char_value`,`decimal_value`,`date_value`,`enabled`,`creator_id`,`created_time`,`modified_time`)");
+        $datas['form_id'] = $form_id;
+        foreach ($pid as  $value) {
+            $datas['product_id'] = $value;
+            $datas['created_time'] = date('Y-m-d H:i:s',time());
+            $form_info->data($datas)->add();
+            $dass['interger_value'] = $valss;
+            $batch_info->data($dass)->where("interger_value = %d and product_id = %d",array(0,$value))->save();
+            $das['decimal_value'] = $valss;
+            $batch_info->data($das)->where("decimal_value = %d and product_id = %d",array(0.00,$value))->save();
+        }
+        $form_info->commit();
+        unlink(C('SAVE_PATH')."/public/data/".$time.".txt");
     }
 
 
-	/*
-	 * 修改表格名称
-	 * @param type_code   info / batch
-	 */
-	public function updaInfoForm(){
+    /*
+     * 修改表格名称
+     * @param type_code   info / batch
+     */
+    public function updaInfoForm(){
 
-		$type_code = I('post.type_code');
+        $type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
         // 拉参数
-		$type_code             = I('post.type_code');
-		$id                    = (int)I('post.id');
-		$data['category_id']   = (int)I('post.category_id');
-		$data['template_id']   = (int)I('post.template_id');
-		$data['title']         = I('post.title');
-		$data['modified_time'] = date('Y-m-d H:i:s',time());
-		$data['site_name']     = I('post.site_name');
+        $type_code             = I('post.type_code');
+        $id                    = (int)I('post.id');
+        $data['category_id']   = (int)I('post.category_id');
+        $data['template_id']   = (int)I('post.template_id');
+        $data['title']         = I('post.title');
+        $data['modified_time'] = date('Y-m-d H:i:s',time());
+        $data['site_name']     = I('post.site_name');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		if($id == 0) $this->response(['status'=> 102, 'msg' => '未选择表格']);
-		if($data['category_id'] == 0) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
-		if($data['template_id'] == 0) $this->response(['status'=> 104, 'msg' => '未选择模板']);
+        if($id == 0) $this->response(['status'=> 102, 'msg' => '未选择表格']);
+        if($data['category_id'] == 0) $this->response(['status'=> 103, 'msg' => '未选择产品类目']);
+        if($data['template_id'] == 0) $this->response(['status'=> 104, 'msg' => '未选择模板']);
 
         $m = M('product_form');
-		if($type_code == 'batch'){
+        if($type_code == 'batch'){
             $m = M('product_batch_form');
-			if(empty($data['site_name'])) $this->response(['status'=> 102, 'msg' => '请选择站点']);
-		}
+            if(empty($data['site_name'])) $this->response(['status'=> 102, 'msg' => '请选择站点']);
+        }
 
         $moveCkeck = $this->model->CheckMoveFormAuth($this->loginid ,$id ,$m);
         if(!$moveCkeck){
             $this->response(['status'=> 105, 'msg' => '抱歉，您不能操作当前表格']);
         }
 
-		if(empty($data['title'])){//判断表单名称是否为空
-			$array['status'] = 105;
+        if(empty($data['title'])){//判断表单名称是否为空
+            $array['status'] = 105;
             $array['msg']    = '表格为必填';
-			$this->response($array);
-		}
-		$res = \Think\Product\ProductInfoForm::UpdateInfoForm($type_code,$id,$data);
-		if($res == 2){
-			$array['status'] = 108;
+            $this->response($array);
+        }
+        $res = \Think\Product\ProductInfoForm::UpdateInfoForm($type_code,$id,$data);
+        if($res == 2){
+            $array['status'] = 108;
             $array['msg']    = '该状态下不能操作';
-		}elseif($res == 1){
-			$array['status'] = 100;
-		}else{
-			$array['status'] = 101;
+        }elseif($res == 1){
+            $array['status'] = 100;
+        }else{
+            $array['status'] = 101;
             $array['msg']    = '更新失败';
-		}			
-		$this->response($array);
-	}
+        }           
+        $this->response($array);
+    }
 
-	/*
-	 * 删除表格
-	 * @param id 表id
-	 * @param creator_id   创建者
-	 */
-	public function delInfoForm(){
-		$id        = I("post.id");
-		$type_code = I('post.type_code');
+    /*
+     * 删除表格
+     * @param id 表id
+     * @param creator_id   创建者
+     */
+    public function delInfoForm(){
+        $id        = I("post.id");
+        $type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		if(empty($id)){
-			$data['status'] = 102;
+        if(empty($id)){
+            $data['status'] = 102;
             $data['msg']    = '未选择表格';
-		}else{
+        }else{
             if($type_code == 'info'){
                 $m = M('product_form');
             }else{
@@ -490,83 +615,83 @@ class ProductInfoFormController extends BaseController
                 $this->response(['status'=> 105, 'msg' => '抱歉，您不能操作当前表格']);
             }
 
-			$res = \Think\Product\ProductInfoForm::DelInfoForm($type_code,$id);
-			if($res == 1){
-				$data['status'] = 100;
-			}elseif($res == 2){
-				$data['status'] = 108;
+            $res = \Think\Product\ProductInfoForm::DelInfoForm($type_code,$id);
+            if($res == 1){
+                $data['status'] = 100;
+            }elseif($res == 2){
+                $data['status'] = 108;
                 $data['msg']    = '该状态下不能操作';
-			}elseif($res == 3){
-				$data['status'] = 108;
+            }elseif($res == 3){
+                $data['status'] = 108;
                 $data['msg']    = '该表格下有关联数据';
-			}else{
-				$data['status'] = 101;
+            }else{
+                $data['status'] = 101;
                 $data['msg']    = '删除失败';
-			}			
-		}
-		$this->response($data);
-	}
+            }           
+        }
+        $this->response($data);
+    }
 
-	/*
-	 * 停用表格
-	 * @param id 表id
-	 * @param creator_id   创建者
-	 */
-	public function stopInfoForm(){
-		$id        = I('post.id');
-		$type_code = I('post.type_code');
+    /*
+     * 停用表格
+     * @param id 表id
+     * @param creator_id   创建者
+     */
+    public function stopInfoForm(){
+        $id        = I('post.id');
+        $type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
-		$res = \Think\Product\ProductInfoForm::StopInfoForm($type_code,$id);
-		if(empty($id)){
-			$data['status'] = 102;
+        $res = \Think\Product\ProductInfoForm::StopInfoForm($type_code,$id);
+        if(empty($id)){
+            $data['status'] = 102;
             $data['msg']    = '未选择表格';
-		}else{
-			if($res == 1){
-				$data['status'] = 100;
-			}elseif($res == 2){
-				$data['status'] = 109;
+        }else{
+            if($res == 1){
+                $data['status'] = 100;
+            }elseif($res == 2){
+                $data['status'] = 109;
                 $data['msg']    = '该状态下不能操作';
-			}else{
-				$data['status'] = 101;
+            }else{
+                $data['status'] = 101;
                 $data['msg']    = '操作失败';
-			}
-		}
-		$this->response($data);
-	}
+            }
+        }
+        $this->response($data);
+    }
 
-	/*
-	 * 启用表格
-	 * @param id 表id
-	 * @param creator_id   创建者
-	 */
-	public function useInfoForm(){
-		$id        = I('post.id');
-		$type_code = I('post.type_code');
+    /*
+     * 启用表格
+     * @param id 表id
+     * @param creator_id   创建者
+     */
+    public function useInfoForm(){
+        $id        = I('post.id');
+        $type_code = I('post.type_code');
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
-		if(empty($id)){
-			$data['status'] = 102;
+        if(empty($id)){
+            $data['status'] = 102;
             $data['msg']    = '未选择表格';
-		}else{
-			$res = \Think\Product\ProductInfoForm::UseInfoForm($type_code,$id);
-			if($res == 2){
-				$data['status'] = 109;
+        }else{
+            $res = \Think\Product\ProductInfoForm::UseInfoForm($type_code,$id);
+            if($res == 2){
+                $data['status'] = 109;
                 $data['msg']    = '该状态下不能操作';
-			}elseif($res == 1){
-				$data['status'] = 100;
-			}else{
-				$data['status'] = 101;
+            }elseif($res == 1){
+                $data['status'] = 100;
+            }else{
+                $data['status'] = 101;
                 $data['msg']    = '启用失败';
-			}
-		}
-		$this->response($data);
-	}
+            }
+        }
+        $this->response($data);
+    }
 
 
     /*
      * 搜索资料表批量表
-	 * @param status_code 状态码
-	 * @param type_code   info / batch
+     * @param status_code 状态码
+     * @param type_code   info / batch
      * @param keyword     搜索关键词
      * */
     public function search_form()
