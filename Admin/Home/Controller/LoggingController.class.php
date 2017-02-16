@@ -73,7 +73,7 @@ class LoggingController extends BaseController
 					}
 				}
 				foreach ($array as $k => $val) {
-        			$array[$key]['url'] = 'http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)).$val['url'];
+        			$array[$k]['url'] = 'http://'.$_SERVER["HTTP_HOST"].'/'.strstr(C('LOG_PATH'),substr(__ROOT__,1)).$val['url'];
         		}
 				$arr['status']=100;
        			$arr['value']=$array;
