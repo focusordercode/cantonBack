@@ -96,6 +96,7 @@ class ProductInfo{
         }
         $info->startTrans();
         $data['enabled']=0;
+        $data['modified_time'] = date('Y-m-d H:i:s',time());
     	$sql  = $info->data($data)->where("product_id=%d",array($id))->save();
         $test = $info->field("product_id")->where("parent_id=%d",array($id))->find();
         if($test){
@@ -323,6 +324,7 @@ class ProductInfo{
         switch($res['status_code']){
             case 'editing':
                 $data['status_code'] = 'creating';
+                $data['modified_time'] = date('Y-m-d H:i:s',time());
                 $b = $m->where(array('id' => $form_id))->save($data);
                 if($b){
                     $result = ['error' => 0 , 'status' => 100];
@@ -483,6 +485,7 @@ class ProductInfo{
               break;
             case 'editing':
                 $data['status_code'] = 'selecting';
+                $data['modified_time'] = date('Y-m-d H:i:s',time());
                 $query = $form->data($data)->where("id=%d",array($form_id))->save();
                 if($query !== 'flase'){
                     $arr['status'] = 100;
@@ -493,6 +496,7 @@ class ProductInfo{
               break;
             case 'selecting':
                 $data['status_code'] = 'creating';
+                $data['modified_time'] = date('Y-m-d H:i:s',time());
                 $query1 = $form->data($data)->where("id=%d",array($form_id))->save();
                 $query = $form2product->field("product_id")->where("form_id=%d",array($form_id))->select();
                 $info->startTrans();

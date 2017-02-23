@@ -70,6 +70,7 @@ class ProductCenter {
             case 'C': $order = 'p.category_id '.$sort;   break;
             case 'D': $order = 'p.modified_time '.$sort; break;
             case 'E': $order = 'p.enabled '.$sort;       break;
+            case 'F': $order = 'p.created_time '.$sort;  break;
             default: $order = 'p.id '.$sort;
         }
 
@@ -111,7 +112,7 @@ class ProductCenter {
 	//删除产品中心产品信息
 	public function DelProductCenter($id){
 		$product = M('good_info');
-		$center2product = M('tbl_content_item_value2product');
+		$center2product = M('content_item_value2product');
 		$sql = $product->where("id=%d",array($id))->delete();
 		$query = $center2product->where("good_id=%d",array($id))->delete();
 		if($sql!=='flase'){

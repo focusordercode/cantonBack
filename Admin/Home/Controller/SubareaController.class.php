@@ -499,7 +499,7 @@ class SubareaController extends BaseController
 	public function getTableCount(){
 		$db = M();
 		$db->startTrans();
-		$data = $db->query("select table_name,table_rows as count from INFORMATION_SCHEMA.tables where table_schema = 'canton' and TABLE_TYPE = 'BASE TABLE' order by table_rows desc");
+		$data = $db->query("select table_name,table_rows as count from INFORMATION_SCHEMA.tables where table_schema = '".C('DB_NAME')."' and TABLE_TYPE = 'BASE TABLE' order by table_rows desc");
 		foreach ($data as $key => $value) {
 			$where['tbl_name'] = $value['table_name'];
 			$query = $db->table('tbl_table_to_subarea')->field("num,subnum")->where($where)->find();

@@ -5,8 +5,8 @@
  * Time: 下午 5:09
  */
 return [
-    'DOWNLOAD_URL'         =>    'http://localhost/Canton',
-    'ENTRANCE'			   =>    'f:\phpStudy\www\Canton\index.php',
-    'MY_HTTP_PATH'         =>    'http://localhost/Canton',
-    'SAVE_PATH'            =>    'f:/phpStudy/www/Canton',
+    'DOWNLOAD_URL'         =>    'http://192.168.1.42/canton',
+    'ENTRANCE'			   =>    'e:\www\canton\index.php',
+    'MY_HTTP_PATH'         =>    'http://192.168.1.42/canton',
+    'SAVE_PATH'            =>    'e:/www/canton',
 ];

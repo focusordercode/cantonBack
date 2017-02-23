@@ -164,29 +164,13 @@ class ProductInfoForm{
 	 */
 	static function VagueTitle($type_code,$title){
 		if($type_code=='info'){
-			$tem=M("product_template");
-			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id FROM tbl_product_form WHERE title LIKE '%".$title."%'");
-		    foreach ($sql as $key => $value) {
-				$name=M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find();
-				$cn_name=$tem->field("cn_name")->where("id=%d",array($value['template_id']))->find();
-				$sql[$key]['name']=$name['cn_name'];
-				$sql[$key]['tempname']=$cn_name['cn_name'];
-				$sql[$key]['type_code']=$type_code;
-                $client = M('customer')->where(array('id' => $value['client_id']))->field('custom_name')->find();
-                $sql[$key]['client_name'] = $client['custom_name'];
-			}
+			$infoview = D('InfoFrom');
+			$where['_string']='(title like "%'.$title.'%")  OR (client_name like "%'.$title.'%")';
+			$sql = $infoview->where($where)->select();
 		}elseif ($type_code=='batch') {
-			$tem=M("product_batch_template");
-			$sql=M()->query("SELECT id,category_id,template_id,client_id,title,status_code,creator_id,site_name FROM tbl_product_batch_form WHERE title LIKE '%".$title."%'");
-			foreach ($sql as $key => $value) {
-				$name=M("product_category")->field("cn_name")->where("id=%d",array($value['category_id']))->find();
-				$cn_name=$tem->field("cn_name")->where("id=%d",array($value['template_id']))->find();
-				$sql[$key]['name']      = $name['cn_name'];
-				$sql[$key]['tempname']  = $cn_name['cn_name'];
-				$sql[$key]['type_code'] = $type_code;
-                $client = M('customer')->where(array('id' => $value['client_id']))->field('custom_name')->find();
-                $sql[$key]['client_name'] = $client['custom_name'];
-			}
+			$batchview = D('BatchFrom');
+			$where['_string']='(title like "%'.$title.'%")  OR (client_name like "%'.$title.'%")';
+			$sql = $batchview->where($where)->select();
 		}
 		return($sql);
 	}
@@ -326,6 +310,7 @@ class ProductInfoForm{
  			$where['data2_id'] = $id;
  			$del = $data_constraint->where($where)->delete();
  			$dt['enabled']=0;
+ 			$dt['modified_time'] = date('Y-m-d H:i:s',time());
  			$query=$form->data($dt)->where("id=%d",array($id))->save();
  			if($type_code == 'info'){
  				$del = $product4pic->where("form_id=%d",array($id))->delete();
@@ -368,6 +353,7 @@ class ProductInfoForm{
 			return 2;
 		}else{
 			$data['status_code']='finished';
+			$data['modified_time'] = date('Y-m-d H:i:s',time());
 			$sql=$form->data($data)->where("id=%d",array($id))->save();
 			if($query!=='false'){
 				$form->commit(); 
@@ -394,6 +380,7 @@ class ProductInfoForm{
 			return 2;
 		}else{
 			$data['status_code']='enabled';
+			$data['modified_time'] = date('Y-m-d H:i:s',time());
 			$sql=$form->data($data)->where("id=%d",array($id))->save();
 			if($query!=='false'){
 				$form->commit();

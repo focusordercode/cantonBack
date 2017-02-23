@@ -244,5 +244,6 @@ return [
 
         'test/pthread'           => 'Test/TestPthreads',//测试
         'test/commit'            => 'Test/dataCommit',
+        'get/frominfo'           => 'ProductInfoForm/getfrom',
     ],
 ];

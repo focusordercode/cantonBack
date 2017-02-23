@@ -165,6 +165,7 @@ return [
                 'ProductInfoForm/getOneForm',
                 'ProductInfoForm/getTemInfoForm',
                 'ProductInfoForm/vagueTitle',
+                'ProductInfoForm/getfrom',
             ],
             'edit/form'  => [
                 'ProductInfoForm/useInfoForm',

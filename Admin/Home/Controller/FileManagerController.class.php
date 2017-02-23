@@ -51,11 +51,23 @@ class FileManagerController extends BaseController
 	 */
 	Public function GetFlie()
     {
-		$url     = I('post.url');
+    	set_time_limit(0);
+    	$type = I('post.type');
+    	$url     = I('post.url');
+    	if(empty($url)){
+    		switch ($type) {
+				case 'log':      $url = './Public/data/';     break;
+				case 'product':  $url = './Public/Product/';  break;
+				case 'batch':    $url = './Public/Template/'; break;
+				case 'upc':      $url = './Public/upc/';      break;
+				case 'pictures': $url = './Pictures/';        break;
+			}
+    	}
 		$number  = I('post.number');
 		$num     = I('post.num');
 		$num     = (empty($num)) ? 15 : $num ;
 		$numbers = (empty($number)) ? 0 : ($number-1)*$num ;
+		$res = array();
 		$res = $this->readfile($url);
 		if($res)
         {
@@ -80,12 +92,12 @@ class FileManagerController extends BaseController
         {
    		    if($file != "." && $file != "..")
             {
-   		        $fullpath = $url . $file;
+   		        $fullpath = $url .'/'. $file;
    		        if(!is_dir($fullpath))
                 {
    		        	$arr[$i]['type'] = 'file';
    		        	$arr[$i]['name'] = $file;
-   		            $arr[$i]['url']  = $url.$file;
+   		            $arr[$i]['url']  = $fullpath;
    		            $i++;
    		        } else {
    		        	$arr[$i]['type'] = 'catalog';
@@ -96,6 +108,10 @@ class FileManagerController extends BaseController
    		    }
    		}
    		closedir($dh);
+   		foreach ($arr as $key => $value) {
+   			$arr[$key]['name'] = iconv("gbk","utf-8",$value['name']);
+   			$arr[$key]['url'] = iconv("gbk","utf-8",$value['url']);
+   		}
    		return($arr);
 	}
 

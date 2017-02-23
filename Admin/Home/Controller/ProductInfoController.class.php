@@ -126,6 +126,7 @@ class ProductInfoController extends BaseController{
         $m->commit();
         // 修改状态码进入下一步流程
         $status_code['status_code'] = 'uploading';
+        $status_code['modified_time'] = date('Y-m-d H:i:s',time());
         M('product_batch_form')->where(array('id'=>$form_id))->save($status_code);
 
         $this->response(['status' => 100],'json');
@@ -292,7 +293,7 @@ class ProductInfoController extends BaseController{
         S($form_no.'_data' ,$data);
         // 修改状态码
         $id  = (int)substr($form_no, 8);
-        M('product_form')->data(['status_code' => "selecting"])->where("id=%d",$id)->save();
+        M('product_form')->data(['status_code' => "selecting",'modified_time' => date('Y-m-d H:i:s',time())])->where("id=%d",$id)->save();
 
         $pic = M('product_for_picture');
         $data_constraint = M('data_constraint');

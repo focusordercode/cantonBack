@@ -772,7 +772,7 @@ class ProductInfoFormController extends BaseController
             if(!$moveCkeck){
                 $no ++; continue;
             }
-            $move = $m->where('id = '.$val)->save(['creator_id' => $uid]);
+            $move = $m->where('id = '.$val)->save(['creator_id' => $uid,'modified_time' => date('Y-m-d H:i:s',time())]);
             if(!$move) {
                 $error ++; continue;
             }
@@ -786,5 +786,111 @@ class ProductInfoFormController extends BaseController
                 'cannot'  => $no
             ]
         );
+    }
+
+    /*
+     * 新的获取表格方法，集合搜索
+     * @param category_id 类目id
+     * @param status_code 表格状态
+     * @param type_code  表格形式（资料表还是批量表）
+     * @param pageSize  页面展示数据数量
+     * @param next    页面数
+     * @param title   搜索关键词
+     * @param orderKey 排序字段
+     * @param start_time 搜索数据的起始时间
+     * @param end_time   搜索数据的结束时间
+     * @param sort    排序方式
+     */
+    public function getfrom(){
+        $category_id = (int)I('post.category_id');
+        $template_id = I('post.template_id');
+        $status_code = I('post.status_code');
+        $type_code   = I('post.type_code');
+        $pageSize    = isset($_POST['num']) ? (int)I('post.num') : 25; // 页面大小
+        $next        = isset($_POST['next']) ? (int)I('post.next') : 1; // 下一页
+        $title       = I("post.title");
+        $orderBy      = I('post.orderKey');       // 排序字段
+        $start_time  = I('post.start_time');
+        $end_time    = I('post.end_time');
+        $sort        = isset($_POST['sort']) ? $_POST['sort'] : 'desc'; // 排序方式  倒序/顺序
+        $sortS       = strtolower($sort);
+        if($sortS != 'desc' && $sortS != 'asc') $this->response(['status'=> 102, 'msg' => '排序方式有误']);
+    
+        if(!preg_match("/^[0-9]+$/",$pageSize) || !preg_match("/^[0-9]+$/",$next)){
+            $data['status'] = 102;
+            $data['msg']    = '分页数据错误';
+            $this->response($data);
+        }
+        if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
+        if(!empty($status_code) && !preg_match("/^[a-z0-9]+$/" , $status_code)){
+            $data['status'] = 102;
+            $data['msg']    = '表格状态错误';
+            $this->response($data);
+        }
+        
+        if($type_code == 'info'){
+            $view = D('InfoFromView');
+            $table = 'product_form';
+        }else{
+            $view = D('BatchFromView');
+            $table = 'product_batch_form';
+        } 
+
+        $where['enabled'] = 1;
+        if(!empty($category_id)){
+            $where['category_id'] = $category_id;
+        }
+        if(!empty($status_code)){
+            $where['status_code'] = $status_code;
+        }
+        if(!preg_match("/^[0-9]+$/",$template_id)){
+            $this->response(['status'=> 119, 'msg' => '模板id错误']);
+        }
+        if(!empty($template_id)){
+            $where['template_id'] = $template_id;
+        }
+        if(!empty($title)){
+            $title = __sqlSafe__($title);
+            $where['_string']='((title like "%'.$title.'%")  OR (custom_name like "%'.$title.'%"))';
+        }
+        if(!empty($start_time) && !empty($end_time)){
+            $sd = date("Y-m-d H:i:s" ,strtotime($start_time));
+            $ed = date("Y-m-d H:i:s" ,strtotime($end_time));
+            if($sd > $ed){
+                $this->response(['status' => 102,'msg' => '开始日期不能大于结束日期'],'json');
+            }
+            if($sd == $ed){
+                $sd = date("Y-m-d H:i:s" ,strtotime($startdate));
+                $ed = date("Y-m-d H:i:s" ,strtotime($enddate." +24 hours"));
+            }
+            $where['_string'] = $table.".created_time BETWEEN '$sd' AND '$ed'";
+        }
+
+        switch ($orderBy){
+            case 'A': $order = 'creator_id '.$sort;    break;
+            case 'B': $order = 'category_id '.$sort;   break;
+            case 'C': $order = 'template_id '.$sort;   break;
+            case 'D': $order = 'client_id '.$sort;     break;
+            case 'E': $order = 'created_time '.$sort;  break;
+            case 'F': $order = 'modified_time '.$sort; break;
+            case 'G': $order = 'status_code '.$sort;   break;
+            default: $order = 'id '.$sort;
+        }
+    
+          
+        $start  = ( $next - 1 ) * $pageSize;
+        $count = $view->where($where)->count();
+        $sql = $view->where($where)->limit($start,$pageSize)->order($order)->select();
+        if($sql){
+            $res['status']    = 100;
+            $res['count']     = $count;
+            $res['pageNow']   = $next;
+            $res['countPage'] = ceil($count / $pageSize);
+            $res['value']     = $sql;
+        }else{
+            $res['status'] = 101;
+            $res['msg']    = '没有您所搜索的该类型数据。';
+        }
+        $this->response($res);
     }
 }
