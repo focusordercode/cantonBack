@@ -240,7 +240,7 @@ class Product_Template{
 	}
 
     // 模板模糊搜索
-	static function VagueTemName($type,$data,$status_code,$pageSize = 8,$next = 1){
+	static function VagueTemName($type,$data,$status_code,$is_paging,$pageSize = 8,$next = 1){
         $where = "enabled = 1";
         if(!empty($status_code)){  // 流程状态码
             $where .= " and status_code='$status_code'";
@@ -258,7 +258,12 @@ class Product_Template{
             $m = M('product_batch_template');
             $for = M('product_batch_form');
 		}
-        $sql = $m->where($where)->order('id desc')->limit($start,$pageSize)->select();
+		if($is_paging == 'yes'){
+			$sql = $m->where($where)->order('id desc')->select();
+		}else{
+			$sql = $m->where($where)->order('id desc')->limit($start,$pageSize)->select();
+		}
+        
 //        echo $m->_sql();
         $count = $m->where($where)->count();
         if($sql){

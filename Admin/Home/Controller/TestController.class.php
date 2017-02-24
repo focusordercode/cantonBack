@@ -425,6 +425,10 @@ class TestController extends RestController{
         //提交就修改表格状态
         if($type == 'submit'){
             $status_code['status_code'] = 'editing';
+            $status_code['modified_time'] = date('Y-m-d H:i:s',time());
+            $types->where('id=%d',array($form_id))->data($status_code)->save();
+        }else{
+            $status_code['modified_time'] = date('Y-m-d H:i:s',time());
             $types->where('id=%d',array($form_id))->data($status_code)->save();
         }
         $product_data = array_unique($product_data);

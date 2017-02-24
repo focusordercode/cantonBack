@@ -216,10 +216,8 @@ class LoggingController extends BaseController
             if($sd > $ed){
                 $this->response(['status' => 101,'msg' => '开始日期不能大于结束日期'],'json');
             }
-            if($sd == $ed){
-            	$sd = date("Y-m-d H:i:s" ,strtotime($startdate));
-            	$ed = date("Y-m-d H:i:s" ,strtotime($enddate." +24 hours"));
-            }
+            $sd = date("Y-m-d H:i:s" ,strtotime($startdate));
+            $ed = date("Y-m-d H:i:s" ,strtotime($enddate." +24 hours"));
             $where .= " AND request_time BETWEEN '$sd' AND '$ed'";
         }
         $start = ( $page - 1 ) * $pagesize;

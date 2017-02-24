@@ -827,6 +827,11 @@ class ProductInfoFormController extends BaseController
             $data['msg']    = '表格状态错误';
             $this->response($data);
         }
+        if(empty($status_code) && empty($category_id) && empty($template_id) && empty($start_time) && empty($end_time) && empty($title)){
+            $data['status'] = 102;
+            $data['msg'] = "请选择搜索条件";
+            $this->response($data);
+         }
         
         if($type_code == 'info'){
             $view = D('InfoFromView');
@@ -838,16 +843,25 @@ class ProductInfoFormController extends BaseController
 
         $where['enabled'] = 1;
         if(!empty($category_id)){
-            $where['category_id'] = $category_id;
+            if(preg_match("/^[a-z0-9]+$/",$category_id)){
+                $where['category_id'] = $category_id;
+            }else{
+                $data['status'] = 102;
+                $data['msg'] = "类目id错误";
+                $this->response($data);
+            }
+                
         }
         if(!empty($status_code)){
             $where['status_code'] = $status_code;
         }
-        if(!preg_match("/^[0-9]+$/",$template_id)){
-            $this->response(['status'=> 119, 'msg' => '模板id错误']);
-        }
         if(!empty($template_id)){
-            $where['template_id'] = $template_id;
+            if(!preg_match("/^[0-9]+$/",$template_id)){
+                $this->response(['status'=> 102, 'msg' => '模板id错误']);
+            }else{
+                $where['template_id'] = $template_id;
+            }
+            
         }
         if(!empty($title)){
             $title = __sqlSafe__($title);
@@ -859,15 +873,12 @@ class ProductInfoFormController extends BaseController
             if($sd > $ed){
                 $this->response(['status' => 102,'msg' => '开始日期不能大于结束日期'],'json');
             }
-            if($sd == $ed){
-                $sd = date("Y-m-d H:i:s" ,strtotime($startdate));
-                $ed = date("Y-m-d H:i:s" ,strtotime($enddate." +24 hours"));
-            }
+            $sd = date("Y-m-d H:i:s" ,strtotime($start_time));
+            $ed = date("Y-m-d H:i:s" ,strtotime($end_time." +24 hours"));
             $where['_string'] = $table.".created_time BETWEEN '$sd' AND '$ed'";
         }
 
         switch ($orderBy){
-            case 'A': $order = 'creator_id '.$sort;    break;
             case 'B': $order = 'category_id '.$sort;   break;
             case 'C': $order = 'template_id '.$sort;   break;
             case 'D': $order = 'client_id '.$sort;     break;

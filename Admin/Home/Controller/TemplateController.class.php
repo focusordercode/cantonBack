@@ -262,12 +262,14 @@ class TemplateController extends BaseController
 	public function vagueName(){
 		$type_code = I("type_code");
 		$pageSize  = isset($_POST['num']) ? (int)I('post.num') : 8; // 页面大小
+        $next  = isset($_POST['next']) ? (int)I('post.next') : 1;
         if($type_code != 'info' && $type_code != 'batch') $this->response(['status'=> 119, 'msg' => '系统错误']);
 
 		$text = __sqlSafe__(I('post.name'));
         $status_code = __sqlSafe__(I("post.status_code"));
+        $is_paging = I('post.is_paging');
 
-        $arr = \Think\Product\Product_Template::VagueTemName($type_code,$text,$status_code,$pageSize);
+        $arr = \Think\Product\Product_Template::VagueTemName($type_code,$text,$status_code,$is_paging,$pageSize,$next);
         if($arr['error'] == 0){
             $data['status']    = 100;
             $data['value']     = $arr['value'];
