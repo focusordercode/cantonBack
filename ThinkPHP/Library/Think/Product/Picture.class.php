@@ -44,6 +44,12 @@ class Picture {
         $result = $m->where($where)->order('modified_time desc')->limit($start_id,$pagesize)->select();
 
         foreach ($result as $key => $value) {
+            $sql = $user->field("username")->where("id=%d",array($value['creator_id']))->find();
+            if(empty($sql['username'])){
+                $result[$key]['username'] = "未知";
+            }else{
+                $result[$key]['username'] = $sql['username'];
+            }
             foreach ($value as $k => $v) {
                 if($k == "tags"){
                     $result[$key][$k] = array_filter(explode("||",$v)); // 默认标签分隔符“||”分割子数组返回
