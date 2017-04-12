@@ -12,3 +12,4 @@ Javax/*
 *.log 
 *.sql 
 *.sqlite 
+/nbproject/private/
