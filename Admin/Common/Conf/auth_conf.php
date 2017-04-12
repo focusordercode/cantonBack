@@ -384,6 +384,39 @@ return [
                 'Roles/allotRule2Role',
             ],
         ],
+        'Coupon' => [
+            'coupon/couponscreate' => [
+                'Coupon/couponscreate',
+            ],
+            'coupon/releasecoupon' => [
+                'Coupon/releaseCoupon',
+            ],
+            'coupon/couponslist' => [
+                'Coupon/couponsList',
+            ],
+            'coupon/couponsdelete' => [
+                'Coupon/couponsDelete',
+            ],
+           'coupon/couponsvoid' => [
+                'Coupon/couponsVoid',
+            ],
+            'coupon/couponfind' => [
+                'Coupon/couponFind',
+            ],
+           'coupon/couponlist' => [
+                'Coupon/couponList',
+            ],
+            'coupon/couponvoid' => [
+                'Coupon/couponVoid',
+            ],
+           'coupon/couponedit' => [
+                'Coupon/couponEdit',
+            ],
+            'coupon/coupondownload' => [
+                'Coupon/couponDownload',
+            ],
+           
+        ],
         
     ],
 ];
