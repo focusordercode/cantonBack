@@ -15,54 +15,9 @@ class CouponController extends BaseController
     public $t_rule = '/^\d{12,20}$/';
     
     
-//    public function test(){
-//        
-//        
-//        echo '11';
-//        
-//      
-//         // 没登录
-//        $auth = new \Think\Product\PAuth();
-//        $key = I('key');
-//        $uid = I('user_id');
-//        
-//        $key = 'NWRkMlpmUmFTanNrVm5KaFdYNWJPbE1MN1JWZmNReDk2MVc1dWM2RnRML21HNjN1eDZGaUhhdW9tOE9SaGZrYUtiQ1ZLMnRuQS9iZWRwTGNlS3FsWWRZRWp4cWJCZw==';
-//        $uid = 'YzdlNGRIQWVLbUlZUDcwdWU0YjV3MVV0MVRRTmpyMzA5RzRqQ2pxVm9R';
-//        
-//        
-//        $uids = $auth->checkKey($uid, $key);
-//        if(!$uids){
-//            $this->response(['status' => 1012,'msg' => '您还没登陆或登陆信息已过期']);
-//        }
-//        // 读取访问的地址
-//        $url = CONTROLLER_NAME . '/' . ACTION_NAME;
-//        if(!$auth->check($url , $uids)){
-//            echo $url;
-//            echo '权限不足';
-//            
-//            $this->response(['status' => 1011,'msg' => '抱歉，权限不足']);
-//        }
-//        
-//        
-//    }
-    
-    
     //批次优惠码生成
     public function couponsCreate(){
         
-//        $_POST['name'] = '测试用码';
-//        $_POST['type'] = '1';
-//        $_POST['min_amount'] = 0;
-//        $_POST['denomination'] = '100';
-//        $_POST['price'] = 50;
-//        $_POST['issuant_amount'] = 20;
-//        $_POST['restriction_amount'] = 0;
-//        $_POST['validity_begin'] = '2017-04-11';
-//        $_POST['validity_end'] = '2017-04-15';
-//        $_POST['remark'] = '测试优惠券';
-//        $_POST['issuant_status'] = 1;
-  
-      
         if($_POST){
         $num =  $_POST['issuant_amount'];
         $coupon_data = array();
@@ -113,7 +68,7 @@ class CouponController extends BaseController
     
     //发布优惠码
     public function releaseCoupon(){
-       //  $_POST['id'] = 8; 
+     
         if($_POST){
             $id = $_POST['id']; 
             //主表写入
@@ -142,10 +97,6 @@ class CouponController extends BaseController
     //批次优惠码查询列表
     public function couponsList(){    
      //接收条件 生效和准备和所有，搜索内容，模糊搜索优惠券名称，展示的条数，以及当前页码  
-//    $_POST['type'] = 1;     
-//    $_POST['search'] = '测试';     
-//    $_POST['num'] = 3;     
-//    $_POST['page'] = 1;     
     if($_POST){    
     $type = $_POST['type'];    
     $search = $_POST['search'];    
@@ -260,7 +211,6 @@ class CouponController extends BaseController
     //优惠码查询,展示一条优惠码信息
     public function couponFind(){
         
-     //   $_POST['id'] = 2;
         if($_POST){ 
             $id = $_POST['id'];
            //获取父级和次优惠券的信息
@@ -271,10 +221,8 @@ class CouponController extends BaseController
            if($detail_data){
             $detail_data = $this->dealDetailData($detail_data);    
             $main_data = $this->dealCouponData($main_data);
-            $coupon['main'] = $main_data;
-            $coupon['detail'] = $detail_data;
-           
-            $this->response(['status' => 100, 'value' => $coupon],'json');  
+
+            $this->response(['status' => 100, 'detail' => $detail_data,'main'=>$main_data],'json');  
            }else{
               $this->response(['status' => 102, 'msg' => '数据不存在'],'json');      
            }
@@ -387,9 +335,6 @@ class CouponController extends BaseController
     //优惠码列表
     public function couponList(){
         //优惠码列表：接收优惠码批次ID，获取所有优惠码，接收页，接收条数
-//        $_POST['main_id'] = 3;
-//        $_POST['num'] = 5;
-//        $_POST['page'] = 2;
        if($_POST){ 
         //查询发行用户ID获取用户名，查询优惠码表获取发行人
        $id = $_POST['main_id'];
@@ -440,7 +385,7 @@ class CouponController extends BaseController
     //优惠码作废
     public function couponVoid(){
         //获取优惠码ID，对其作废
-        $_POST['id'] = 1;
+      
         $id = $_POST['id'];
         if($_POST){
         $where['id'] = $id;
@@ -474,14 +419,6 @@ class CouponController extends BaseController
     //优惠码编辑接口
     public function couponEdit(){
         
-        //判断情况，当状态等于1等于2…………，不同状态的可编辑内容是不同的，输入优惠券ID
-//        $_POST['id'] = 3;
-//        $_POST['order_no'] = '7418529630159753';
-//        $_POST['granted_date'] = '2017-09-17 22:23:20';
-//        $_POST['holder'] = 'name_chen';
-//        $_POST['holder_telephone'] = '13345214568';
-//        $_POST['holder_email'] = '3524786@qq.com';
-
         $id = $_POST['id'];
         if($_POST){       
           //查询当前的内容
@@ -625,7 +562,9 @@ class CouponController extends BaseController
                  $save_detail['remark'] = $remark;  
                } 
                $save_detail['status'] = $status; 
-               if($status != 4 || $status !=5){
+             
+               if(!in_array($status,array(4,5))){
+                   
                $this->response(['status' => 102, 'msg' => '审核状态不正常'],'json');    
                }
                $res = M('coupon_detail')->where(array('id'=>$id))->save($save_detail);
@@ -639,7 +578,7 @@ class CouponController extends BaseController
             default:
                $this->response(['status' => 105, 'msg' => '此状态不可编辑'],'json');       
             }
-
+            exit;
         }else{
         $this->response(['status' => 103, 'msg' => '请求失败'],'json');      
         }
@@ -655,8 +594,8 @@ class CouponController extends BaseController
     //优惠码下载
     public function couponDownload(){
         
-       // $_REQUEST['main_id'] = 2;
-       // if($_POST){        
+        
+        if($_REQUEST['main_id']){        
         $main_id = $_REQUEST['main_id'];
         //文件生成
         $file_path_arr = $this->createCouponFile($main_id);
@@ -667,9 +606,9 @@ class CouponController extends BaseController
         header('Content-Length:'.filesize($filename)); //指定下载文件的大小
         //将文件内容读取出来并直接输出，以便下载
         readfile($file_path_arr['file_path']);
-     //   }else{
-    //    $this->response(['status' => 103, 'msg' => '请求失败'],'json');  
-    // }
+        }else{
+        $this->response(['status' => 103, 'msg' => '请求失败'],'json');  
+     }
         
     }
     
