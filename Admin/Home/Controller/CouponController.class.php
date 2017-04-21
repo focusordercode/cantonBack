@@ -16,59 +16,11 @@ class CouponController extends BaseController
     //优惠码批次状态
     public $public_coupons_status = array(1=>'制作',2=>'发放',3=>'使用',4=>'完成',5=>'作废');
     //优惠码状态
-    public $public_coupon_status = array(1=>'制作',2=>'发放',3=>'使用',4=>'过期',5=>'作废');
+    public $public_coupon_status = array(1=>'制作',2=>'发放',3=>'使用',4=>'审核通过',5=>'过期',6=>'作废');
     
     
     
     
-    //执行一个对优惠码的判断，状态的修改。
-    private function setCouponsStatus($main_id){
-        //已知ID，查询这一批次优惠码的状态,已知时间是不是过期。如果时间已经过去，就是完成
-        $main_data = M('coupon_main')->where(array('id'=>$main_id))->find();
-        //已经完成或者作废的不再判断
-        if($main_data['issuant_status'] >3){
-            return true;
-        }
-        $coupons_group = M('coupon_detail')->where(array('main_id'=>$main_id))->group("status")->getfield("status,count(status) count",true);
-        //判断完成的状态，时间不到，但全部都是审核或者作废掉的，时间到了，但不全部是作废的
-        $fulfil_status = M('coupon_detail')->where(array('main_id'=>$main_id,'auditl'=>1))->count();
-        
-        //当时间已经到达，如果不是全部作废，就是完成
-        $time_data['begin'] = $main_data['validity_begin'];       
-        $time_data['end'] = $main_data['validity_end'];
-        
-        $time_status = $this->couponDateCheck($time_data);
-        //时间进行中，所有状态都可能有
-            if($time_status == 1){
-                if($fulfil_status > 0){
-                    if($fulfil_status == $main_data['issuant_amount']){
-                        M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);
-                    }else{
-                        if(($fulfil_status + $coupons_group[5]) == $main_data['issuant_amount']){
-                        M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);    
-                        }
-                    }
-                }else{
-                 if($coupons_group[5] == $main_data['issuant_amount']){
-                    //全部作废
-                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',5); 
-                 }   
-                }
-            }else if($time_status == 3){
-                //当时间到达，如果不是全部作废就是完成
-                if($coupons_group[5] == $main_data['issuant_amount']){
-                    //全部作废
-                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',5); 
-                 }else{
-                    //完成，同时把可以失效的优惠码过期掉
-                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);     
-                    //状态为1和2的失效掉,状态为3但是无审核的也过期掉
-                    M('coupon_detail')->where(array('main_id'=>$main_id,'status'=>array('in',array(1,2))))->setField('status',4);
-                    M('coupon_detail')->where(array('main_id'=>$main_id,'status'=>3,'auditl'=>null))->setField('status',4);
-                 } 
-            }     
-        
-    }
     
     
     
@@ -154,19 +106,30 @@ class CouponController extends BaseController
     
     //批次优惠码查询列表
     public function couponsList(){    
+
      //接收条件 生效和准备和所有，搜索内容，模糊搜索优惠券名称，展示的条数，以及当前页码  
     if($_POST){    
     $type = $_POST['issuant_status'];    
     $search = trim($_POST['search']);    
     $num = $_POST['num'];    
-    $page = $_POST['page'];    
+    $page = $_POST['page'];   
+    $begin = $_POST['validity_begin'];
+    $end = $_POST['validity_end'];
     //设置条件 
     $where = array();
     if(!empty($type)){
     $where['issuant_status'] = $type;
     }
     if(!empty($search)){
-    $where['name'] = array('like','%'.$search.'%');
+    
+    //查询精准优惠码
+    $main_id = M('coupon_detail')->where(array('code'=>$search))->getField('main_id');
+    if($main_id){
+     $where['id'] = $main_id;    
+    }else{
+     $where['name'] = array('like','%'.$search.'%');    
+    }
+   
     }
     if(!isset($page)){
       $page = 1;  
@@ -176,13 +139,23 @@ class CouponController extends BaseController
     }
     $first = $num*($page-1);
     
+    //时间
+    if(!empty($begin)){
+    $where['validity_begin'] = array('gt',$begin); 
+    }
+    if(!empty($end)){
+     $where['validity_end'] = array('lt',$end);    
+    }
+    
+    
+    
     //对完成前的做判断,把符合条件的完成掉
     $coupons_arr = M('coupon_main')->where($where)->field("id,issuant_status")->limit($first,$num)->select();   
     foreach($coupons_arr as $val){
            $this->setCouponsStatus($val['id']); 
     }
     
-    $coupons_data = M('coupon_main')->where($where)->field("id,name,type,denomination,price,issuant_amount,validity_begin,validity_end,issuant_status")->limit($first,$num)->select();   
+    $coupons_data = M('coupon_main')->where($where)->field("id,name,type,denomination,price,issuant_amount,created_time,validity_begin,validity_end,issuant_status,creator_id")->limit($first,$num)->order("id desc")->select();   
      //获取当前页和总页数
     $count = M('coupon_main')->where($where)->count();
     $page_data['page'] = $page;
@@ -225,7 +198,7 @@ class CouponController extends BaseController
     
     //批次优惠码作废
     public function couponsVoid(){
-
+        //$_POST['id'] = 11;
         $id = $_POST['id'];
         $remark = $_POST['remark'];
         if($_POST){
@@ -242,14 +215,17 @@ class CouponController extends BaseController
             
             $where_detail = array();
             $where_detail['main_id'] = $id;
-            $where_detail['status'] = array('in',array(1,2));
+            $where_detail['status'] = array('in',array(1,2,3));
             $detail_save = array();
-            $detail_save['status'] = 5;
+            $detail_save['status'] = 6;
             $detail_save['modified_time'] = date('Y-m-d H:i:s',time());
             $detail_save['creator_id'] = $this->loginid;
-            M('coupon_detail')->where($where_detail)->save($detail_save);  
+            $ros = M('coupon_detail')->where($where_detail)->save($detail_save);  
+            if(!$ros){
+             $this->response(['status' => 101, 'msg' => '无符合要求的优惠券'],'json');    
+            }
             //判断，如果完全作废掉，才算作废,查询作废数目和总数的对比,全部作废就更新状态
-            $status_num = M('coupon_detail')->where(array('main_id'=>$id,'status'=>5))->count();
+            $status_num = M('coupon_detail')->where(array('main_id'=>$id,'status'=>6))->count();
             if($status_num == $res['issuant_amount']){
              M('coupon_main')->where($where)->setField('issuant_status',5);    
             }
@@ -257,7 +233,6 @@ class CouponController extends BaseController
         }else{
         $this->response(['status' => 102, 'msg' => '该批次优惠码状态不可作废'],'json');       
         }
-        
      }else{
         $this->response(['status' => 103, 'msg' => '请求失败'],'json');  
      }
@@ -283,8 +258,6 @@ class CouponController extends BaseController
         }else{
          $this->response(['status' => 103, 'msg' => '请求失败'],'json');     
         }
-        
-        
     }
     
     private function dealCouponCount($id){
@@ -316,7 +289,6 @@ class CouponController extends BaseController
        }else if($coupons_data['type'] == 2){
         $coupons_data['type_msg'] = '折扣优惠券';      
        }
-
        //获取状态名称
         if($this->public_coupons_status[$coupons_data['issuant_status']]){
         $coupons_data['issuant_status_msg'] = $this->public_coupons_status[$coupons_data['issuant_status']];   		
@@ -346,6 +318,19 @@ class CouponController extends BaseController
        }else{
         $coupons_data['restriction_amount_msg'] = $coupons_data['restriction_amount'].'张'; 
        }
+       //为空设置为0
+       if(empty($coupons_data['min_amount'])){
+         $coupons_data['min_amount'] = 0;  
+       }
+       if(empty($coupons_data['issuant_amount'])){
+         $coupons_data['issuant_amount'] = 0;  
+       }
+       if(empty($coupons_data['denomination'])){
+         $coupons_data['denomination'] = 0;  
+       }
+       if(empty($coupons_data['price'])){
+         $coupons_data['price'] = 0;  
+       }
        $coupons_data['min_amount'] = $coupons_data['min_amount'].'元';
        $coupons_data['issuant_amount'] = $coupons_data['issuant_amount'].'张';
        $coupons_data['denomination'] = $coupons_data['denomination'].'元';
@@ -356,7 +341,6 @@ class CouponController extends BaseController
 //       $coupons_data['created_time'] = date('Y-m-d',strtotime($coupons_data['created_time']));
        //数据操作查询处理，获取用户名
        $coupons_data['creator_id_msg'] = M('auth_user')->where(array('id'=>$coupons_data['creator_id']))->getField("real_name"); 
-       
        return $coupons_data;
         
     }
@@ -464,19 +448,26 @@ class CouponController extends BaseController
     public function couponVoid(){
         //获取优惠码ID，对其作废
         $id = $_POST['id'];
+        $remark = trim($_POST['remark']);
         if($_POST){
         $where['id'] = $id;
         //查询是否是准备和发放中的
+        //批次是使用的不能作废
         $res = M('coupon_detail')->where(array('id'=>$id))->find();
-        if(in_array($res['status'],array(1,2))){
+        $issuant_status = M('coupon_main')->where(array('id'=>$res['main_id']))->getField('issuant_status');
+        if($issuant_status == 1){
+        $this->response(['status' => 102, 'msg' => '该批次优惠码状态不可作废'],'json');       
+        }
+        if(in_array($res['status'],array(1,2,3))){
             //作废为5，把状态等于1的设置为5
             $detail_save = array();
-            $detail_save['status'] = 5;
+            $detail_save['status'] = 6;
             $detail_save['modified_time'] = date('Y-m-d H:i:s',time());
             $detail_save['creator_id'] = $this->loginid;
+            $detail_save['remark'] = $remark;
             $res = M('coupon_detail')->where($where)->save($detail_save); 
             if($res){
-            $this->response(['status' => 100],'json'); 
+            $this->response(['status' => 100,'msg'=>$detail_save['modified_time']],'json'); 
             }else{
             $this->response(['status' => 101, 'msg' => '操作失败，请重试'],'json');       
             }
@@ -517,7 +508,8 @@ class CouponController extends BaseController
            $consumer = trim($_POST['consumer']);
            $consumer_telephone = trim($_POST['consumer_telephone']);
            $consumer_email = trim($_POST['consumer_email']);
-           $auditl = $_POST['auditl'];
+           //$auditl = $_POST['auditl'];
+           $status = $_POST['status'];
           
            //修改的时间和操作人
            $save_detail = array();
@@ -595,7 +587,7 @@ class CouponController extends BaseController
                         }
                     break;
                     case 3:
-                        $save_detail['status'] = 4;  
+                        $save_detail['status'] = 5;  
                         $save_detail['remark'] = $coupon_detail_data['remark']."\n此优惠券购买日期已失效。";  
                         $res = M('coupon_detail')->where(array('id'=>$id))->save($save_detail);
                         if($res){
@@ -653,7 +645,7 @@ class CouponController extends BaseController
                         }
                     break;
                     case 3:
-                        $save_detail['status'] = 4;  
+                        $save_detail['status'] = 5;  
                         $save_detail['remark'] = $coupon_detail_data['remark']."\n此优惠券使用日期已失效。";  
                         $res = M('coupon_detail')->where(array('id'=>$id))->save($save_detail);
                         if($res){
@@ -671,15 +663,12 @@ class CouponController extends BaseController
                 //审核状态，审核来内容。如果审核不通过，就作废。$coupon_detail_data
                if(!empty($remark)){
                $save_detail['remark'] = $remark;  
-               } 
-               $save_detail['auditl'] = $auditl; 
-               $save_detail['audit_date'] = date('Y-m-d H:i:s',time()); 
-               if(!in_array($auditl,array(1,2))){
-               $this->response(['status' => 102, 'msg' => '审核状态不正常'],'json');    
                }
-               //不通过，就直接作废
-               if($auditl == 2){
-               $save_detail['status'] = 5;     
+               $save_detail['status'] = $status;
+               $save_detail['audit_date'] = date('Y-m-d H:i:s',time()); 
+               
+               if(!in_array($status,array(4,6))){ 
+               $this->response(['status' => 102, 'msg' => '审核状态不正常'],'json');    
                }
                $res = M('coupon_detail')->where(array('id'=>$id))->save($save_detail);
                if($res){
@@ -880,6 +869,50 @@ class CouponController extends BaseController
     	}
     	return $res;	
     }
-
+    
+    //执行一个对优惠码的判断，状态的修改。
+    private function setCouponsStatus($main_id){
+        //已知ID，查询这一批次优惠码的状态,已知时间是不是过期。如果时间已经过去，就是完成
+        $main_data = M('coupon_main')->where(array('id'=>$main_id))->find();
+        //已经完成或者作废的不再判断
+        if($main_data['issuant_status'] >3){
+            return true;
+        }
+        $coupons_group = M('coupon_detail')->where(array('main_id'=>$main_id))->group("status")->getfield("status,count(status) count",true);
+        //当时间已经到达，如果不是全部作废，就是完成
+        $time_data['begin'] = $main_data['validity_begin'];       
+        $time_data['end'] = $main_data['validity_end'];
+        
+        $time_status = $this->couponDateCheck($time_data);
+        //时间进行中，所有状态都可能有
+            if($time_status == 1){
+                if($coupons_group[4] > 0){
+                    if($coupons_group[4] == $main_data['issuant_amount']){
+                        M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);
+                    }else{
+                        if(($coupons_group[4] + $coupons_group[6]) == $main_data['issuant_amount']){
+                        M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);    
+                        }
+                    }
+                }else{
+                 if($coupons_group[6] == $main_data['issuant_amount']){
+                    //全部作废
+                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',5); 
+                 }   
+                }
+            }else if($time_status == 3){
+                //当时间到达，如果不是全部作废就是完成
+                if($coupons_group[6] == $main_data['issuant_amount']){
+                    //全部作废
+                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',5); 
+                 }else{
+                    //完成，同时把可以失效的优惠码过期掉
+                    M('coupon_main')->where(array('id'=>$main_id))->setField('issuant_status',4);     
+                    //状态为1和2的失效掉,状态为3但是无审核的也过期掉
+                    M('coupon_detail')->where(array('main_id'=>$main_id,'status'=>array('in',array(1,2,3))))->setField('status',5);
+                 } 
+            }     
+    }
+    
     
 }
